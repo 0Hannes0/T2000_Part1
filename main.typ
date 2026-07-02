@@ -5,7 +5,7 @@
 #let labels = if lang == "EN" { labels-EN } else { labels-DE }
 
 // ---- Template version ---- //
-#let template-version = "1.0.0"
+#let template-version = "1.0.1"
 
 // ---- Page layout ---- //
 #let margin = (left: 2.5cm, right: 2.5cm, top: 2.5cm, bottom: 2cm)
@@ -34,7 +34,7 @@
 #set text(font: font, size: 11pt, lang: "de")
 
 // Line spacing 1.5, justified text
-#set par(leading: 0.9em, spacing: 1.5em, justify: true)
+#set par(leading: 1em, spacing: 1.5em, justify: true)
 
 // Headings
 #set heading(numbering: "1.1")
@@ -42,15 +42,18 @@
   if it.level == 1 {
     set text(size: 16pt)
     pagebreak(weak: true)
-    v(0.5em)
     it
-    v(0.3em)
+    v(0.75em)
   } else if it.level == 2 {
     set text(size: 14pt)
+    v(2.5em, weak: true)
     it
+    v(0.75em)
   } else {
     set text(size: 12pt)
+    v(2.5em, weak: true)
     it
+    v(0.75em)
   }
 }
 
@@ -72,10 +75,6 @@
 #show figure.where(kind: image): set figure(supplement: labels.supplement-figure)
 #show figure.where(kind: table): set figure(supplement: labels.supplement-table)
 #show figure.where(kind: raw):   set figure(supplement: labels.supplement-listing)
-
-// Compact lists
-#set list(spacing: 0.5em)
-#set enum(spacing: 0.5em)
 
 // Equation numbering
 #set math.equation(numbering: "(1)")
