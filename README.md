@@ -28,8 +28,8 @@ Oder direkt als Binary von [github.com/typst/typst/releases](https://github.com/
 ## Kompilieren
 
 ```bash
-typst compile main.typ        # einmalig kompilieren → main.pdf
-typst watch main.typ          # bei jeder Speicherung neu kompilieren
+typst compile template.typ paper.pdf        # einmalig kompilieren → paper.pdf
+typst watch  template.typ paper.pdf         # bei jeder Speicherung neu kompilieren
 ```
 
 > **Voraussetzung:** Die gewählte Schriftart muss auf dem System installiert sein. Standard ist **Arial** — alternativ z.B. `"Calibri"` oder `"Times New Roman"` eintragen.
@@ -191,4 +191,4 @@ Die folgenden Seiten werden vollständig automatisch erzeugt – kein manueller 
 
 - Alle Platzhalter in `user/config.typ` durch echte Daten ersetzen.
 - `user/abbreviations.typ`, `user/sources.bib` und `user/ai-tools.typ` vollständig befüllen.
-- Sperrvermerk auf `false` belassen, sofern kein vertrauliches Thema.
+- Sperrvermerk auf `true` setzen, falls vertrauliches Thema.
