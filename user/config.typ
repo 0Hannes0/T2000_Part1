@@ -26,12 +26,12 @@
 // ---- Document metadata ---- //
 #let config = (
   doc-type:          doc-type,
-  title:             "[Titel]",
-  subtitle:          "[Untertitel]",
-  author:            "[Verfasser]",
-  mat-number:        "[Matrikelnummer]",
-  course:            "[Kurs]",
-  study-program:     "[Studiengang]",
+  title:             "Biometrische Personalisierung eines KI-Assistenten",
+  subtitle:          "Entwicklung eines kamerabasierten Systems zur Gesichtserkennung und Nutzeridentifikation",
+  author:            "Hannes Klas",
+  mat-number:        "5872179",
+  course:            "TIK24",
+  study-program:     "Informatik",
   company:           "SAP SE, 88677 Markdorf",
   company-supervisor:"[Projektbetreuer]",
   supervisor:        "[Gutachter DHBW]",
@@ -41,5 +41,5 @@
   lecture:           "[Vorlesung]",
 
   // Project work only
-  project-number:    "1",   // 1, 2
+  project-number:    "2",   // 1, 2
 )

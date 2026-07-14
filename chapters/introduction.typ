@@ -1,15 +1,23 @@
 = Einleitung
 
-[Text]
+== Thematischer Hintergrund und Problemstellung
 
-== Motivation und Problemstellung
+Öffentliche KI-Assistenten --- etwa sprachgesteuerte Kiosk-Systeme im Empfangsbereich von Unternehmen oder auf Fachmessen --- sind bewusst ohne Nutzerverwaltung und Login-Mechanismus gestaltet @porcheron2018voice[S.~3]. Diese Offenheit gegenüber anonymen Besuchern ist eine Designentscheidung: Jeder Besucher soll das System sofort und ohne Hürde nutzen können. Es gibt keine Tastatur, keine Maus und keine Login-Maske --- aktive Identifikation durch den Nutzer scheidet damit von vornherein aus @jain2011biometrics[S.~1]. Zugleich erzeugt genau diese Offenheit eine technische Einschränkung: Das System kennt seine Gesprächspartner nicht, und die Personalisierungsqualität bleibt grundlegend begrenzt.
 
-[Text]
+Das Problem hat eine strukturelle Ursache in der Architektur von Sprachmodellen: Große Sprachmodelle (LLMs) besitzen kein persistentes Gedächtnis über Sitzungsgrenzen hinweg @zhang2018persona[S.~2388]. Ihr Wissensstand ist im Training eingefroren; was ein Nutzer in einer Session mitteilt, ist für das Modell in der nächsten Session vollständig unbekannt. Ohne externe Mechanismen zur Kontextpersistenz beginnt jede Konversation bei Null --- das Modell kennt weder den Namen des Gesprächspartners, noch seine Interessen, noch den Stand vergangener Gespräche @zhang2018persona[S.~2390]. Für eine sinnvolle Personalisierung müsste der gespeicherte Kontext eines Besuchers abgerufen und in die neue Sitzung eingespeist werden --- was die Kenntnis der Besucheridentität voraussetzt. Hinzu kommt eine technische Begrenzung: Selbst wenn die vollständige Gesprächshistorie eines wiederkehrenden Nutzers vorläge, könnte sie nicht einfach in jeden neuen Aufruf geladen werden. Das Kontextfenster eines LLMs ist begrenzt, und mit wachsender Historie sinkt die Verlässlichkeit, mit der das Modell relevante Stellen aus der Mitte langer Eingaben überhaupt nutzt @liu2023lostinthemiddle[S.~1]. Ein praktikables Personalisierungsverfahren muss daher selektiv arbeiten und nur diejenigen Inhalte abrufen, die zur aktuellen Anfrage passen.
 
-== Aufgabenstellung und Zielsetzung
+Die konkrete Herausforderung für das vorliegende Vorhaben liegt daher in der Verbindung zweier Teilprobleme: Eine erkannte Identität muss bereitstehen, bevor selektiv gespeicherter Kontext abgerufen werden kann --- und beides muss ohne Zutun des Nutzers funktionieren. Für die Identifikation ist kamerabasierte Gesichtserkennung heute das etablierteste Verfahren zur kontaktlosen, passiven Personenidentifikation in unkontrollierten Umgebungen @guo2019facesurvey[S.~4]; eine erkannte Identität wäre Voraussetzung, um gespeicherten Kontext aus früheren Sitzungen zuzuordnen und bereitzustellen @jain2011biometrics[S.~12]. Die Integration beider Bausteine in einen öffentlichen KI-Assistenten --- von der kamerabasierten Detektion über die biometrische Identifikation bis hin zur personalisierten Sitzungsgestaltung --- ist der Untersuchungsgegenstand dieser Arbeit.
 
-[Text]
+== Zielsetzung und Forschungsfrage
 
-== Aufbau der Arbeit und methodisches Vorgehen
+Die vorliegende Arbeit untersucht, wie ein öffentlicher KI-Assistent durch kamerabasierte Gesichtserkennung wiederkehrende Nutzer identifizieren und ihnen eine sitzungsübergreifend personalisierte Konversationserfahrung bereitstellen kann. Dabei stehen Konzeption, Implementierung und Evaluation eines vollständigen Prototyps im Vordergrund --- vom Erkennungssystem über die biometrische Persistenz bis hin zur personalisierten Sitzungsgestaltung. Die dem Vorhaben zugrunde liegende Forschungsfrage lautet:
 
-[Text]
+#rect(width: 100%, inset: (x: 12pt, y: 10pt), radius: 4pt, stroke: 0.5pt)[
+  _„Wie kann ein öffentlicher KI-Assistent durch kamerabasierte Gesichtserkennung mittels Deep-Learning-Embeddings wiederkehrende Nutzer identifizieren und eine sitzungsübergreifend personalisierte Konversationserfahrung bereitstellen?"_
+]
+
+Die technische Grundlage des entwickelten Systems --- Gesichtserkennung auf Basis von Deep-Learning-Embeddings @deng2019arcface[S.~1] in Kombination mit Retrieval-Augmented Generation zur Kontextbereitstellung @lewis2020rag[S.~2] --- wird in Kap.~2 theoretisch verortet und in Kap.~3 als Architekturentscheidung begründet.
+
+== Aufbau der Arbeit
+
+Die vorliegende Arbeit ist in acht Kapitel gegliedert. Kap.~2 legt den theoretischen Rahmen und beschreibt die drei Grundlagenthemen, die für das System relevant sind: kamerabasierte Gesichtsdetektion, biometrische Identifikation über Gesichts-Embeddings sowie sitzungsübergreifendes Gedächtnis in LLM-Systemen. Kap.~3 stellt die Gesamtarchitektur des entwickelten Systems vor und begründet die zentralen Technologieentscheidungen --- die Wahl des Detektionsansatzes, des Erkennungsmodells und der Persistenzschicht --- sowie Datenschutz- und Wirtschaftlichkeitsaspekte. Kap.~4 beschreibt die Personenerkennungskomponente: Gesichtsdetektion, Blickrichtungsvalidierung, Anwesenheitserkennung und Multi-Person-Tracking. Kap.~5 dokumentiert die biometrische Identifikation und Persistenz. Kap.~6 erläutert die sitzungsübergreifende Personalisierungslogik: Kontextspeicherung, Kontextabruf und Datenschutzmaßnahmen bei Gruppen-Sessions. Kap.~7 beschreibt Aufbau und Methodik der Evaluation, analysiert Erkennungsgenauigkeit und Latenz und diskutiert die Grenzen des Prototyps. Kap.~8 beantwortet die in Kap.~1.2 formulierte Forschungsfrage und gibt einen Ausblick auf Domänenübertragung sowie gesellschaftliche und datenschutzrechtliche Perspektiven.
