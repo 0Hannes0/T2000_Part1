@@ -1,4 +1,5 @@
 = Biometrische Identifikation und Persistenz
+#import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
 Dieses Kapitel beschreibt die biometrische Identifikationslogik des entwickelten Systems --- von der Embedding-Berechnung über das zweistufige Tracking bis hin zur persistenten Profilspeicherung mit graduellem Embedding-Blending.
 Der Aufbau folgt dem Verarbeitungsfluss: Kap.~5.1 beschreibt die Berechnung des Gesichts-Embeddings via InsightFace und ONNX-Optimierung, Kap.~5.2 das zweistufige Tracking-Verfahren zur Frame-übergreifenden Personenidentifikation inklusive sitzungsinterner Embedding-Stabilisierung, und Kap.~5.3 die Persistenzschicht mit FaceStore-Interface und sitzungsübergreifendem EMA-Blending.
@@ -33,16 +34,12 @@ Die Embedding-Berechnung basiert auf dem InsightFace-Modellpaket buffalo\_l mit 
 Sobald der Presence Service ein aktives Gesicht identifiziert hat, beginnt die biometrische Identifikation mit der Berechnung des Gesichts-Embeddings.
 Ausgangspunkt ist die Bounding Box, die BlazeFace in Kap.~4.1 für das erkannte Gesicht geliefert hat.
 Dieser Bildausschnitt wird in `face_id.py` mit der Methode `_crop_face()` auf 112×112 Pixel skaliert --- die Eingabegröße, die das w600k\_r50-Modell erwartet.
-Der Skalierungsschritt normiert die Eingabe auf eine einheitliche Größe, unabhängig davon, wie groß das Gesicht im Originalbild erscheint.
 
 Das Modell berechnet aus diesem Crop via `get_feat()` ein L2-normiertes 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im in Kap.~2.2.1 hergeleiteten Embedding-Raum @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß zwischen zwei Embeddings wird der Kosinus-Score verwendet: Werte nahe 1,0 signalisieren hohe Übereinstimmung; der Schwellenwert `SIMILARITY_THRESHOLD = 0,65` trennt „gleiche Person" von „neue Person".
 
 Das eingesetzte Modell w600k\_r50 --- bereitgestellt über das InsightFace-Framework @guo2021scrfd[S.~1] im buffalo\_l-Modellpaket --- wurde mit ArcFace-Loss @deng2019arcface[S.~3] auf dem WebFace600K-Datensatz @zhu2021webface260m[S.~1] trainiert (Kap.~2.2).
 
-Das Modell wird lazy geladen: Erst beim ersten Aufruf von `compute_embedding()` in `face_id.py` initialisiert die InsightFace-Bibliothek das Modell aus dem lokalen Cache.
-Bei allen folgenden Aufrufen ist das Modell bereits im Speicher, sodass der Startup-Overhead nur einmalig anfällt.
-Die Inferenz läuft via ONNX Runtime (optimiertes Laufzeitformat, Auswahl in Kap.~3.3) auf der CPU (`CPUExecutionProvider`) ohne GPU-Server-Anforderung, was eine Latenz von ~80 ms pro Embedding ermöglicht --- ausreichend für den periodischen Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
-Die ONNX-Runtime-Optimierung kompiliert den Berechnungsgraph des Modells einmalig in einen CPU-nativen Ausführungsplan, der Mehrkern-Parallelisierung und SIMD-Instruktionen (hardwareoptimierte Paralleloperationen auf CPU-Ebene) nutzt.
+Die Inferenz läuft via ONNX Runtime (optimiertes Laufzeitformat, Auswahl in Kap.~3.3) auf der CPU ohne GPU-Server-Anforderung, was eine Latenz von ~80 ms pro Embedding ermöglicht --- ausreichend für den periodischen Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
 
 Wie die berechneten Embeddings im zweistufigen Tracking-Prozess zur Personenidentifikation eingesetzt werden, beschreibt Kap.~5.2.
 
@@ -69,16 +66,22 @@ Der Tracker in `presence/tracker.py` ordnet in jedem Detektionszyklus die neu er
 Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem ressourcenintensiven Stage 2 dient:
 
 #figure(
-  rect(width: 100%, inset: 10pt, radius: 4pt, stroke: 0.5pt)[
-    #set text(size: 9pt)
-    *Frame mit Gesicht* \
-    ↓ \
-    *Stage 1: Position ≤ 120 px?* \
-    Ja → Person zugewiesen (kein ArcFace-Call), `upsert_profile()` aufgerufen \
-    Nein → *Stage 2: ArcFace-Score ≥ 0,65?* \
-    #h(2em) Ja → Person identifiziert, `upsert_profile()` aufgerufen \
-    #h(2em) Nein → Neue Person angelegt (neue PresenceStateMachine)
-  ],
+  diagram(
+    node-stroke: 0.5pt,
+    node-corner-radius: 3pt,
+    spacing: (10pt, 20pt),
+    node((1,0), [Frame mit Gesicht], name: <frame>),
+    node((1,1), align(center)[Stage 1:\ Position ≤ 120 px?], shape: shapes.diamond, inset: 8pt, name: <s1>),
+    node((0,2), align(center)[Person zugewiesen\ #text(size: 7.5pt)[(kein ArcFace-Call)\ `upsert_profile()` aufgerufen]], width: 110pt, name: <m1>),
+    node((2,2), align(center)[Stage 2:\ ArcFace-Score ≥ 0,65?], shape: shapes.diamond, inset: 8pt, name: <s2>),
+    node((1,3), align(center)[Person identifiziert\ #text(size: 7.5pt)[`upsert_profile()` aufgerufen]], width: 110pt, name: <m2>),
+    node((3,3), align(center)[Neue Person\ #text(size: 7.5pt)[neue PresenceStateMachine]], width: 110pt, name: <new>),
+    edge(<frame>, <s1>,  "->"),
+    edge(<s1>,    <m1>,  "->", label: text(size: 8pt)[Ja]),
+    edge(<s1>,    <s2>,  "->", label: text(size: 8pt)[Nein]),
+    edge(<s2>,    <m2>,  "->", label: text(size: 8pt)[Ja]),
+    edge(<s2>,    <new>, "->", label: text(size: 8pt)[Nein]),
+  ),
   kind: image,
   caption: [Zweistufiger Tracking-Algorithmus: Positions-Präfilter vor ArcFace-Matching],
 ) <fig:tracking-algorithmus>

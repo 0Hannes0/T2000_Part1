@@ -1,4 +1,5 @@
 = Konzeption
+#import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
 Dieses Kapitel begründet die zentralen Designentscheidungen des entwickelten Systems und legt damit das konzeptionelle Fundament für die Implementierungsbeschreibung der folgenden Kapitel. Im Vordergrund steht nicht die Beschreibung des Implementierten, sondern die nachvollziehbare Herleitung, warum genau diese Technologien und Architekturentscheidungen getroffen wurden. Der Aufbau gliedert sich in sechs Abschnitte: Kap.~3.1 gibt einen Überblick über die Gesamtarchitektur des Systems, Kap.~3.2 bis 3.4 begründen die drei zentralen Technologieentscheidungen (Detektionsansatz, Erkennungsmodell, Persistenzschicht), Kap.~3.5 und 3.6 behandeln mit Datenschutz und Wirtschaftlichkeit zwei querschnittliche Aspekte. Die Implementierungsdetails der einzelnen Komponenten werden in den Kapiteln 4 bis 6 beschrieben.
 
@@ -7,20 +8,25 @@ Dieses Kapitel begründet die zentralen Designentscheidungen des entwickelten Sy
 Das entwickelte System besteht aus vier lose gekoppelten Diensten, die das Microservice-Prinzip umsetzen: Jeder Dienst ist unabhängig deploybar, hat klar abgegrenzte Verantwortlichkeiten und kommuniziert über definierte Schnittstellen @dragoni2017microservices[S.~1--3]. Diese Architekturentscheidung ermöglicht es, einzelne Komponenten --- etwa das Erkennungsmodell oder die Persistenzschicht --- unabhängig auszutauschen, ohne den restlichen Systemstack zu verändern. Das quelloffene MediaPipe-Framework ist dabei Grundlage für die Wahrnehmungs- und Verarbeitungspipeline (perception pipeline) des Presence Service und steht exemplarisch für den Open-Source-orientierten Stack @lugaresi2019mediapipe[S.~1--2]. Die vier Services sind: das Frontend (React, Port 5173), das Backend (FastAPI, Port 8000), der MCP Panel Server (FastMCP, Port 8001) und der Presence Service (Python/MediaPipe, Port 8002).
 
 #figure(
-  rect(width: 100%, inset: 10pt, radius: 4pt, stroke: 0.5pt)[
-    #set text(size: 9pt)
-    *Frontend :5173* (React 19 + Vite): 3D Avatar · Lip-Sync · Mikrofon · VAD · Panels (Map, Chart, Tabelle, KPIs) · Presence-Client (WebSocket) \
-    #v(0.3em)
-    #sym.arrow.ud HTTP + WebSocket #sym.arrow.ud \
-    #v(0.3em)
-    *Backend :8000* (FastAPI · Python): /api/stt – Spracherkennung · /api/chat – LLM + Tools (LangGraph ReAct) · /api/summarize – Conversation Summary · /ws/tts – Kokoro TTS Streaming \
-    #v(0.3em)
-    MCP Tool-Calls #sym.arrow.r *MCP Panel Server :8001* (FastMCP): LLM-Tools (map, chart, table, stat\_card, timeline) · API-Tools (Aktienkurse, Wetter, News) \
-    #v(0.3em)
-    WebSocket :8002 #sym.arrow.l.r *Presence Service :8002* (Python · MediaPipe): Kamera-Erkennung · Gesichtserkennung (InsightFace ArcFace · FaceStore) · WebSocket Broadcast \
-    #v(0.3em)
-    Persistenz: *Qdrant :6333* (K8s) / SQLite (lokal) | KI-Infrastruktur: *SAP AI Core* (Gemini 2.5 Flash · Whisper · Kokoro)
-  ],
+  diagram(
+    node-stroke: 0.5pt,
+    node-corner-radius: 3pt,
+    spacing: (14pt, 22pt),
+    node((1,0),  align(center)[*Frontend :5173*\ #text(size:7.5pt)[React 19 · 3D Avatar · VAD · Panels]], width:110pt, name:<fe>),
+    node((1,2),  align(center)[*Backend :8000*\ #text(size:7.5pt)[FastAPI · STT · Chat · TTS · Summarize]], width:110pt, name:<be>),
+    node((3,2),  align(center)[*MCP Panel :8001*\ #text(size:7.5pt)[map · chart · Aktienkurse · News]], width:100pt, name:<mcp>),
+    node((-1,2), align(center)[*Presence :8002*\ #text(size:7.5pt)[BlazeFace · InsightFace · FaceStore]], width:100pt, name:<ps>),
+    node((3,4),  align(center)[*SAP AI Core*\ #text(size:7.5pt)[Gemini 2.5 Flash · Kokoro TTS]], width:100pt, fill:luma(235), name:<ai>),
+    node((-1,4), align(center)[*Persistenz*\ #text(size:7.5pt)[Qdrant :6333 (K8s) · SQLite (lokal)]], width:100pt, fill:luma(235), name:<db>),
+    edge(<fe>,  <be>,  "<->", label: text(size:7.5pt)[HTTP + WebSocket]),
+    edge(<fe>,  <ps>,  "<->", bend: 10deg, label: text(size:7.5pt)[WebSocket :8002]),
+    edge(<be>,  <mcp>, "->",  label: text(size:7.5pt)[MCP Tool-Calls]),
+    edge(<be>,  <ai>,  "<->", bend: -15deg, label: text(size:7.5pt)[Chat · STT · TTS]),
+    edge(<be>,  <db>,  "<->", bend: 15deg,  label: text(size:7.5pt)[RAG · Profile]),
+    edge(<mcp>, <ai>,  "->",  label: text(size:7.5pt)[LLM-Calls]),
+    edge(<ps>,  <ai>,  "->",  bend: -20deg, label: text(size:7.5pt)[Gaze-Check · Greeting]),
+    edge(<ps>,  <db>,  "<->", label: text(size:7.5pt)[Embeddings]),
+  ),
   kind: image,
   caption: [Systemarchitektur: vier Microservices mit definierten Kommunikationsschnittstellen],
 ) <fig:systemarchitektur>
@@ -30,18 +36,31 @@ Die drei Hauptdatenflüsse des Systems verlaufen über HTTP und WebSocket zwisch
 Der Presence Service bildet die Kernkomponente des Systems: Er verarbeitet den Kamerastream, führt Gesichtsdetektion, Tracking und biometrische Identifikation durch und persistiert Nutzerprofile. SAP AI Core dient als LLM-Infrastruktur für die Kerndienste des Systems: Gemini 2.5 Flash übernimmt Gaze-Check, Begrüßungsgenerierung und LLM-Chat.
 
 #figure(
-  rect(width: 100%, inset: 10pt, radius: 4pt, stroke: 0.5pt)[
-    #set text(size: 9pt)
-    *Kamera* → MediaPipe BlazeFace (Bounding Boxes) → *PersonTracker*: Stage 1 Positions-Matching 120 px / Stage 2 ArcFace Cosine ≥ 0,65 \
-    #v(0.3em)
-    → *PresenceStateMachine*: IDLE → CANDIDATE (sofort) → ACTIVE (4 s) \
-    #v(0.3em)
-    → parallel: Gaze-Check (Gemini 2.5 Flash) · Face-ID (InsightFace ONNX buffalo\_l) · Greeting-Gen (Gemini 2.5 Flash) \
-    #v(0.3em)
-    Face-ID → *FaceStore* (Interface) → SQLiteFaceStore (lokal) / QdrantFaceStore (K8s :6333) \
-    #v(0.3em)
-    Gaze true → ACTIVE → *WebSocket Broadcast*: person\_arrived / group\_arrived / person\_left → Frontend (usePresence.js)
-  ],
+  diagram(
+    node-stroke: 0.5pt,
+    node-corner-radius: 3pt,
+    spacing: (10pt, 18pt),
+    node((0,0), [Kamera], name:<cam>),
+    node((0,1), align(center)[MediaPipe BlazeFace\ #text(size:7.5pt)[Bounding Boxes]], width:130pt, name:<det>),
+    node((0,2), align(center)[PersonTracker\ #text(size:7.5pt)[Stage 1: Position · Stage 2: ArcFace]], width:140pt, name:<tr>),
+    node((0,3), align(center)[PresenceStateMachine\ #text(size:7.5pt)[IDLE → CANDIDATE → ACTIVE]], width:140pt, name:<sm>),
+    node((-2,4), align(center)[Gaze-Check\ #text(size:7.5pt)[Gemini 2.5 Flash]], width:90pt, name:<gz>),
+    node((0,4),  align(center)[Face-ID\ #text(size:7.5pt)[InsightFace buffalo\_l]], width:90pt, name:<fid>),
+    node((2,4),  align(center)[Greeting-Gen\ #text(size:7.5pt)[Gemini 2.5 Flash]], width:90pt, name:<gr>),
+    node((0,5),  align(center)[FaceStore (Interface)\ #text(size:7.5pt)[SQLite (lokal) · Qdrant (K8s)]], width:140pt, name:<fs>),
+    node((0,6),  align(center)[WebSocket Broadcast\ #text(size:7.5pt)[person\_arrived · group\_arrived · person\_left]], width:150pt, name:<ws>),
+    node((0,7),  align(center)[Frontend\ #text(size:7.5pt)[usePresence.js]], width:100pt, name:<fend>),
+    edge(<cam>, <det>, "->"),
+    edge(<det>, <tr>,  "->"),
+    edge(<tr>,  <sm>,  "->"),
+    edge(<sm>,  <gz>,  "->", label: text(size:7pt)[parallel]),
+    edge(<sm>,  <fid>, "->"),
+    edge(<sm>,  <gr>,  "->"),
+    edge(<fid>, <fs>,  "->"),
+    edge(<gz>,  <ws>,  "->", bend:-30deg, label: text(size:7pt)[true → ACTIVE]),
+    edge(<fs>,  <ws>,  "->"),
+    edge(<ws>,  <fend>,"->"),
+  ),
   kind: image,
   caption: [Interne Verarbeitungspipeline des Presence Service],
 ) <fig:presence-pipeline>
@@ -60,7 +79,7 @@ Die folgende Tabelle vergleicht die evaluierten Detektionsansätze anhand dieser
 
 #figure(
   table(
-    columns: (auto, 1fr, auto, 1fr, auto),
+    columns: (1fr, 1fr, auto, 1fr, auto),
     stroke: 0.5pt,
     inset: (x: 6pt, y: 5pt),
     align: (left, left, left, left, left),
@@ -69,7 +88,7 @@ Die folgende Tabelle vergleicht die evaluierten Detektionsansätze anhand dieser
     ),
     [MediaPipe BlazeFace], [Nur frontal], [~15–30 ms], [Keine Seitenansichten], [*Gewählt*],
     [YOLO], [Alle Winkel, auch Seitenansichten], [~20–30 ms], [Hintergrundpersonen, Vorbeigehende], [Verworfen],
-    [Vision-LLM (Gemini)], [Nicht für kontinuierliche Detektion geeignet], [~1–2 s], [Zu hohe Latenz für Frame-Scanning], [Nicht evaluiert für Detektion],
+    [Vision-LLM (Gemini)], [Nicht für kontinuierliche Detektion geeignet], [~1–2 s], [Zu hohe Latenz für Frame-Scanning], [Nicht evaluiert],
   ),
   kind: table,
   caption: [Vergleich evaluierter Gesichtsdetektionsansätze],
@@ -93,7 +112,7 @@ Die folgende Tabelle stellt die evaluierten Modelle anhand dieser Kriterien gege
 
 #figure(
   table(
-    columns: (1fr, auto, auto, auto, auto),
+    columns: (1.8fr, auto, auto, 1fr, 1fr),
     stroke: 0.5pt,
     inset: (x: 6pt, y: 5pt),
     align: (left, center, center, left, left),
@@ -101,21 +120,21 @@ Die folgende Tabelle stellt die evaluierten Modelle anhand dieser Kriterien gege
       strong[Modell], strong[LFW-Gen.], strong[CPU-Latenz], strong[Stack], strong[Ergebnis],
     ),
     [InsightFace buffalo\_l (ArcFace ResNet50)], [*99,83 %*], [*~80 ms*], [ONNX Runtime], [*Gewählt*],
-    [InsightFace buffalo\_s (ArcFace MobileNet)], [~99,5 %], [~20 ms], [ONNX Runtime], [Nicht gewählt (geringere Genauigkeit)],
+    [InsightFace buffalo\_s (ArcFace MobileNet)], [~99,5 %], [~20 ms], [ONNX Runtime], [Nicht gewählt],
     [DeepFace + ArcFace], [~92 % real\*], [~300 ms], [TensorFlow/Keras], [Verworfen],
     [DeepFace + FaceNet512], [~97 % real\*], [~250 ms], [TensorFlow/Keras], [Verworfen],
-    [OpenCV SFace], [~99,3 %], [~10 ms], [ONNX Runtime], [Nicht gewählt (geringere Genauigkeit)],
+    [OpenCV SFace], [~99,3 %], [~10 ms], [ONNX Runtime], [Nicht gewählt],
     [dlib face\_recognition], [99,38 %], [~150 ms], [C++/dlib], [Nicht gewählt],
   ),
   kind: table,
-  caption: [Vergleich evaluierter biometrischer Erkennungsmodelle (* reale Genauigkeit im DeepFace-Framework; eigene Beobachtung)],
+  caption: [Vergleich evaluierter biometrischer Erkennungsmodelle (\* reale Genauigkeit im DeepFace-Framework; eigene Beobachtung)],
 ) <tab:modellvergleich>
 
 Alle betrachteten Modelle setzen das Embedding-Raumkonzept um (Kap.~2.2.1) --- sie unterscheiden sich nicht im _Was_, sondern im _Wie_: in der Verlustfunktion, mit der das Embedding-Modell trainiert wurde, und im Inferenz-Stack, auf dem es ausgeführt wird. Die Auswahl entscheidet sich entlang dieser beiden Dimensionen @schroff2015facenet[S.~1--2], @taigman2014deepface[S.~1701--1703].
 
 InsightFace buffalo\_l (ArcFace ResNet50) erreicht 99,83 % LFW-Genauigkeit bei ca. 80 ms CPU-Latenz (eigene Messung). Der Genauigkeitsvorsprung gegenüber Alternativen geht auf die ArcFace-Verlustfunktion zurück, deren Wirkung in Kap.~2.2.2 hergeleitet ist und im LFW-Benchmark messbar bleibt @deng2019arcface[S.~3--5], @guo2019facesurvey[S.~3--5]. Wrapper-Lösungen wie das DeepFace-Framework erreichen unter realen Bedingungen nur ca. 92 % Genauigkeit bei ca. 300 ms Latenz.\* Der Latenzunterschied von Faktor 3,75 ist für Echtzeit-Personenerkennung entscheidend.
 
-Die verworfenen Alternativen unterscheiden sich in beiden Kerndimensionen von buffalo\_l: InsightFace buffalo\_s auf MobileNet-Basis erreicht ~99,5 % LFW bei ~20 ms CPU-Latenz --- für latenzunkritische Szenarien attraktiv, wurde jedoch wegen der 0,33-Prozentpunkt-Genauigkeitslücke gegenüber buffalo\_l verworfen, da bei biometrischer Identifikation auch kleine Einbußen die False-Accept-Rate erhöhen --- d.~h. Fremde würden fälschlich als bekannte Nutzer erkannt. OpenCV SFace erreicht ~99,3 % LFW bei ~10 ms CPU-Latenz auf ONNX-Basis --- verworfen wegen geringerer Genauigkeit als buffalo\_l trotz gleicher Inferenz-Infrastruktur. dlib face\_recognition liegt mit 99,38 % LFW und ~150 ms CPU-Latenz hinter buffalo\_l in beiden Dimensionen und wurde verworfen. DeepFace+FaceNet512 erreicht unter realen Bedingungen nur ~97 % bei ~250 ms --- beide Werte liegen unter buffalo\_l; der TensorFlow/Keras-Stack bringt zudem denselben Framework-Overhead wie DeepFace+ArcFace.
+Die verworfenen Alternativen scheiden entlang derselben beiden Dimensionen aus: InsightFace buffalo\_s wurde trotz geringerer Latenz (~20 ms) verworfen, da bei biometrischer Identifikation auch kleine Genauigkeitseinbußen die False-Accept-Rate erhöhen --- d.~h. Fremde würden fälschlich als bekannte Nutzer erkannt. Die übrigen Alternativen liegen in Genauigkeit, Latenz oder beidem unter buffalo\_l (vgl. Tabelle~3.2).
 
 Die Inferenz via ONNX Runtime liefert CPU-optimierte Verarbeitung ohne GPU-Server. Dies eliminiert sowohl die Infrastrukturkosten für dedizierte GPU-Instanzen als auch die Latenz durch Cloud-Calls für jeden Frame --- eine direkte Konsequenz der ONNX-Kompatibilität von InsightFace buffalo\_l.
 
@@ -127,16 +146,16 @@ Das FaceStore-Interface-Design entkoppelt die Persistenzlogik vom Tracking-Code 
 
 #figure(
   table(
-    columns: (1fr, auto, auto, auto, auto),
+    columns: (1.5fr, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
     inset: (x: 6pt, y: 5pt),
     align: (left, center, center, left, left),
     table.header(
       strong[Persistenzlösung], strong[K8s-fähig], strong[ANN-Index], strong[Embedding-Dim.], strong[Ergebnis],
     ),
-    [Qdrant], [Ja], [HNSW (COSINE)], [512 (ArcFace) + 384 (RAG)], [*Gewählt*],
-    [SAP HANA Cloud Vector Engine], [Ja (Cloud-managed)], [Proprietär], [Flexibel], [Nicht gewählt (Vendor Lock-in)],
-    [SQLite], [Nein (POSIX-Lock)], [Kein ANN-Index], [Beliebig], [Nur lokale Entwicklung],
+    [Qdrant], [Ja], [HNSW (COSINE)], [512-dim (ArcFace) + 384-dim (RAG)], [*Gewählt*],
+    [SAP HANA Cloud Vector Engine], [Ja (Cloud-managed)], [Proprietär], [Flexibel], [Nicht gewählt],
+    [SQLite], [Nein (POSIX-Lock)], [Kein ANN-Index], [Beliebig], [Nur lokal],
   ),
   kind: table,
   caption: [Vergleich evaluierter Persistenzlösungen für biometrische Embeddings],
@@ -160,7 +179,7 @@ Für ein reales Kundensystem wären zusätzliche Maßnahmen erforderlich: ein ex
 
 == Wirtschaftliche Bewertung
 
-Der gesamte lokale Verarbeitungsstack des Systems verwendet ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant, FastAPI und LangGraph sind lizenzfrei nutzbar @lugaresi2019mediapipe[S.~1--2]. Dies eliminiert Lizenzkosten für alle rechenlastigen Kernfunktionen und steht im Gegensatz zu proprietären Cloud-API-basierten Alternativen. Die Microservice-Architektur verstärkt diesen Vorteil: Einzelne Dienste können unabhängig durch kostengünstigere Alternativen ersetzt werden, ohne den restlichen Stack zu beeinflussen @dragoni2017microservices[S.~1--3].
+Der gesamte lokale Verarbeitungsstack des Systems verwendet ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI sind lizenzfrei nutzbar @lugaresi2019mediapipe[S.~1--2]. Dies eliminiert Lizenzkosten für alle rechenlastigen Kernfunktionen und steht im Gegensatz zu proprietären Cloud-API-basierten Alternativen. Die Microservice-Architektur verstärkt diesen Vorteil: Einzelne Dienste können unabhängig durch kostengünstigere Alternativen ersetzt werden, ohne den restlichen Stack zu beeinflussen @dragoni2017microservices[S.~1--3].
 
 Die in Kap.~3.3 begründete CPU-Inferenz via ONNX Runtime eliminiert Infrastrukturkosten für dedizierte GPU-Instanzen, die bei Cloud-basierten Ansätzen typischerweise den dominanten Kostenfaktor darstellen.
 

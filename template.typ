@@ -1,4 +1,5 @@
 // Imports
+#import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 #import "user/config.typ": config, show-confidentiality-notice, show-company-supervisor, lang
 #import "i18n/DE.typ": labels as labels-DE
 #import "i18n/EN.typ": labels as labels-EN
@@ -168,7 +169,6 @@
 #include "chapters/introduction.typ"
 #include "chapters/main.typ"
 #include "chapters/discussion.typ"
-#include "chapters/conclusion.typ"
 
 // Appendix
 #appendix(labels: labels)

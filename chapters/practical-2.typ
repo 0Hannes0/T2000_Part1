@@ -1,4 +1,5 @@
 = Sitzungsübergreifende Personalisierung
+#import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
 Dieses Kapitel beschreibt die sitzungsübergreifende Personalisierungslogik des entwickelten Systems --- von der strukturierten Fakt-Extraktion am Sitzungsende über das RAG-basierte Chunk-Retrieval mid-session bis hin zur History-Isolation bei Gruppen-Sessions.
 Der Aufbau folgt dem Verarbeitungsfluss: Kap.~6.1 beschreibt, wie Gespräche beim Verlassen einer Person in ein dreikanaliges JSON-Schema extrahiert werden; Kap.~6.2 den Retrieval-Mechanismus, mit dem diese Fakten mid-session kontextuell in die laufende Sitzung injiziert werden; und Kap.~6.3 die datenschutzorientierte Sonderbehandlung bei Gruppen-Sessions.
@@ -33,12 +34,9 @@ Dieser Endpunkt übergibt die Gesprächshistorie der abgelaufenen Sitzung an ein
 Die Verwendung eines festen JSON-Schemas sichert, dass die Ausgabe direkt maschinenverarbeitbar ist, ohne Nachverarbeitung oder heuristische Parsing-Logik.
 
 Die drei Felder unterscheiden sich bewusst in Granularität und Persistenzpfad, weil sie für verschiedene Abruf-Szenarien optimiert sind.
-Das `summary`-Feld fasst die gesamte Sitzung in 1--2 Sätzen zusammen: kompakt genug für die Session-Start-Injektion, in der es als letzter Gesprächskontext in `session.instructions` eingebettet wird.
-Die `facts_sentences` hingegen sind atomare Einzelsätze --- ein Fakt pro Satz, ein Fakt pro Embedding.
-Diese Granularität ist für das RAG-Retrieval optimiert: Jeder Satz wird separat als 384-dimensionaler Vektor eingebettet und indexiert, sodass bei der semantischen Suche im nächsten Besuch nur die thematisch passenden Fakten abgerufen werden, nicht der gesamte Sitzungskontext @xu2022beyondgoldfish[S.~1].
-Atomare Sätze haben sich für das Retrieval als günstiger erwiesen als zusammengesetzte Absätze --- ein einzelner Fakt liegt im Vektorraum präzise verortet, während ein zusammengesetzter Absatz das Embedding in mehrere Richtungen zieht und die Trefferquote der semantischen Suche senkt.
-Das `facts`-Feld schließlich enthält stabile Kerndaten (Name, Standort, Sprachpräferenz, Rolle, Unternehmen), die als Metadata-Payload im Personenprofil persistiert werden --- ohne Chunk-Embedding.
-Diese Daten sind damit immer ohne Vektorsuche abrufbar und fließen unmittelbar in die Begrüßungsformulierung und Sitzungskonfiguration ein.
+Die `facts_sentences` sind dabei als atomare Einzelsätze gespeichert --- ein Fakt pro Embedding.
+Diese Granularität ist für das RAG-Retrieval entscheidend: Atomare Sätze liegen im Vektorraum präzise verortet, während ein zusammengesetzter Absatz das Embedding in mehrere Richtungen zieht und die Trefferquote der semantischen Suche senkt @xu2022beyondgoldfish[S.~1].
+Das `facts`-Feld hingegen enthält stabile Kerndaten (Name, Standort, Sprachpräferenz, Rolle, Unternehmen) als Metadata-Payload --- immer ohne Vektorsuche abrufbar und damit direkt für Begrüßung und Sitzungskonfiguration verfügbar.
 
 Dieses dreikanalige Gedächtnisdesign entspricht dem Virtual Context Management-Konzept aus MemGPT, das zwischen einem kompakten Hauptkontext (hier: `summary` für Session-Start) und einem externen Speicher (hier: `facts_sentences`-Chunks für RAG mid-session) trennt @packer2024memgpt[S.~1--3].
 Rohe Gesprächshistorie würde dagegen das Kontextfenster des Sprachmodells belasten, ohne die gezielte Abrufbarkeit einzelner Fakten zu gewährleisten --- zu diesem Effekt vgl. @liu2023lostinthemiddle[S.~4--6] und Kap.~2.3.1.
@@ -49,15 +47,26 @@ Wie die gespeicherten Chunks im nächsten Besuch für die kontextuelle Anreicher
 == RAG-Retrieval und Kontext-Injektion
 
 #figure(
-  rect(width: 100%, inset: 10pt, radius: 4pt, stroke: 0.5pt)[
-    #set text(size: 9pt)
-    *Nutzeranfrage* (erstes Sprechen-Ereignis) \
-    → `embed(query)` (all-MiniLM-L12-v2, 384-dim, lokal) \
-    → `find_relevant_chunks(person_id, k=3)` [pin\_latest optional, Standard: inaktiv] \
-    → Relevante Chunks gefunden? \
-    #h(2em) Ja → Chunks als System-Nachricht injizieren (`session.instructions`) → LLM antwortet mit personalisiertem Kontext \
-    #h(2em) Nein → Weiter ohne zusätzlichen Kontext → LLM antwortet
-  ],
+  diagram(
+    node-stroke: 0.5pt,
+    node-corner-radius: 3pt,
+    spacing: (10pt, 16pt),
+    node((1,0), align(center)[Nutzeranfrage\ #text(size: 7.5pt)[(erstes Sprechen-Ereignis)]], name: <q>),
+    node((1,1), align(center)[`embed(query)`\ #text(size: 7.5pt)[all-MiniLM-L12-v2, 384-dim, lokal]], width: 140pt, name: <emb>),
+    node((1,2), align(center)[`find_relevant_chunks(person_id, k=3)`], width: 170pt, name: <find>),
+    node((1,3), align(center)[Relevante Chunks\ gefunden?], shape: shapes.diamond, inset: 8pt, name: <d>),
+    node((0,4), align(center)[Chunks als System-Nachricht\ in `session.instructions` injizieren], width: 130pt, name: <inj>),
+    node((2,4), align(center)[Weiter ohne\ zusätzlichen Kontext], width: 110pt, name: <noctx>),
+    node((0,5), align(center)[LLM antwortet mit\ personalisiertem Kontext], width: 130pt, name: <llmY>),
+    node((2,5), [LLM antwortet], width: 110pt, name: <llmN>),
+    edge(<q>,     <emb>,   "->"),
+    edge(<emb>,   <find>,  "->"),
+    edge(<find>,  <d>,     "->"),
+    edge(<d>,     <inj>,   "->", label: text(size: 8pt)[Ja]),
+    edge(<d>,     <noctx>, "->", label: text(size: 8pt)[Nein]),
+    edge(<inj>,   <llmY>,  "->"),
+    edge(<noctx>, <llmN>,  "->"),
+  ),
   kind: image,
   caption: [RAG-Retrieval-Flow: Embedding der Anfrage, Qdrant-Suche, Kontext-Injektion],
 ) <fig:rag-flow>

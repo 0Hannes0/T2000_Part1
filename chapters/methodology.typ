@@ -1,4 +1,5 @@
 = Personenerkennung
+#import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
 Dieses Kapitel beschreibt die vollständige Personenerkennungs-Pipeline des entwickelten Systems --- vom Kamerasignal über Gesichtsdetektion, Interaktionsvalidierung und Zustandsverwaltung bis hin zu den WebSocket-Events, die das Frontend über Anwesenheit und Identität einer Person informieren.
 Der Aufbau folgt dem Datenfluss der Pipeline: Kap.~4.1 beschreibt die BlazeFace-basierte Gesichtsdetektion via MediaPipe, Kap.~4.2 die Gaze-Validierung via Vision-LLM, Kap.~4.3 die State Machine IDLE → CANDIDATE → ACTIVE und Kap.~4.4 das parallele Multi-Person-Tracking und die Gruppen-Erkennung.
@@ -23,14 +24,10 @@ Im Vordergrund steht dabei das WIE der Implementierung; die Begründung der Tech
   caption: [Konfigurationsparameter der BlazeFace-Detektion],
 ) <tab:blaze-params>
 
-Die drei Filter sind so aufeinander abgestimmt, dass sie verschiedene Klassen unerwünschter Detektionen auf unterschiedlichen Ebenen ausschließen.
-Der Parameter `MIN_DETECTION_CONFIDENCE` von 0,5 wirkt dabei auf der untersten Ebene: Er verwirft Bounding-Boxen, denen der Detektor selbst eine zu niedrige Konfidenz zuweist, und schützt damit vor offensichtlich niedrigkonfidenten Falschdetektionen in schwierigen Beleuchtungssituationen.
-Auf der zweiten Ebene filtert `MIN_FACE_WIDTH_RATIO` von 0,06 die räumliche Ausdehnung: Personen, die weit entfernt oder seitlich zur Kamera stehen, erzeugen Bounding-Boxen, die weniger als 6 % der Frame-Breite einnehmen, und werden dadurch aus der weiteren Verarbeitung ausgeschlossen.
-Ohne diesen Filter würde jede Person, die am Kiosk vorbeiläuft, einen 4-Sekunden-CANDIDATE-Timer auslösen, obwohl sie gar nicht mit dem Kiosk interagieren will. Der Schwellenwert 0,06 trennt Personen im direkten Interaktionsbereich von Passanten im Hintergrund.
-Der dritte Parameter `DETECTION_UPSCALE` von 2,5 kompensiert die distanzbedingte Gesichtsverkleinerung: Da BlazeFace bei kleinen Gesichtern in der Originalgröße an seine Detektionsgrenzen stößt @bazarevsky2019blazeface[S.~2--3], wird der Frame vor der Übergabe an das Modell um den Faktor 2,5 hochskaliert, sodass auch Gesichter von Personen in größerer Entfernung zur Kamera zuverlässig erkannt werden.
-Die zurückgelieferten Bounding-Box-Koordinaten werden anschließend durch Division durch `DETECTION_UPSCALE` auf den Original-Frame-Koordinatenraum zurückgerechnet, damit nachfolgende Komponenten wie der Tracker konsistente Positionsangaben erhalten.
-Die Detektion erfolgt periodisch mit einem `FRAME_INTERVAL` von 1,0 s --- kein kontinuierlicher Scan, sondern ein getakteter Stichprobenansatz, der die CPU-Last begrenzt und gleichzeitig eine ausreichend hohe zeitliche Auflösung für die Anwesenheitserkennung bietet @lugaresi2019mediapipe[S.~1--2].
-Die Kombination aller drei Filter stellt sicher, dass nur Gesichter von Personen, die sich aktiv und nah genug vor der Kamera befinden, in die nachfolgende Zustandsverwaltung übergeben werden.
+Die drei Filter schließen unerwünschte Detektionen auf unterschiedlichen Ebenen aus.
+`MIN_FACE_WIDTH_RATIO` von 0,06 ist dabei der systemkritischste: Ohne diesen Filter würde jede Person, die am Kiosk vorbeiläuft, einen 4-Sekunden-CANDIDATE-Timer auslösen, obwohl sie gar nicht mit dem Kiosk interagieren will --- der Schwellenwert trennt Personen im direkten Interaktionsbereich von Passanten im Hintergrund.
+`DETECTION_UPSCALE` von 2,5 kompensiert die distanzbedingte Gesichtsverkleinerung: Da BlazeFace bei kleinen Gesichtern in der Originalgröße an seine Detektionsgrenzen stößt @bazarevsky2019blazeface[S.~2--3], wird der Frame hochskaliert und die Bounding-Box-Koordinaten werden anschließend zurückgerechnet.
+Die Detektion erfolgt periodisch mit `FRAME_INTERVAL` von 1,0 s --- kein kontinuierlicher Scan, sondern ein getakteter Stichprobenansatz, der die CPU-Last begrenzt und gleichzeitig eine ausreichend hohe zeitliche Auflösung bietet @lugaresi2019mediapipe[S.~1--2].
 
 Die nach der Detektion ausgelöste Zustandsverwaltung folgt in Kap.~4.3, die Frame-übergreifende Identitätszuordnung in Kap.~4.4.
 
@@ -87,26 +84,24 @@ Wie der Gaze-Check als zweite Filterstufe in den Zustandsübergang CANDIDATE →
 ) <tab:statemachine-params>
 
 #figure(
-  rect(width: 100%, inset: 10pt, radius: 4pt, stroke: 0.5pt)[
-    #set text(size: 9pt)
-    *[*] → IDLE* \
-    IDLE → CANDIDATE: Gesicht erkannt \
-    CANDIDATE → IDLE: Gesicht verloren (vor CANDIDATE\_SECS) \
-    CANDIDATE → IDLE: Gaze-Check negativ \
-    CANDIDATE → ACTIVE: CANDIDATE\_SECS erreicht + Gaze-Check positiv \
-    ACTIVE → IDLE: LEAVE\_SECS ohne Gesicht
-  ],
+  diagram(
+    node-stroke: 0.5pt,
+    node-corner-radius: 4pt,
+    spacing: (22pt, 20pt),
+    node((0,0), [], shape: shapes.circle, fill: black, width: 0.7em, height: 0.7em, name: <st>),
+    node((1,0), [IDLE],      name: <idle>),
+    node((2,0), [CANDIDATE], name: <cand>),
+    node((3,0), [ACTIVE],    name: <act>),
+    edge(<st>,   <idle>, "->"),
+    edge(<idle>, <cand>, "->", label: text(size: 8pt)[Gesicht erkannt]),
+    edge(<cand>, <idle>, "->", bend:  40deg, label: text(size: 7.5pt)[Gesicht verloren]),
+    edge(<cand>, <idle>, "->", bend: -40deg, label: text(size: 7.5pt)[Gaze negativ]),
+    edge(<cand>, <act>,  "->", label: text(size: 7.5pt)[`CANDIDATE_SECS` + Gaze ok]),
+    edge(<act>,  <idle>, "->", bend: -55deg, label: text(size: 7.5pt)[`LEAVE_SECS` ohne Gesicht]),
+  ),
   kind: image,
   caption: [Zustandsdiagramm der PresenceStateMachine],
 ) <fig:statemachine>
-
-Die State Machine verwaltet den Sitzungslebenszyklus jeder erkannten Person in drei Zuständen.
-Solange keine Person im Frame detektiert wird, verharrt die Maschine in IDLE.
-Erkennt der Detektor ein Gesicht, wechselt sie in CANDIDATE und vermerkt den Zeitstempel `candidate_since`.
-In diesem Zustand muss die Person über mindestens `CANDIDATE_SECS` = 4,0 s ununterbrochen sichtbar bleiben, bevor weitere Schritte eingeleitet werden.
-Da der Detektor periodisch mit `FRAME_INTERVAL` = 1,0 s aufgerufen wird, entsprechen vier Detektionszyklen in Folge dieser Wartezeit.
-Diese Schwelle filtert Vorbeigehende und kurzzeitige Zufallsdetektionen zuverlässig heraus.
-Verliert der Detektor das Gesicht innerhalb dieser Wartezeit, fällt die Maschine sofort zurück nach IDLE.
 
 Sobald `CANDIDATE_SECS` = 4,0 s überschritten sind, startet das System gleichzeitig zwei Hintergrundaufgaben: die Gaze-Validierung und die biometrische Identifikation.
 Während die Gaze-Validierung läuft, wartet das System auf das Ergebnis der Identifikation --- dieses enthält Personenname, Wiederkehr-Status, bevorzugte Sprache und Gesprächskontext aus vorherigen Sitzungen --- und bereitet auf dieser Basis einen Begrüßungstext vor.
@@ -117,8 +112,6 @@ Dieser Retry-Mechanismus ist bewusst nicht als eigener Zustand modelliert: ein L
 
 Der Übergang ACTIVE → IDLE tritt nach `LEAVE_SECS` = 10,0 s ein, in denen kein Gesicht der Person erkannt wurde.
 Das System toleriert kurze Unterbrechungen der Sichtbarkeit: Wird die Person im nächsten Detektionszyklus erneut erkannt, wird der `gone_since`-Timer zurückgesetzt, ohne den ACTIVE-Zustand zu verlassen --- ein normales Wegsehen oder kurzes Verlassen des Sichtfeldes beendet die Sitzung also nicht sofort.
-Intern merkt sich das System den Zeitpunkt des ersten Sichtverlusts --- solange dieser Zeitraum unter `LEAVE_SECS` = 10 s bleibt, verweilt die State Machine in ACTIVE. Wird die Person wieder erkannt, wird dieser Zeitstempel zurückgesetzt; das System zählt also nur ununterbrochene Abwesenheit.
-Erst nach zehn ununterbrochenen Sekunden ohne Detektion wechselt die Maschine in IDLE.
 Die biometrische Identifikation wird in Kap.~5.2 detailliert beschrieben; die Anbindung der Begrüßungsgenerierung an die Personalisierungslogik in Kap.~6.1.
 
 == Paralleles Multi-Person-Tracking und Gruppen-Erkennung
@@ -146,7 +139,7 @@ Jede Person durchläuft damit den vollständigen IDLE → CANDIDATE → ACTIVE-Z
 Diese Pro-Person-Trennung ist das zentrale Designprinzip: Die Sitzungssemantik einer Person --- ihr CANDIDATE-Timer, ihr Gaze-Ergebnis, ihre biometrische Identität --- beeinflusst niemals den Zustand einer anderen Person.
 Mehrere Personen können gleichzeitig den CANDIDATE-Übergang durchlaufen, und für jede läuft eine eigene Instanz des parallelen Gaze-Identifikations-Flows aus Kap.~4.3.
 
-In jedem Detektionszyklus ordnet der Tracker die neu eingehenden Bounding-Boxen den bekannten `_TrackedPerson`-Einträgen zu. Auf der Architekturebene relevant ist nur das _Prinzip_: Eine schnelle, positionsbasierte Stufe prüft zuerst, ob eine neue Detektion geometrisch zu einer bereits bekannten Person passt; nur wenn das nicht eindeutig ist, wird das vergleichsweise teure ArcFace-Embedding berechnet und gegen die bekannten Profile abgeglichen. Die konkreten Schwellwerte (`POSITION_MATCH_RADIUS`, `SIMILARITY_THRESHOLD`) und der vollständige Algorithmus sind in Kap.~5.2 ausgeführt. Das Vorgehen folgt dem Tracking-by-Detection-Ansatz @bewley2016sort[S.~1--3]: Jedes neue Detektionsergebnis wird einer bereits bekannten Person zugeordnet --- zunächst über ihre Position, dann über ihr Erscheinungsbild @wojke2017deepsort[S.~1--3]. Diese Kombination ist besonders für Szenarien geeignet, in denen Personen längere Zeit vor der Kamera stehen und kurz wegsehen können @barquero2020longtermtracking[S.~1--3] --- genau das zweistufige Tracking, das in Kap.~5.2 beschrieben wird.
+In jedem Detektionszyklus ordnet der Tracker die neu eingehenden Bounding-Boxen den bekannten `_TrackedPerson`-Einträgen zu. Auf der Architekturebene relevant ist nur das _Prinzip_: Eine schnelle, positionsbasierte Stufe prüft zuerst, ob eine neue Detektion geometrisch zu einer bereits bekannten Person passt; nur wenn das nicht eindeutig ist, wird das vergleichsweise teure ArcFace-Embedding berechnet und gegen die bekannten Profile abgeglichen. Die konkreten Schwellwerte (`POSITION_MATCH_RADIUS`, `SIMILARITY_THRESHOLD`) und der vollständige Algorithmus sind in Kap.~5.2 ausgeführt. Das Vorgehen folgt dem Tracking-by-Detection-Ansatz @bewley2016sort[S.~1--3]: Jedes neue Detektionsergebnis wird einer bereits bekannten Person zugeordnet --- zunächst über ihre Position, dann über ihr Erscheinungsbild @wojke2017deepsort[S.~1--3]. Diese Kombination ist besonders für Szenarien geeignet, in denen Personen längere Zeit vor der Kamera stehen und kurz wegsehen können @barquero2020longtermtracking[S.~1--3].
 
 Innerhalb einer Sitzung stabilisiert der Tracker das Embedding einer Person durch einen laufenden Durchschnitt über alle bisher aufgenommenen Frames --- jeder neue Frame trägt dabei gleichwertig bei (`_running_avg()`). Das Persistenz-EMA mit `EMBEDDING_BLEND_ALPHA` = 0,2, das beim Upsert des Profils in die Datenbank verwendet wird, ist Thema von Kap.~5.3 und wird hier nicht weiter ausgeführt.
 Für die Gruppen-Logik gilt ein Sammel-Fenster von `GROUP_ARRIVAL_WINDOW_SECS` = 2,0 s: Erreicht eine zweite oder weitere Person innerhalb dieser Zeitspanne nach der ersten Person die ACTIVE-Schwelle, werden alle beteiligten Personen zu einem gemeinsamen `group_arrived`-Event zusammengefasst; eine Person, die dieses Fenster verpasst, löst stattdessen ein separates `person_joined`-Event aus.
