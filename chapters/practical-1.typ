@@ -143,7 +143,7 @@ Bei jedem Besuch einer bekannten Person wird das gespeicherte Embedding nicht ü
 $ bold(e)_"neu" = "normalize"((1-alpha) dot.op bold(e)_"alt" + alpha dot.op bold(e)_"aktuell"), quad alpha = 0","2 $
 
 Mit $alpha = 0","2$ trägt das aktuelle Sitzungs-Embedding 20 % bei, das gespeicherte Langzeit-Embedding 80 %.
-Der Wert ist empirisch gewählt: Mit $alpha = 0","05$ reagierte das Profil zu träge --- nach mehreren Besuchen unter veränderten Lichtverhältnissen blieb die Erkennungsrate schlecht, weil der alte Referenzvektor zu dominant blieb. Mit $alpha = 0","5$ hingegen hat ein einzelner schlechter Visit --- etwa bei unvorteilhafter Beleuchtung --- zu viel Einfluss und verschlechterte die Wiedererkennung im nächsten Besuch. $alpha = 0","2$ erwies sich in Tests als guter Kompromiss: schnell genug, um echte Veränderungen wie eine neue Frisur über mehrere Besuche einzuarbeiten, aber stabil genug, um Ausreißer-Frames zu dämpfen (eigene Beobachtung).
+Der Wert ist empirisch gewählt als Kompromiss: schnell genug, um echte Veränderungen wie eine neue Frisur über mehrere Besuche einzuarbeiten, aber stabil genug, um einzelne Ausreißer-Frames unter schlechter Beleuchtung abzudämpfen (eigene Beobachtung).
 Der Normierungsschritt stellt die L2-Norm wieder her (vgl. Kap.~5.1).
 Dieses Exponential Weighted Moving Average-Verfahren @gardner2006exponentialsmoothing[§2--3] sorgt dafür, dass das gespeicherte Profil einer Person über mehrere Besuche hinweg stabil bleibt und sich gleichzeitig an veränderte Bedingungen wie unterschiedliche Beleuchtung oder Winkeländerungen graduell anpasst --- eine Eigenschaft, die für sitzungsübergreifendes Langzeit-Tracking essenziell ist @barquero2020longtermtracking[S.~4--5].
 
