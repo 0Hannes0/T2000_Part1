@@ -62,9 +62,9 @@ Die daraus folgenden Anforderungen an die Gedächtnisarchitektur dieses Systems 
 
 === Gesprächszusammenfassung als Langzeitgedächtnis
 
-Für sitzungsübergreifende Personalisierung ist die Verdichtung vergangener Sitzungen durch Zusammenfassung der rohen Gesprächshistorie vorzuziehen: Systeme mit Zusammenfassungs- und Retrievalfähigkeiten übertreffen Standard-Encoder-Decoder-Architekturen bei langen Gesprächsverläufen deutlich @xu2022beyondgoldfish[S.~1]. Die strukturierte Extraktion von Fakten aus Gesprächen --- etwa über Präferenzen, Gewohnheiten oder wiederkehrende Themen --- ist eine Variante dieses Ansatzes, die gegenüber freier Zusammenfassung eine strukturiertere Abrufbarkeit bietet. Das Grundprinzip getrennter Gedächtnisschichten ist dabei älter als moderne LLMs: Memory Networks formalisieren die Idee eines explizit adressierbaren externen Gedächtnisses, das unabhängig vom kurzfristigen Arbeitsgedächtnis persistiert wird @weston2014memory[S.~1--3].
+Für sitzungsübergreifende Personalisierung ist die Verdichtung vergangener Sitzungen durch Zusammenfassung der rohen Gesprächshistorie vorzuziehen: Systeme mit Zusammenfassungs- und Retrievalfähigkeiten übertreffen Standard-Encoder-Decoder-Architekturen bei langen Gesprächsverläufen deutlich @xu2022beyondgoldfish[S.~1]. Die strukturierte Extraktion von Fakten aus Gesprächen --- etwa über Präferenzen, Gewohnheiten oder wiederkehrende Themen --- ist eine Variante dieses Ansatzes, die gegenüber freier Zusammenfassung eine strukturiertere Abrufbarkeit bietet.
 
-Ein ähnliches Prinzip --- explizites Auslagern von Informationen aus dem Kontextfenster in einen externen Speicher --- beschreiben Packer et al. als MemGPT @packer2024memgpt[S.~1--3]. Das vorliegende System folgt diesem Grundgedanken, setzt es aber anders um: durch strukturierte Faktextraktion und RAG-basiertes Retrieval (Kap.~6.1 und 6.2).
+Das vorliegende System folgt dem Grundgedanken von MemGPT @packer2024memgpt[S.~1--3] --- explizites Auslagern von Informationen aus dem Kontextfenster in einen externen Speicher --- setzt es aber durch strukturierte Faktextraktion und RAG-basiertes Retrieval um (Kap.~6.1 und 6.2).
 
 Die Realisierung der Zusammenfassung in der eigenen Implementierung wird in Kap.~6.1 beschrieben.
 

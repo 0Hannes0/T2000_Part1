@@ -85,7 +85,6 @@ Das System erkennt ihn wieder, ruft den gespeicherten Kontext ab --- Kunde Müll
 Der Assistent weiß damit ohne weitere Erklärung, für wen die Antwort relevant ist, und kann direkt auf den bekannten Hintergrund eingehen.
 
 Wurden relevante Chunks gefunden, injiziert das Backend sie als Systemnachricht in die laufende Realtime-Session.
-`_inject_rag()` in `backend/routers/realtime.py` erstellt ein `conversation.item.create`-Event mit `role=system`, das dem LLM die personalisierten Fakten als zusätzlichen Systemkontext übergibt und damit `session.instructions` um benutzerspezifische Informationen aus vergangenen Besuchen erweitert.
 Liefert die Suche keine relevanten Chunks, setzt das System die Session ohne zusätzlichen Kontext fort --- die Konversation bleibt funktionsfähig, lediglich ohne personalisierte Anreicherung.
 
 Wie das System bei gleichzeitig anwesenden mehreren Personen mit dieser Injection-Logik umgeht, beschreibt der folgende Abschnitt 6.3.
@@ -109,5 +108,4 @@ Beim abschließenden Summarize werden nur Nachrichten ab diesem Startpunkt mit `
 Diese Solo-Restore-Grenze verhindert, dass Gruppenaussagen Dritter in individuelle Fakt-Chunks gelangen, selbst wenn die Person die Sitzung als Einzel-Session beendet.
 
 Gruppen-Chunks selbst werden zwar im Vektorspeicher abgelegt, aber ohne Zuordnung zu einer Einzelperson.
-Da in einer Gruppenkonversation nicht auflösbar ist, wer welche Aussage gemacht hat, erzwingt der Gruppen-Summarize-Prompt `facts: {}` --- stabile Kerndaten wie Name, Rolle oder Unternehmen werden für Gruppenkonversationen grundsätzlich nicht extrahiert.
 Ob diese Isolation unter realen Nutzungsbedingungen robust genug ist und wie häufig das System in den Gruppen-Modus wechselt, evaluiert Kap.~7.
