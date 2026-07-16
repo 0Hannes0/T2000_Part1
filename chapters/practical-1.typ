@@ -96,15 +96,12 @@ Die Koordinaten werden dabei auf den Original-Frame-Maßstab zurückgerechnet, d
 Der berechnete Kosinus-Score wird gegen alle gespeicherten Profile verglichen.
 Liegt der höchste Score über `SIMILARITY_THRESHOLD`, wird die Detektion der entsprechenden Person zugewiesen; liegt er darunter, wird eine neue `_TrackedPerson` mit einer eigenen `PresenceStateMachine` angelegt.
 Diese Kombination aus positionsbasiertem Präfilter und Deep-Appearance-Matching entspricht dem DeepSORT-Muster @wojke2017deepsort[S.~1--3] und ermöglicht robuste Personenzuordnung auch bei temporärer Nicht-Frontalorientierung @barquero2020longtermtracking[S.~3--4].
-Die Begründung für die Aufteilung in zwei Stufen --- insbesondere die Robustheit von Positions-Matching bei Kopfdrehungen --- ist in Kap.~3.2 ausgeführt.
 
 Nach erfolgreichem Stage-1- oder Stage-2-Match wird `upsert_profile()` aufgerufen (Details in Kap.~5.3).
 
 Innerhalb einer Sitzung stabilisiert der Tracker das Embedding einer Person durch einen kumulativen normalisierten Mittelwert: Frame n trägt das Gewicht 1/n bei (`_running_avg()`), sodass alle bisherigen Frames gleichgewichtet in das Sitzungs-Embedding eingehen.
 Kurzzeitige Pose-Änderungen oder schlechte Einzelframes dominieren das Sitzungs-Embedding dadurch nicht.
 Das resultierende Sitzungs-Embedding ist stabiler als ein einzelnes Frame-Embedding und bildet die Grundlage für den sitzungsübergreifenden Upsert in Kap.~5.3.
-
-Wie dieses sitzungsstabilisierte Embedding persistiert und sitzungsübergreifend angepasst wird, beschreibt der folgende Abschnitt 5.3.
 
 == Qdrant-Persistenz und EMA-Blending
 
@@ -129,11 +126,7 @@ Die Persistenzschicht basiert auf einem abstrakten FaceStore-Interface mit zwei 
   caption: [Konfiguration der FaceStore-Persistenzschicht],
 ) <tab:facestore-config>
 
-Das FaceStore-Interface entkoppelt die Persistenzschicht vom Identifikations-Algorithmus.
-`PersonTracker` und `face_id.py` kennen nur das Interface, nicht die konkrete Implementierung.
-Über die Umgebungsvariable `FACE_STORE_BACKEND` wählt eine Factory-Funktion zur Laufzeit zwischen `SQLiteFaceStore` (lokale Entwicklung) und `QdrantFaceStore` (Kubernetes-Deployment) --- ein klassisches Strategy-Pattern.
-Dieses Interface-Design ermöglichte es, das Storage-Backend von SQLite auf Qdrant zu wechseln, ohne den Tracker-Code oder `face_id.py` zu verändern.
-Die Migrationsgründe sind in Kap.~3.4 dokumentiert.
+Das FaceStore-Interface entkoppelt die Persistenzschicht vom Identifikations-Algorithmus: Über die Umgebungsvariable `FACE_STORE_BACKEND` wählt eine Factory-Funktion zur Laufzeit zwischen `SQLiteFaceStore` und `QdrantFaceStore` --- die Migrationsgründe sind in Kap.~3.4 dokumentiert.
 
 Qdrant nutzt einen HNSW-Index für Kosinus-Ähnlichkeitssuche über die 512-dimensionalen ArcFace-Embeddings (vgl. Kap.~2.2.1 und Kap.~3.4): `find_profile()` gibt das Profil mit dem höchsten Kosinus-Score zurück; liegt dieser Score über `SIMILARITY_THRESHOLD`, gilt die Person als bekannt.
 Im System werden zwei Qdrant-Collections genutzt: `face_profiles` für die 512-dimensionalen ArcFace-Embeddings und `conversation_chunks` für die 384-dimensionalen RAG-Embeddings des Gesprächsgedächtnisses. Das RAG-Embedding-Modell (all-MiniLM-L12-v2, lokal) und die Nutzung dieser Collection werden in Kap.~6.2 beschrieben.

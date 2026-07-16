@@ -65,7 +65,6 @@ Der Presence Service bildet die Kernkomponente des Systems: Er verarbeitet den K
   caption: [Interne Verarbeitungspipeline des Presence Service],
 ) <fig:presence-pipeline>
 
-Die FaceStore-Schnittstelle abstrahiert das Persistenz-Backend --- SQLite für die lokale Entwicklung, Qdrant im Kubernetes-Deployment --- und ermöglicht den Wechsel per Umgebungsvariable ohne Umbau des Tracker-Codes. Die Entscheidungsgrundlagen für dieses Interface-Design werden in Kap.~3.4 ausgeführt.
 
 Die einzelnen Komponenten werden in den folgenden Kapiteln detailliert beschrieben: Kap.~4 erläutert die Presence-Pipeline (Detektion, Gaze-Validierung, State Machine), Kap.~5 die biometrische Identifikation, Kap.~6 die Personalisierungslogik.
 

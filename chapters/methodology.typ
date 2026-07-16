@@ -29,8 +29,6 @@ Die drei Filter schließen unerwünschte Detektionen auf unterschiedlichen Ebene
 `DETECTION_UPSCALE` von 2,5 kompensiert die distanzbedingte Gesichtsverkleinerung: Da BlazeFace bei kleinen Gesichtern in der Originalgröße an seine Detektionsgrenzen stößt @bazarevsky2019blazeface[S.~2--3], wird der Frame hochskaliert und die Bounding-Box-Koordinaten werden anschließend zurückgerechnet.
 Die Detektion erfolgt periodisch mit `FRAME_INTERVAL` von 1,0 s --- kein kontinuierlicher Scan, sondern ein getakteter Stichprobenansatz, der die CPU-Last begrenzt und gleichzeitig eine ausreichend hohe zeitliche Auflösung bietet @lugaresi2019mediapipe[S.~1--2].
 
-Die nach der Detektion ausgelöste Zustandsverwaltung folgt in Kap.~4.3, die Frame-übergreifende Identitätszuordnung in Kap.~4.4.
-
 == Gaze-Validierung via Vision-LLM
 
 #figure(
@@ -59,8 +57,6 @@ Aus der Modellantwort ergeben sich drei Pfade: Antwortet das Modell mit „yes",
 Überschreitet der Aufruf die Wartezeit von `GAZE_TIMEOUT_SECS` = 9,0 s oder tritt ein Fehler auf, gibt der Gaze-Validator None zurück --- die State Machine verbleibt in diesem Fall im CANDIDATE-Zustand und wiederholt die Prüfung im nächsten Frame, ohne in IDLE zurückzufallen.
 Dieser Retry-Mechanismus stellt sicher, dass ein kurzzeitiger LLM-Verbindungsfehler nicht zum Verlust einer bereits erkannten Interaktionsabsicht führt.
 Der genaue Prompt-Wortlaut ist nicht Teil dieser Dokumentation; es wird ausschließlich die funktionale Verhaltensweise beschrieben.
-
-Wie der Gaze-Check als zweite Filterstufe in den Zustandsübergang CANDIDATE → ACTIVE eingebettet ist, beschreibt Kap.~4.3.
 
 == State Machine: IDLE → CANDIDATE → ACTIVE
 
@@ -112,7 +108,6 @@ Dieser Retry-Mechanismus ist bewusst nicht als eigener Zustand modelliert: ein L
 
 Der Übergang ACTIVE → IDLE tritt nach `LEAVE_SECS` = 10,0 s ein, in denen kein Gesicht der Person erkannt wurde.
 Das System toleriert kurze Unterbrechungen der Sichtbarkeit: Wird die Person im nächsten Detektionszyklus erneut erkannt, wird der `gone_since`-Timer zurückgesetzt, ohne den ACTIVE-Zustand zu verlassen --- ein normales Wegsehen oder kurzes Verlassen des Sichtfeldes beendet die Sitzung also nicht sofort.
-Die biometrische Identifikation wird in Kap.~5.2 detailliert beschrieben; die Anbindung der Begrüßungsgenerierung an die Personalisierungslogik in Kap.~6.1.
 
 == Paralleles Multi-Person-Tracking und Gruppen-Erkennung
 

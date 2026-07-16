@@ -42,8 +42,6 @@ Dieses dreikanalige Gedächtnisdesign entspricht dem Virtual Context Management-
 Rohe Gesprächshistorie würde dagegen das Kontextfenster des Sprachmodells belasten, ohne die gezielte Abrufbarkeit einzelner Fakten zu gewährleisten --- zu diesem Effekt vgl. @liu2023lostinthemiddle[S.~4--6] und Kap.~2.3.1.
 Die mehrkanalige Persistenz erlaubt stattdessen einen zielgerichteten Abruf je nach Bedarf: kompakter `summary`-Kontext beim Session-Start, semantisch passende `facts_sentences` mid-session via RAG, stabile `facts`-Metadaten jederzeit ohne Suchlatenz.
 
-Wie die gespeicherten Chunks im nächsten Besuch für die kontextuelle Anreicherung während der laufenden Sitzung abgerufen werden, beschreibt der folgende Abschnitt 6.2.
-
 == RAG-Retrieval und Kontext-Injektion
 
 #figure(
@@ -86,8 +84,6 @@ Der Assistent weiß damit ohne weitere Erklärung, für wen die Antwort relevant
 
 Wurden relevante Chunks gefunden, injiziert das Backend sie als Systemnachricht in die laufende Realtime-Session.
 Liefert die Suche keine relevanten Chunks, setzt das System die Session ohne zusätzlichen Kontext fort --- die Konversation bleibt funktionsfähig, lediglich ohne personalisierte Anreicherung.
-
-Wie das System bei gleichzeitig anwesenden mehreren Personen mit dieser Injection-Logik umgeht, beschreibt der folgende Abschnitt 6.3.
 
 == Gruppen-Sessions und History-Isolation
 
