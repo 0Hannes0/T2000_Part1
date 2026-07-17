@@ -169,6 +169,7 @@
 #include "chapters/introduction.typ"
 #include "chapters/main.typ"
 #include "chapters/discussion.typ"
+#include "chapters/conclusion.typ"
 
 // Appendix
 #appendix(labels: labels)
