@@ -121,7 +121,7 @@ Das System toleriert kurze Unterbrechungen der Sichtbarkeit: Wird die Person im 
       strong[Parameter], strong[Wert], strong[Bedeutung],
     ),
     [`POSITION_MATCH_RADIUS`], [120 px], [Schwelle der Positions-Stufe der Zuordnung (Wirkung in Kap.~5.2)],
-    [`SIMILARITY_THRESHOLD`], [0,65], [Schwelle der ArcFace-Stufe der Zuordnung (Wirkung in Kap.~5.2)],
+    [`SIMILARITY_THRESHOLD`], [0,52 (kalibriert; vgl. Kap.~5.1)], [Schwelle der ArcFace-Stufe der Zuordnung (Wirkung in Kap.~5.2)],
     [`GROUP_ARRIVAL_WINDOW_SECS`], [2,0 s], [Sammel-Fenster für parallele ACTIVE-Übergänge --- verschmilzt sie zu `group_arrived`],
     [IDLE-Eviction], [`LEAVE_SECS` · 6 ≈ 60 s], [IDLE-Tracker werden nach diesem Zeitraum aus der Liste entfernt],
   ),

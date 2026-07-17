@@ -56,7 +56,7 @@ Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem r
     node((1,0), [Frame mit Gesicht], name: <frame>),
     node((1,1), align(center)[Stage 1:\ Position ≤ 120 px?], shape: shapes.diamond, inset: 8pt, name: <s1>),
     node((0,2), align(center)[Person zugewiesen\ #text(size: 7.5pt)[(kein ArcFace-Call)\ `upsert_profile()` aufgerufen]], width: 110pt, name: <m1>),
-    node((2,2), align(center)[Stage 2:\ ArcFace-Score ≥ 0,65?], shape: shapes.diamond, inset: 8pt, name: <s2>),
+    node((2,2), align(center)[Stage 2:\ ArcFace-Score ≥ 0,52?], shape: shapes.diamond, inset: 8pt, name: <s2>),
     node((1,3), align(center)[Person identifiziert\ #text(size: 7.5pt)[`upsert_profile()` aufgerufen]], width: 110pt, name: <m2>),
     node((3,3), align(center)[Neue Person\ #text(size: 7.5pt)[neue PresenceStateMachine]], width: 110pt, name: <new>),
     edge(<frame>, <s1>,  "->"),
