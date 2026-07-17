@@ -657,7 +657,7 @@ Plans:
 **Bewertungspunkte:** 100P gesamt (10+10+10+10+15+10+5+5+5+10+5+5)
 
 - [x] **Phase 31: Systematik** — Schwellenwert-Inkonsistenz 0,65→0,52 + State-Machine-Terminologie einführen (10P) (completed 2026-07-17)
-- [ ] **Phase 32: Literaturrecherche** — DSGVO-BibTeX + arXiv→Peer-reviewed + VLM/Gaze-Quellen + hogenhout ersetzen (10P)
+- [x] **Phase 32: Literaturrecherche** — DSGVO-BibTeX + arXiv→Peer-reviewed + VLM/Gaze-Quellen + hogenhout ersetzen (10P) (completed 2026-07-17)
 - [ ] **Phase 33: Verwendung der Literatur** — CLIP-Sprung reparieren + EMA-α-Beleg spezifizieren + Barquero-Audit (10P)
 - [ ] **Phase 34: Methoden und Werkzeuge** — Anforderungsanalyse in Kap. 3 + ROC/Threshold-Diskussion in Kap. 7.1 (10P)
 - [ ] **Phase 35: Fachliche Bearbeitung** — Versuchsbeschreibung Kap. 7 + Gaze-Check-Evaluation + Gruppen-Sessions-Beleg (15P)
@@ -716,7 +716,7 @@ Plans:
 - [x] 32-02-PLAN.md — Umsetzung: DSGVO-Eintrag anlegen; ≥5 arXiv-Einträge auf publizierte Versionen aktualisieren; ≥2 VLM/Gaze-Quellen recherchieren, eintragen und einzitieren; hogenhout ersetzen/ergänzen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 32-03-PLAN.md — Finalcheck: Kriterien 1–4 verifizieren; BibTeX-Syntax prüfen; Inline-Zitate auf DSGVO-Schlüssel geprüft
+- [x] 32-03-PLAN.md — Finalcheck: Kriterien 1–4 verifizieren; BibTeX-Syntax prüfen; Inline-Zitate auf DSGVO-Schlüssel geprüft
 
 ---
 
@@ -963,7 +963,7 @@ Plans:
 | Phase | Waves | Status | Gestartet |
 |-------|-------|--------|-----------|
 | 31. Systematik (10P) | 3/3 | Complete    | 2026-07-17 |
-| 32. Literaturrecherche (10P) | 2/3 | In Progress|  |
+| 32. Literaturrecherche (10P) | 3/3 | Complete   | 2026-07-17 |
 | 33. Verwendung der Literatur (10P) | 0/3 | Pending | — |
 | 34. Methoden und Werkzeuge (10P) | 0/3 | Pending | — |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
