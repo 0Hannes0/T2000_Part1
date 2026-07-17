@@ -163,7 +163,7 @@ Plans:
   3. `kap8-fazit.md` beantwortet die Forschungsfrage direkt (8.1) und skizziert konkrete Weiterentwicklungsmöglichkeiten (8.2 Ausblick)
   4. Einleitung referenziert korrekt alle Kapitel 2–8; Fazit referenziert korrekt Evaluationsergebnisse aus Kap. 7
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 
@@ -656,7 +656,7 @@ Plans:
 
 **Bewertungspunkte:** 100P gesamt (10+10+10+10+15+10+5+5+5+10+5+5)
 
-- [ ] **Phase 31: Systematik** — Schwellenwert-Inkonsistenz 0,65→0,52 + State-Machine-Terminologie einführen (10P)
+- [x] **Phase 31: Systematik** — Schwellenwert-Inkonsistenz 0,65→0,52 + State-Machine-Terminologie einführen (10P) (completed 2026-07-17)
 - [ ] **Phase 32: Literaturrecherche** — DSGVO-BibTeX + arXiv→Peer-reviewed + VLM/Gaze-Quellen + hogenhout ersetzen (10P)
 - [ ] **Phase 33: Verwendung der Literatur** — CLIP-Sprung reparieren + EMA-α-Beleg spezifizieren + Barquero-Audit (10P)
 - [ ] **Phase 34: Methoden und Werkzeuge** — Anforderungsanalyse in Kap. 3 + ROC/Threshold-Diskussion in Kap. 7.1 (10P)
@@ -685,13 +685,13 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 31-01-PLAN.md — Audit: alle Vorkommen von 0,65/0,52 in chapters/*.typ kartieren; alle Vorkommen von IDLE/CANDIDATE/ACTIVE vor ihrer Definition lokalisieren
+- [x] 31-01-PLAN.md — Audit: alle Vorkommen von 0,65/0,52 in chapters/*.typ kartieren; alle Vorkommen von IDLE/CANDIDATE/ACTIVE vor ihrer Definition lokalisieren
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 31-02-PLAN.md — Umsetzung: Schwellenwert 0,65 → 0,52 in Abb. 5.1 ersetzen; State-Machine-Definitionen an erster Stelle einfügen
+- [x] 31-02-PLAN.md — Umsetzung: Schwellenwert 0,65 → 0,52 in Abb. 5.1 ersetzen; State-Machine-Definitionen an erster Stelle einfügen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 31-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren, kein 0,65-Rest, Terminologie konsistent
+- [x] 31-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren, kein 0,65-Rest, Terminologie konsistent
 
 ---
 
@@ -706,7 +706,7 @@ Plans:
   2. Mindestens 5 vormals arXiv-only BibTeX-Einträge zeigen jetzt booktitle oder journal einer peer-reviewed Konferenz oder Zeitschrift (CVPR, NeurIPS, ECCV, TPAMI o.ä.)
   3. Mindestens 2 neue peer-reviewed Quellen zu VLM-basierter Gaze-Schätzung oder Bildklassifikation sind in sources.bib eingetragen und in Kap. 2.1.2 oder 4.2 inline zitiert
   4. hogenhout2025biometricprivacy ist entweder durch eine etablierte Datenschutz-/Biometrie-Quelle ersetzt oder durch mindestens eine solche Quelle ergänzt
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -730,7 +730,7 @@ Plans:
   1. In kap2.typ (Abschnitt 2.1.2) ist entweder kein CLIP-Absatz mehr vorhanden, oder der Text erklärt explizit den Zusammenhang CLIP → Instruction-Following → Gemini 2.5 Flash ohne Argumentationslücke
   2. In kap5.typ (Abschnitt 5.3) ist der α=0,2-Wert mit einer Quelle aus dem Bereich biometrischer Embedding-Updates oder Tracking belegt — nicht ausschließlich Gardner 2006 (allgemeine Zeitreihen)
   3. barquero2020longtermtracking wird im Dokument nur noch an Stellen zitiert, an denen der Originalgehalt der Studie (Long-Term Re-Identification) die Argumentation direkt stützt
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -753,7 +753,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. In kap3.typ enthält Kap. 3 vor den Entscheidungsabschnitten 3.2–3.5 eine explizite Anforderungsanalyse mit mindestens drei messbaren Anforderungen (Latenz ≤ X ms, Erkennungsrate ≥ Y %, CPU-only), die als nachvollziehbarer Entscheidungsrahmen dienen
   2. In kap7.typ beschreibt Kap. 7.1 den FAR/FRR-Tradeoff bei unterschiedlichen Schwellenwerten und begründet den gewählten Betriebspunkt 0,52 innerhalb dieses ROC-Rahmens
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -777,7 +777,7 @@ Plans:
   1. In kap7.typ (Kap. 7.1) stehen Personenanzahl N, Sitzungsanzahl, Beleuchtungsbedingungen und Messprotokolldauer als explizite Versuchsbeschreibung — auch wenn N klein ist, ist der Rahmen vollständig
   2. In kap7.typ existiert für den Gaze-Check (Vision-LLM) eine qualitative Evaluation mit beobachteten False-Positive- und False-Negative-Raten aus dem Entwicklungsbetrieb
   3. In kap7.typ (Robustheit oder Kap. 7.3) ist die Gruppen-Sessions-Dimension mit mindestens einer beobachteten Messgröße belegt (z. B. Anteil Sessions mit mehr als einer Person)
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: no
 
 Plans:
@@ -802,7 +802,7 @@ Plans:
   1. In kap2.typ (Kap. 2.2.2) erklärt ein Absatz den geometrischen Unterschied zwischen Winkelmarge (ArcFace) und Kosinusmarge (CosFace) mit der Begründung, warum additive Winkelmarge stärker diskriminiert
   2. In kap6.typ (Kap. 6.2) ist die Wahl des RAG-Embedding-Modells mit einem nachvollziehbaren, quellengestützten Kriterium (MTEB-Benchmark-Rang, Sentence-BERT-Vergleich o.ä.) begründet
   3. In kap5.typ (Kap. 5.3) hat der α=0,2-Wert einen Literaturkontext: ein Verweis auf adaptive Embedding-Update-Methoden erklärt, warum graduelles Blending für biometrische Langzeit-Embeddings sinnvoll ist
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -825,7 +825,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. In kap3.typ (Kap. 3.6) steht eine Kostenschätzung mit konkreten Zahlen: geschätzte Gemini-API-Calls pro 8-Stunden-Kiosk-Tag (Gaze-Checks + Begrüßungen + Chats) und daraus resultierende Monatskosten
   2. In kap3.typ (Kap. 3.6) steht ein Kostenvergleich mit konkreten Listenpreisen einer Cloud-Alternative (AWS Rekognition oder Azure Face API), der die Einsparung durch den Open-Source/ONNX-Ansatz beziffert
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -849,7 +849,7 @@ Plans:
   1. In kap3.typ existiert Abschnitt 3.7 „Nachhaltigkeitsaspekte" mit drei erkennbaren Dimensionen: ökologisch (CPU-Inferenz, Energieverbrauch im Dauerbetrieb), ökonomisch (TCO Open-Source vs. proprietär), sozial (demographische Fehlerraten, gesellschaftliche Implikationen von Gesichtserkennung im öffentlichen Raum)
   2. In kap7.typ verweist die Diskussion der Erkennungsgenauigkeit explizit auf Buolamwini 2018 und bewertet die Implikation demographischer Bias für den SAP-Kiosk-Kontext
   3. Buolamwini 2018 ist als formal korrekter BibTeX-Eintrag in sources.bib vorhanden
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -872,7 +872,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. In kap3.typ (Kap. 3.4) oder kap7.typ enthält eine Skalierbarkeitsaussage die HNSW O(log N)-Komplexität angewendet auf das konkrete Szenario mit konkreten Profilzahlen (z. B. 10.000 / 100.000 Profile) und abgeschätzter Latenzauswirkung
   2. In kap8.typ (Kap. 8.2) sind Opt-in, DSFA (Art. 35) und Löschfunktion (Art. 17) als drei konkrete, umsetzbare Produktivierungsschritte formuliert
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -895,7 +895,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. In T2000_Part1/chapters/ existiert ein Anhang A „Systemparameter" mit einer Tabelle aller konfigurierbaren Parameter: CANDIDATE_SECS, LEAVE_SECS, SIMILARITY_THRESHOLD, FRAME_INTERVAL, GROUP_ARRIVAL_WINDOW_SECS, EMA-α — jeweils mit Wert, Einheit und Kapitelreferenz
   2. In kap3.typ oder kap4.typ sind IDLE, CANDIDATE und ACTIVE als definierte Bezeichnungen mit Kurzerklärung eingeführt, bevor diese Begriffe in Kap. 4+ ohne Erklärung verwendet werden
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -918,7 +918,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. In kap8.typ (Kap. 8.1) hebt ein eigener Absatz explizit drei originelle Beiträge hervor: (1) Vision-LLM als kalibrierungsfreie Interaktionsvalidierung, (2) spekulatives Pre-Computing der Begrüßung als Latenz-Engineering-Muster, (3) dreikanaliges Gedächtnisdesign (summary / facts_sentences / facts) als differenziertes Personalisierungskonzept
   2. In kap3.typ oder kap4.typ beschreibt ein Absatz für die Gaze-Check-Entscheidung das verdrängte naive Alternativvorgehen (klassische Gaze-Estimation mit Kalibrierung) und macht den Kreativitätsmehrwert des gewählten Ansatzes explizit
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -942,7 +942,7 @@ Plans:
   1. In kap3.typ (Kap. 3.3) ist der Modellwahlprozess als iterativer Eigenentscheid formuliert: naive Ausgangslösung (DeepFace), beobachtetes Problem (Genauigkeit/Latenz), eigene Erkenntnis die zu InsightFace buffalo_l führte
   2. In kap5.typ (Kap. 5.1) ist die Schwellenwert-Kalibrierung (0,65 → 0,52) als iterativer Eigenentscheid dargestellt: Ausgangswert, beobachtete Fehlerrate, eigene Kalibrierungsentscheidung
   3. In kap5.typ (Kap. 5.3) ist α=0,2 als bewusst getroffene Eigenentscheidung formuliert: warum nicht gleichgewichtig (α=0,5), welche eigene Beobachtung führte zur Wahl α=0,2
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 **Wave 1**
@@ -962,7 +962,7 @@ Plans:
 
 | Phase | Waves | Status | Gestartet |
 |-------|-------|--------|-----------|
-| 31. Systematik (10P) | 0/3 | Pending | — |
+| 31. Systematik (10P) | 3/3 | Complete    | 2026-07-17 |
 | 32. Literaturrecherche (10P) | 0/3 | Pending | — |
 | 33. Verwendung der Literatur (10P) | 0/3 | Pending | — |
 | 34. Methoden und Werkzeuge (10P) | 0/3 | Pending | — |
