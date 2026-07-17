@@ -35,6 +35,8 @@ Die drei Hauptdatenflüsse des Systems verlaufen über HTTP und WebSocket zwisch
 
 Der Presence Service bildet die Kernkomponente des Systems: Er verarbeitet den Kamerastream, führt Gesichtsdetektion, Tracking und biometrische Identifikation durch und persistiert Nutzerprofile. SAP AI Core dient als LLM-Infrastruktur für die Kerndienste des Systems: Gemini 2.5 Flash übernimmt Gaze-Check, Begrüßungsgenerierung und LLM-Chat.
 
+Die Zustandsverwaltung jeder erkannten Person wird durch eine `PresenceStateMachine` modelliert, die drei Zustände kennt: _IDLE_ (Person nicht aktiv erkannt), _CANDIDATE_ (Person erkannt, Interaktionsabsicht wird durch den Gaze-Check geprüft) und _ACTIVE_ (Gaze-Check positiv, Sitzung läuft). Kap.~4.3 beschreibt den Zustandsautomaten vollständig.
+
 #figure(
   diagram(
     node-stroke: 0.5pt,
