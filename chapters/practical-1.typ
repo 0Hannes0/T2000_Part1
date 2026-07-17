@@ -72,7 +72,7 @@ Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem r
 *Stage 1 --- Positions-Matching:* Der Mittelpunkt der neuen Detektion wird im Original-Frame-Koordinatensystem mit den zuletzt bekannten Mittelpunkten aller aktiven Personen verglichen.
 Liegt der euklidische Abstand innerhalb von `POSITION_MATCH_RADIUS` = 120 px, gilt die Detektion als Treffer und wird dieser Person zugewiesen --- ohne dass ein ArcFace-Embedding berechnet werden muss.
 Bei mehreren Trefferkandidaten gewinnt die nächstgelegene Person (closest-first).
-Dieser positionsbasierte Ansatz entspricht dem Tracking-by-Detection-Prinzip aus SORT @bewley2016sort[S.~1--3] (konzeptionelle Einordnung vgl. Kap.~4.3): Solange eine Person sich zwischen zwei Detektionszyklen um weniger als 120 px bewegt, reicht die Positionsinformation allein für die Zuordnung aus --- ein kosteneffizientes Verfahren, das sich auch für Langzeit-Szenarien eignet @barquero2020longtermtracking[S.~2--3].
+Damit wird das zweistufige Tracking-Prinzip aus Kap.~4.3 (SORT @bewley2016sort[S.~1--3]) umgesetzt.
 Die Koordinaten werden dabei auf den Original-Frame-Maßstab zurückgerechnet, da BlazeFace mit `DETECTION_UPSCALE` = 2,5 arbeitet und die zurückgegebenen Bounding-Box-Koordinaten entsprechend skaliert sind.
 
 *Stage 2 --- ArcFace-Matching:* Nur Detektionen, die Stage 1 keiner bekannten Person zuordnen konnte, durchlaufen die kostspielige Embedding-Berechnung.
