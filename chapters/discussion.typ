@@ -38,16 +38,16 @@ Die Einschränkung: LFW ist ein kontrollierter Benchmark, der Kiosk-Alltag nicht
       strong[Komponente], strong[Messwert],
     ),
     [InsightFace Embedding-Berechnung], [~80 ms (CPU, ONNX)],
-    [Gaze-Check Gemini 2.5 Flash], [~1--2 s],
+    [Gaze-Check Gemini 2.5 Flash], [~2 s],
     [`CANDIDATE_SECS` (Wartezeit vor Gaze)], [4,0 s],
     [`GREETING_WAIT_SECS`], [1,5 s],
-    [End-to-End bis personalisiertes Greeting], [~6,5--7,5 s],
+    [End-to-End bis personalisiertes Greeting], [~6 s],
   ),
   kind: table,
   caption: [Systemlatenz der kritischen Pfade],
 ) <tab:latenz>
 
-Die Embedding-Berechnung (~80 ms) liegt nicht auf dem kritischen Pfad --- sie läuft parallel zum Gaze-Check und ist vor dessen Abschluss fertig. Der dominierende Latenztreiber ist der Vision-LLM-Aufruf mit ~1--2 s. Die resultierende End-to-End-Latenz von ~6,5--7,5 s bis zum personalisierten Greeting ist für den Kiosk-Kontext akzeptabel: Eine Person, die aktiv mit dem Gerät interagieren möchte, steht typischerweise länger als 10 s davor.
+Die Embedding-Berechnung (~80 ms) liegt nicht auf dem kritischen Pfad --- sie läuft parallel zum Gaze-Check und ist lange vor dessen Abschluss fertig. Gleiches gilt für die Begrüßungsgenerierung: Sie startet ebenfalls parallel zum Gaze-Check, sodass `GREETING_WAIT_SECS` = 1,5 s eine Timeout-Obergrenze ist und keine additive Wartezeit. Der dominierende Latenztreiber ist damit der Vision-LLM-Aufruf mit ~2 s. Nach der `CANDIDATE_SECS`-Wartezeit von 4,0 s ergibt sich eine End-to-End-Latenz von rund 6 s bis zum personalisierten Greeting --- für den Kiosk-Kontext akzeptabel: Eine Person, die aktiv mit dem Gerät interagieren möchte, steht typischerweise länger als 10 s davor.
 
 === Robustheit
 
