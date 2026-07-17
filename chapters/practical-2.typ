@@ -68,7 +68,7 @@ Die mehrkanalige Persistenz erlaubt stattdessen einen zielgerichteten Abruf je n
 ) <fig:rag-flow>
 
 Sobald die erste Spracheingabe eines Nutzers in der laufenden Sitzung eintrifft, beginnt das Mid-Session RAG-Retrieval.
-Die Anfrage wird zunächst als semantischer Vektor repräsentiert: `embed()` in `backend/services/embedder.py` führt eine lokale Inferenz mit dem Modell `all-MiniLM-L12-v2` aus und liefert einen 384-dimensionalen Embedding-Vektor zurück (Laufzeit ~5 ms warm, ohne Remote-Verbindung --- dies ersetzt den früheren SAP-AI-Core-Remote-Aufruf mit einer Latenz von ~900 ms).
+Die Anfrage wird zunächst als semantischer Vektor repräsentiert: `embed()` in `backend/services/embedder.py` führt eine lokale Inferenz mit dem Modell `all-MiniLM-L12-v2` aus und liefert einen 384-dimensionalen Embedding-Vektor zurück (Laufzeit ~5 ms warm, ohne Remote-Verbindung --- dies ersetzt den früheren SAP-AI-Core-Remote-Aufruf mit einer Latenz von ~900 ms). Das Modell basiert auf der Sentence-BERT-Architektur @reimers2019sbert[S.~3984--3985] und ist für semantische Ähnlichkeitssuche in kompakten Einbettungsräumen optimiert.
 Dieser Vektor dient als Suchschlüssel für `find_relevant_chunks(person_id, k=3)` in `presence/db/store.py`, das den personenspezifischen Vektorindex nach den semantisch ähnlichsten `facts_sentences`-Chunks dieser Person durchsucht --- die Anfrage und die gespeicherten Sätze landen dabei in demselben 384-dimensionalen Raum, sodass thematische Nähe direkt als Skalarprodukt messbar ist @karpukhin2020dpr[S.~1--2].
 Die Suche selbst läuft über den HNSW-Index von Qdrant (Kap.~2.2.1), der die für mid-session-Latenz nötige logarithmische Suchzeit liefert @malkov2020hnsw[S.~1--2].
 

@@ -49,12 +49,13 @@ Die Detektion erfolgt periodisch mit `FRAME_INTERVAL` von 1,0 s --- kein kontinu
 
 Die Begründung für den Einsatz des Vision-LLM statt klassischer Gaze-Estimation ist in Kap.~3.2 und Kap.~2.1.2 ausgeführt @zhang2015mpiigaze[S.~1--2], @kellnhofer2019gaze360[S.~1]. Das System nutzt dafür ein binäres Vision-LLM-Urteil: schaut die Person in die Kamera oder nicht.
 
-Der funktionale Ablauf startet, sobald die Person `CANDIDATE_SECS` = 4,0 s ununterbrochen erkannt wurde: Der aktuelle Kameraframe wird mittels OpenCV als JPEG mit Qualitätsstufe 70 kodiert und zusammen mit einer kurzen Textaufforderung an das Modell Gemini 2.5 Flash über SAP AI Core geschickt.
+Der verwendete Prompt lautet in der englischen Originalfassung: _„Look at this camera image from a kiosk. The camera is mounted at the top of the screen. Is the person's face pointing toward the screen? Answer 'yes' if the face is roughly frontal --- head upright or only slightly tilted. Answer 'no' if the head is clearly turned away, tilted far down, or tilted far up. Answer ONLY with 'yes' or 'no'."_ Die Formulierung ist bewusst auf Frontalität statt auf präzise Blickrichtung ausgelegt: Das Modell trifft eine grobe Interaktionsklassifikation, keine metrische Gaze-Schätzung --- was die im Kiosk-Kontext geforderte Robustheit gegenüber nutzerspezifischen Variationen erzeugt.
+
+Der funktionale Ablauf startet, sobald die Person `CANDIDATE_SECS` = 4,0 s ununterbrochen erkannt wurde: Der aktuelle Kameraframe wird mittels OpenCV als JPEG mit Qualitätsstufe 70 kodiert und zusammen mit dem obigen Prompt an das Modell Gemini 2.5 Flash über SAP AI Core geschickt.
 Da der zugrunde liegende SDK-Aufruf synchron blockiert, wird er in einem separaten Hintergrund-Thread ausgeführt, sodass der Detektions-Loop nicht blockiert wird.
 Aus der Modellantwort ergeben sich drei Pfade: Antwortet das Modell mit „yes", wird der Übergang zu ACTIVE freigegeben, wie in Kap.~4.3 detailliert beschrieben. Antwortet es mit „no", fällt die State Machine zurück nach IDLE.
 Überschreitet der Aufruf die Wartezeit von `GAZE_TIMEOUT_SECS` = 9,0 s oder tritt ein Fehler auf, gibt der Gaze-Validator None zurück --- die State Machine verbleibt in diesem Fall im CANDIDATE-Zustand und wiederholt die Prüfung im nächsten Frame, ohne in IDLE zurückzufallen.
 Dieser Retry-Mechanismus stellt sicher, dass ein kurzzeitiger LLM-Verbindungsfehler nicht zum Verlust einer bereits erkannten Interaktionsabsicht führt.
-Der genaue Prompt-Wortlaut ist nicht Teil dieser Dokumentation; es wird ausschließlich die funktionale Verhaltensweise beschrieben.
 
 == State Machine: IDLE → CANDIDATE → ACTIVE
 

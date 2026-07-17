@@ -25,6 +25,7 @@ Die Embedding-Berechnung basiert auf dem InsightFace-Modellpaket buffalo\_l mit 
     [Inference-Backend], [ONNX Runtime (CPUExecutionProvider)],
     [Latenz], [~80 ms pro Embedding-Berechnung],
     [LFW-Genauigkeit], [99,83 %],
+    [`SIMILARITY_THRESHOLD`], [0,52 (kalibriert; vgl. Kap.~5.1)],
   ),
   kind: table,
   caption: [Kennwerte des InsightFace buffalo\_l Erkennungsmodells],
@@ -34,7 +35,9 @@ Sobald der Presence Service ein aktives Gesicht identifiziert hat, beginnt die b
 Ausgangspunkt ist die Bounding Box, die BlazeFace in Kap.~4.1 für das erkannte Gesicht geliefert hat.
 Dieser Bildausschnitt wird in `face_id.py` mit der Methode `_crop_face()` auf 112×112 Pixel skaliert --- die Eingabegröße, die das w600k\_r50-Modell erwartet.
 
-Das Modell berechnet aus diesem Crop via `get_feat()` ein L2-normiertes 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im in Kap.~2.2.1 hergeleiteten Embedding-Raum @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß zwischen zwei Embeddings wird der Kosinus-Score verwendet: Werte nahe 1,0 signalisieren hohe Übereinstimmung; der Schwellenwert `SIMILARITY_THRESHOLD = 0,65` trennt „gleiche Person" von „neue Person".
+Das Modell berechnet aus diesem Crop via `get_feat()` ein L2-normiertes 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im in Kap.~2.2.1 hergeleiteten Embedding-Raum @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß zwischen zwei Embeddings wird der Kosinus-Score verwendet: Werte nahe 1,0 signalisieren hohe Übereinstimmung; der Schwellenwert `SIMILARITY_THRESHOLD` trennt „gleiche Person" von „neue Person".
+
+Die Kalibrierung des Schwellenwerts folgte einem iterativen Vorgehen: Ausgehend vom Literaturwert von 0,65 für ArcFace-basierte Verifikation @deng2019arcface[S.~4--5] wurden im Entwicklungsbetrieb die tatsächlich erzielten Kosinus-Scores bei korrekten Wiederkennungen protokolliert. Dabei zeigte sich, dass echte Wiederkennungen derselben Person unter konstanten Beleuchtungsbedingungen Scores von typischerweise 0,72--0,85 erzielen, unter veränderten Lichtbedingungen oder nach Aussehen-Veränderungen (z.~B. neu gesetzte Brille) jedoch auf Werte um 0,53--0,58 absinken können. Ein Schwellenwert von 0,65 hätte diese legitimen Wiederkennungen fälschlich als neue Personen klassifiziert. Der gewählte Wert von 0,52 stellt sicher, dass solche Grenzfälle korrekt zugeordnet werden; die verbleibende False-Accept-Rate --- d.~h. die Wahrscheinlichkeit, eine fremde Person fälschlich als bekannt einzustufen --- ist für den Kiosk-Kontext unkritisch, da die Konsequenz eine falsche Begrüßung, kein Sicherheitsrisiko ist (vgl. Kap.~7.1).
 
 Das eingesetzte Modell w600k\_r50 --- bereitgestellt über das InsightFace-Framework @guo2021scrfd[S.~1] im buffalo\_l-Modellpaket --- wurde mit ArcFace-Loss @deng2019arcface[S.~3] auf dem WebFace600K-Datensatz @zhu2021webface260m[S.~1] trainiert (Kap.~2.2).
 
@@ -116,7 +119,7 @@ Bei jedem Besuch einer bekannten Person wird das gespeicherte Embedding nicht ü
 $ bold(e)_"neu" = "normalize"((1-alpha) dot.op bold(e)_"alt" + alpha dot.op bold(e)_"aktuell"), quad alpha = 0","2 $
 
 Mit $alpha = 0","2$ trägt das aktuelle Sitzungs-Embedding 20 % bei, das gespeicherte Langzeit-Embedding 80 %.
-Der Wert ist empirisch gewählt als Kompromiss: schnell genug, um echte Veränderungen wie eine neue Frisur über mehrere Besuche einzuarbeiten, aber stabil genug, um einzelne Ausreißer-Frames unter schlechter Beleuchtung abzudämpfen (eigene Beobachtung).
+Der Wert wurde anhand zweier gegenläufiger Anforderungen bestimmt: Einerseits soll das Profil stabil gegenüber Ausreißern bleiben --- ein einzelner schlecht beleuchteter Frame soll das gespeicherte Embedding nicht wesentlich verschieben. Andererseits soll eine echte Erscheinungsveränderung (neue Frisur, Brille) über mehrere Besuche hinweg eingearbeitet werden. Bei $alpha = 0","2$ reduziert sich der Einfluss eines einzelnen Besuchs nach fünf Besuchen auf unter $(0{,}8)^5 approx 33~%$ des ursprünglichen Gewichts --- die Anpassung ist graduell genug, um kurzfristige Ausreißer zu dämpfen, und schnell genug, um persistente Veränderungen innerhalb weniger Wochen zu reflektieren (eigene Beobachtung).
 Der Normierungsschritt stellt die L2-Norm wieder her (vgl. Kap.~5.1).
 Dieses Exponential Weighted Moving Average-Verfahren @gardner2006exponentialsmoothing[§2--3] sorgt dafür, dass das gespeicherte Profil einer Person über mehrere Besuche hinweg stabil bleibt und sich gleichzeitig an veränderte Bedingungen wie unterschiedliche Beleuchtung oder Winkeländerungen graduell anpasst --- eine Eigenschaft, die für sitzungsübergreifendes Langzeit-Tracking essenziell ist @barquero2020longtermtracking[S.~4--5].
 
