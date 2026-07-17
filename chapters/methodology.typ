@@ -97,10 +97,11 @@ Der genaue Prompt-Wortlaut ist nicht Teil dieser Dokumentation; es wird ausschli
   caption: [Zustandsdiagramm der PresenceStateMachine],
 ) <fig:statemachine>
 
-Sobald `CANDIDATE_SECS` = 4,0 s überschritten sind, startet das System gleichzeitig zwei Hintergrundaufgaben: die Gaze-Validierung und die biometrische Identifikation.
-Während die Gaze-Validierung läuft, wartet das System auf das Ergebnis der Identifikation --- dieses enthält Personenname, Wiederkehr-Status, bevorzugte Sprache und Gesprächskontext aus vorherigen Sitzungen --- und bereitet auf dieser Basis einen Begrüßungstext vor.
-Sobald die Gaze-Validierung abgeschlossen ist, entscheidet ihr Ergebnis über den Übergang: Gibt sie True zurück, wird der Zustand auf ACTIVE gesetzt; der Begrüßungstext wird mit einem Timeout von `GREETING_WAIT_SECS` = 1,5 s abgewartet und anschließend über das WebSocket-System nach außen signalisiert.
-Gibt sie False zurück, wechselt die Maschine zurück nach IDLE und bricht die Begrüßungsvorbereitung ab.
+Sobald `CANDIDATE_SECS` = 4,0 s überschritten sind, startet das System zwei Aufgaben gleichzeitig: die Gaze-Validierung und die biometrische Identifikation.
+Sobald die Identifikation vorliegt --- sie liefert Personenname, Wiederkehr-Status, bevorzugte Sprache und Gesprächskontext aus vorherigen Sitzungen und ist nach ~80 ms fertig --- startet das System einen dritten parallelen Vorgang: einen eigenen Vision-LLM-Aufruf, der aus dem Kamerabild und diesen Personendaten bereits einen fertigen Begrüßungssatz generiert.
+Diese Begrüßung wird damit spekulativ erzeugt, während der Gaze-Check noch läuft --- ihr Ergebnis wird erst verwendet, wenn der Gaze-Check positiv ausfällt.
+Sobald die Gaze-Validierung abgeschlossen ist, entscheidet ihr Ergebnis über den Übergang: Gibt sie True zurück, wird der Zustand auf ACTIVE gesetzt; der bereits generierte Begrüßungstext wird mit einem Timeout von `GREETING_WAIT_SECS` = 1,5 s eingesammelt und anschließend über das WebSocket-System nach außen signalisiert.
+Gibt sie False zurück, wechselt die Maschine zurück nach IDLE und verwirft die spekulativ erzeugte Begrüßung.
 Tritt ein Timeout nach `GAZE_TIMEOUT_SECS` = 9,0 s auf und gibt der Gaze-Validator None zurück, erfolgt kein Zustandswechsel --- im nächsten Detektionszyklus wird sofort erneut geprüft.
 Dieser Retry-Mechanismus ist bewusst nicht als eigener Zustand modelliert: ein LLM-Verbindungsfehler ist kein inhaltlicher Sonderfall, sondern ein technisches Interim.
 
