@@ -25,7 +25,7 @@ Die Embedding-Berechnung basiert auf dem InsightFace-Modellpaket buffalo\_l mit 
     [Inference-Backend], [ONNX Runtime (CPUExecutionProvider)],
     [Latenz], [~80 ms pro Embedding-Berechnung],
     [LFW-Genauigkeit], [99,83 %],
-    [`SIMILARITY_THRESHOLD`], [0,52 (kalibriert; vgl. Kap.~5.1)],
+    [`SIMILARITY_THRESHOLD`], [0,52 ],
   ),
   kind: table,
   caption: [Kennwerte des InsightFace buffalo\_l Erkennungsmodells],
@@ -37,7 +37,7 @@ Dieser Bildausschnitt wird in `face_id.py` mit der Methode `_crop_face()` auf 11
 
 Das Modell berechnet aus diesem Crop via `get_feat()` ein L2-normiertes 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im in Kap.~2.2.1 hergeleiteten Embedding-Raum @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß zwischen zwei Embeddings wird der Kosinus-Score verwendet: Werte nahe 1,0 signalisieren hohe Übereinstimmung; der Schwellenwert `SIMILARITY_THRESHOLD` trennt „gleiche Person" von „neue Person".
 
-Die Kalibrierung des Schwellenwerts folgte einem iterativen Vorgehen: Ausgehend vom Literaturwert von 0,65 für ArcFace-basierte Verifikation @deng2019arcface[S.~4--5] wurden im Entwicklungsbetrieb die tatsächlich erzielten Kosinus-Scores bei korrekten Wiederkennungen protokolliert. Dabei zeigte sich, dass echte Wiederkennungen derselben Person unter konstanten Beleuchtungsbedingungen Scores von typischerweise 0,72--0,85 erzielen, unter veränderten Lichtbedingungen oder nach Aussehen-Veränderungen (z.~B. neu gesetzte Brille) jedoch auf Werte um 0,53--0,58 absinken können. Ein Schwellenwert von 0,65 hätte diese legitimen Wiederkennungen fälschlich als neue Personen klassifiziert. Der gewählte Wert von 0,52 stellt sicher, dass solche Grenzfälle korrekt zugeordnet werden; die verbleibende False-Accept-Rate --- d.~h. die Wahrscheinlichkeit, eine fremde Person fälschlich als bekannt einzustufen --- ist für den Kiosk-Kontext unkritisch, da die Konsequenz eine falsche Begrüßung, kein Sicherheitsrisiko ist (vgl. Kap.~7.1).
+Die Kalibrierung des Schwellenwerts folgte einem iterativen Vorgehen: Ausgehend vom Literaturwert von 0,65 für ArcFace-basierte Verifikation @deng2019arcface[S.~4--5] wurden im Entwicklungsbetrieb die tatsächlich erzielten Kosinus-Scores bei korrekten Wiederkennungen protokolliert. Dabei zeigte sich, dass echte Wiederkennungen derselben Person unter konstanten Beleuchtungsbedingungen Scores von typischerweise 0,72--0,85 erzielen, unter veränderten Lichtbedingungen oder nach Aussehen-Veränderungen (z.~B. neu gesetzte Brille) jedoch auf Werte um 0,53--0,58 absinken können. Ein Schwellenwert von 0,65 hätte diese legitimen Wiederkennungen fälschlich als neue Personen klassifiziert; der gewählte Wert von 0,52 stellt sicher, dass solche Grenzfälle korrekt zugeordnet werden. Die Testergebnisse sind in Kap.~7.3 ausgewiesen.
 
 Das eingesetzte Modell w600k\_r50 --- bereitgestellt über das InsightFace-Framework @guo2021scrfd[S.~1] im buffalo\_l-Modellpaket --- wurde mit ArcFace-Loss @deng2019arcface[S.~3] auf dem WebFace600K-Datensatz @zhu2021webface260m[S.~1] trainiert (Kap.~2.2).
 
@@ -72,14 +72,13 @@ Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem r
 *Stage 1 --- Positions-Matching:* Der Mittelpunkt der neuen Detektion wird im Original-Frame-Koordinatensystem mit den zuletzt bekannten Mittelpunkten aller aktiven Personen verglichen.
 Liegt der euklidische Abstand innerhalb von `POSITION_MATCH_RADIUS` = 120 px, gilt die Detektion als Treffer und wird dieser Person zugewiesen --- ohne dass ein ArcFace-Embedding berechnet werden muss.
 Bei mehreren Trefferkandidaten gewinnt die nächstgelegene Person (closest-first).
-Dieser positionsbasierte Ansatz entspricht dem Tracking-by-Detection-Prinzip aus SORT @bewley2016sort[S.~1--3]: Solange eine Person sich zwischen zwei Detektionszyklen um weniger als 120 px bewegt, reicht die Positionsinformation allein für die Zuordnung aus --- ein kosteneffizientes Verfahren, das sich auch für Langzeit-Szenarien eignet @barquero2020longtermtracking[S.~2--3].
+Dieser positionsbasierte Ansatz entspricht dem Tracking-by-Detection-Prinzip aus SORT @bewley2016sort[S.~1--3] (konzeptionelle Einordnung vgl. Kap.~4.3): Solange eine Person sich zwischen zwei Detektionszyklen um weniger als 120 px bewegt, reicht die Positionsinformation allein für die Zuordnung aus --- ein kosteneffizientes Verfahren, das sich auch für Langzeit-Szenarien eignet @barquero2020longtermtracking[S.~2--3].
 Die Koordinaten werden dabei auf den Original-Frame-Maßstab zurückgerechnet, da BlazeFace mit `DETECTION_UPSCALE` = 2,5 arbeitet und die zurückgegebenen Bounding-Box-Koordinaten entsprechend skaliert sind.
 
 *Stage 2 --- ArcFace-Matching:* Nur Detektionen, die Stage 1 keiner bekannten Person zuordnen konnte, durchlaufen die kostspielige Embedding-Berechnung.
 Der berechnete Kosinus-Score wird gegen alle gespeicherten Profile verglichen.
 Liegt der höchste Score über `SIMILARITY_THRESHOLD`, wird die Detektion der entsprechenden Person zugewiesen; liegt er darunter, wird eine neue `_TrackedPerson` mit einer eigenen `PresenceStateMachine` angelegt.
 Diese Kombination aus positionsbasiertem Präfilter und Deep-Appearance-Matching entspricht dem DeepSORT-Muster @wojke2017deepsort[S.~1--3] und ermöglicht robuste Personenzuordnung auch bei temporärer Nicht-Frontalorientierung @barquero2020longtermtracking[S.~3--4].
-
 Nach erfolgreichem Stage-1- oder Stage-2-Match wird `upsert_profile()` aufgerufen (Details in Kap.~5.3).
 
 Innerhalb einer Sitzung stabilisiert der Tracker das Embedding einer Person durch einen kumulativen normalisierten Mittelwert: Frame n trägt das Gewicht 1/n bei (`_running_avg()`), sodass alle bisherigen Frames gleichgewichtet in das Sitzungs-Embedding eingehen.
@@ -109,10 +108,9 @@ Die Persistenzschicht basiert auf einem abstrakten FaceStore-Interface mit zwei 
   caption: [Konfiguration der FaceStore-Persistenzschicht],
 ) <tab:facestore-config>
 
-Das FaceStore-Interface entkoppelt die Persistenzschicht vom Identifikations-Algorithmus: Über die Umgebungsvariable `FACE_STORE_BACKEND` wählt eine Factory-Funktion zur Laufzeit zwischen `SQLiteFaceStore` und `QdrantFaceStore` --- die Migrationsgründe sind in Kap.~3.4 dokumentiert.
+Das FaceStore-Interface entkoppelt die Persistenzschicht vom Identifikations-Algorithmus (Designbegründung vgl. Kap.~3.4): Über die Umgebungsvariable `FACE_STORE_BACKEND` wählt eine Factory-Funktion zur Laufzeit zwischen `SQLiteFaceStore` und `QdrantFaceStore`.
 
-Qdrant nutzt einen HNSW-Index für Kosinus-Ähnlichkeitssuche über die 512-dimensionalen ArcFace-Embeddings (vgl. Kap.~2.2.1 und Kap.~3.4): `find_profile()` gibt das Profil mit dem höchsten Kosinus-Score zurück; liegt dieser Score über `SIMILARITY_THRESHOLD`, gilt die Person als bekannt.
-Im System werden zwei Qdrant-Collections genutzt: `face_profiles` für die 512-dimensionalen ArcFace-Embeddings und `conversation_chunks` für die 384-dimensionalen RAG-Embeddings des Gesprächsgedächtnisses. Das RAG-Embedding-Modell (all-MiniLM-L12-v2, lokal) und die Nutzung dieser Collection werden in Kap.~6.2 beschrieben.
+Qdrant nutzt einen HNSW-Index für Kosinus-Ähnlichkeitssuche über die 512-dimensionalen ArcFace-Embeddings: `find_profile()` gibt das Profil mit dem höchsten Kosinus-Score zurück; liegt dieser Score über `SIMILARITY_THRESHOLD`, gilt die Person als bekannt. Die `conversation_chunks`-Collection für RAG-Embeddings und ihre Nutzung werden in Kap.~6.2 beschrieben.
 
 Bei jedem Besuch einer bekannten Person wird das gespeicherte Embedding nicht überschrieben, sondern graduell nach der folgenden Formel aktualisiert:
 
