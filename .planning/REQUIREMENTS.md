@@ -74,9 +74,9 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### LIT-V — Verwendung der Literatur
 
-- [ ] **LITV-01**: Der CLIP-Absatz in Kap. 2.1.2 wird überarbeitet: entweder CLIP wird gestrichen und die Argumentation für den VLM-Ansatz direkt über Gemini/Instruction-Following-Literatur geführt, oder der Zusammenhang zu Gemini 2.5 Flash wird explizit und korrekt erklärt
-- [ ] **LITV-02**: Der Wert α=0,2 für das EMA-Blending (Kap. 5.3) wird mit einer spezifischen Quelle belegt, die EMA-Parameterwahl in Gesichtserkennungs- oder Embedding-Update-Kontexten behandelt — nicht nur Gardner 2006 (allgemeine Zeitreihen)
-- [ ] **LITV-03**: Alle fünf `barquero2020longtermtracking`-Zitate in Kap. 4–5 werden auf Relevanz geprüft: nur Stellen, an denen der Originalgehalt der Studie tatsächlich zur Argumentation beiträgt, werden beibehalten
+- [x] **LITV-01**: Der CLIP-Absatz in Kap. 2.1.2 wird überarbeitet: entweder CLIP wird gestrichen und die Argumentation für den VLM-Ansatz direkt über Gemini/Instruction-Following-Literatur geführt, oder der Zusammenhang zu Gemini 2.5 Flash wird explizit und korrekt erklärt
+- [x] **LITV-02**: Der Wert α=0,2 für das EMA-Blending (Kap. 5.3) wird mit einer spezifischen Quelle belegt, die EMA-Parameterwahl in Gesichtserkennungs- oder Embedding-Update-Kontexten behandelt — nicht nur Gardner 2006 (allgemeine Zeitreihen)
+- [x] **LITV-03**: Alle fünf `barquero2020longtermtracking`-Zitate in Kap. 4–5 werden auf Relevanz geprüft: nur Stellen, an denen der Originalgehalt der Studie tatsächlich zur Argumentation beiträgt, werden beibehalten
 
 ### METH — Methoden und Werkzeuge
 
@@ -165,9 +165,9 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | LITR-02 | Phase 32 — Literaturrecherche | Complete |
 | LITR-03 | Phase 32 — Literaturrecherche | Complete |
 | LITR-04 | Phase 32 — Literaturrecherche | Complete |
-| LITV-01 | Phase 33 — Verwendung der Literatur | Pending |
-| LITV-02 | Phase 33 — Verwendung der Literatur | Pending |
-| LITV-03 | Phase 33 — Verwendung der Literatur | Pending |
+| LITV-01 | Phase 33 — Verwendung der Literatur | Complete |
+| LITV-02 | Phase 33 — Verwendung der Literatur | Complete |
+| LITV-03 | Phase 33 — Verwendung der Literatur | Complete |
 | METH-01 | Phase 34 — Methoden und Werkzeuge | Pending |
 | METH-02 | Phase 34 — Methoden und Werkzeuge | Pending |
 | FACH-01 | Phase 35 — Fachliche Bearbeitung | Pending |

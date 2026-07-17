@@ -658,7 +658,7 @@ Plans:
 
 - [x] **Phase 31: Systematik** — Schwellenwert-Inkonsistenz 0,65→0,52 + State-Machine-Terminologie einführen (10P) (completed 2026-07-17)
 - [x] **Phase 32: Literaturrecherche** — DSGVO-BibTeX + arXiv→Peer-reviewed + VLM/Gaze-Quellen + hogenhout ersetzen (10P) (completed 2026-07-17)
-- [ ] **Phase 33: Verwendung der Literatur** — CLIP-Sprung reparieren + EMA-α-Beleg spezifizieren + Barquero-Audit (10P)
+- [x] **Phase 33: Verwendung der Literatur** — CLIP-Sprung reparieren + EMA-α-Beleg spezifizieren + Barquero-Audit (10P) (completed 2026-07-17)
 - [ ] **Phase 34: Methoden und Werkzeuge** — Anforderungsanalyse in Kap. 3 + ROC/Threshold-Diskussion in Kap. 7.1 (10P)
 - [ ] **Phase 35: Fachliche Bearbeitung** — Versuchsbeschreibung Kap. 7 + Gaze-Check-Evaluation + Gruppen-Sessions-Beleg (15P)
 - [ ] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P)
@@ -734,13 +734,13 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 33-01-PLAN.md — Audit: CLIP-Absatz in Kap. 2.1.2 lesen und Argumentationsbruch dokumentieren; alle 5 barquero-Zitate auf Relevanz prüfen; Gardner-Beleg in Kap. 5.3 verorten
+- [x] 33-01-PLAN.md — Audit: CLIP-Absatz in Kap. 2.1.2 lesen und Argumentationsbruch dokumentieren; alle 5 barquero-Zitate auf Relevanz prüfen; Gardner-Beleg in Kap. 5.3 verorten
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 33-02-PLAN.md — Umsetzung: CLIP-Absatz überarbeiten oder streichen; α=0,2-Beleg durch domänenspezifische Quelle ersetzen/ergänzen; irrelevante barquero-Zitate entfernen
+- [x] 33-02-PLAN.md — Umsetzung: CLIP-Absatz überarbeiten oder streichen; α=0,2-Beleg durch domänenspezifische Quelle ersetzen/ergänzen; irrelevante barquero-Zitate entfernen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 33-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; kein Argumentationssprung mehr; barquero-Zitierzahl gegen Audit-Ergebnis geprüft
+- [x] 33-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; kein Argumentationssprung mehr; barquero-Zitierzahl gegen Audit-Ergebnis geprüft
 
 ---
 
@@ -964,7 +964,7 @@ Plans:
 |-------|-------|--------|-----------|
 | 31. Systematik (10P) | 3/3 | Complete    | 2026-07-17 |
 | 32. Literaturrecherche (10P) | 3/3 | Complete   | 2026-07-17 |
-| 33. Verwendung der Literatur (10P) | 0/3 | Pending | — |
+| 33. Verwendung der Literatur (10P) | 3/3 | Complete    | 2026-07-17 |
 | 34. Methoden und Werkzeuge (10P) | 0/3 | Pending | — |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
 | 36. Nutzung Fachwissen (10P) | 0/3 | Pending | — |
