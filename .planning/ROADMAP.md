@@ -710,10 +710,10 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 32-01-PLAN.md — Audit: alle arXiv-only Einträge in sources.bib identifizieren; VLM/Gaze-Lücken in Kap. 2.1.2 + 4.2 kartieren; hogenhout-Status prüfen
+- [x] 32-01-PLAN.md — Audit: alle arXiv-only Einträge in sources.bib identifizieren; VLM/Gaze-Lücken in Kap. 2.1.2 + 4.2 kartieren; hogenhout-Status prüfen
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 32-02-PLAN.md — Umsetzung: DSGVO-Eintrag anlegen; ≥5 arXiv-Einträge auf publizierte Versionen aktualisieren; ≥2 VLM/Gaze-Quellen recherchieren, eintragen und einzitieren; hogenhout ersetzen/ergänzen
+- [x] 32-02-PLAN.md — Umsetzung: DSGVO-Eintrag anlegen; ≥5 arXiv-Einträge auf publizierte Versionen aktualisieren; ≥2 VLM/Gaze-Quellen recherchieren, eintragen und einzitieren; hogenhout ersetzen/ergänzen
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 32-03-PLAN.md — Finalcheck: Kriterien 1–4 verifizieren; BibTeX-Syntax prüfen; Inline-Zitate auf DSGVO-Schlüssel geprüft
@@ -963,7 +963,7 @@ Plans:
 | Phase | Waves | Status | Gestartet |
 |-------|-------|--------|-----------|
 | 31. Systematik (10P) | 3/3 | Complete    | 2026-07-17 |
-| 32. Literaturrecherche (10P) | 0/3 | Pending | — |
+| 32. Literaturrecherche (10P) | 2/3 | In Progress|  |
 | 33. Verwendung der Literatur (10P) | 0/3 | Pending | — |
 | 34. Methoden und Werkzeuge (10P) | 0/3 | Pending | — |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
