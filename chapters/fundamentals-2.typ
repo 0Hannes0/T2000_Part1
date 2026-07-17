@@ -1,7 +1,7 @@
 = Konzeption
 #import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
-Dieses Kapitel begründet die zentralen Designentscheidungen des entwickelten Systems und legt damit das konzeptionelle Fundament für die Implementierungsbeschreibung der folgenden Kapitel. Im Vordergrund steht nicht die Beschreibung des Implementierten, sondern die nachvollziehbare Herleitung, warum genau diese Technologien und Architekturentscheidungen getroffen wurden. Der Aufbau gliedert sich in sechs Abschnitte: Kap.~3.1 gibt einen Überblick über die Gesamtarchitektur des Systems, Kap.~3.2 bis 3.4 begründen die drei zentralen Technologieentscheidungen (Detektionsansatz, Erkennungsmodell, Persistenzschicht), Kap.~3.5 und 3.6 behandeln mit Datenschutz und Wirtschaftlichkeit zwei querschnittliche Aspekte. Die Implementierungsdetails der einzelnen Komponenten werden in den Kapiteln 4 bis 6 beschrieben.
+Dieses Kapitel begründet die zentralen Designentscheidungen des entwickelten Systems und legt damit das konzeptionelle Fundament für die Implementierungsbeschreibung der folgenden Kapitel. Im Vordergrund steht nicht die Beschreibung des Implementierten, sondern die nachvollziehbare Herleitung, warum genau diese Technologien und Architekturentscheidungen getroffen wurden. Kap.~3.1 gibt einen Überblick über die Gesamtarchitektur, Kap.~3.2 bis 3.4 begründen die drei zentralen Technologieentscheidungen (Detektionsansatz, Erkennungsmodell, Persistenzschicht), Kap.~3.5 und 3.6 behandeln mit Datenschutz und Wirtschaftlichkeit zwei querschnittliche Aspekte. Die Implementierungsdetails der einzelnen Komponenten folgen in den Kapiteln 4 bis 6.
 
 == Gesamtarchitektur und Systemüberblick
 
@@ -65,9 +65,6 @@ Der Presence Service bildet die Kernkomponente des Systems: Er verarbeitet den K
   caption: [Interne Verarbeitungspipeline des Presence Service],
 ) <fig:presence-pipeline>
 
-
-Die einzelnen Komponenten werden in den folgenden Kapiteln detailliert beschrieben: Kap.~4 erläutert die Presence-Pipeline (Detektion, Gaze-Validierung, State Machine), Kap.~5 die biometrische Identifikation, Kap.~6 die Personalisierungslogik.
-
 == Auswahl des Detektionsansatzes
 
 Die Anforderungen an die Gesichtsdetektion im öffentlichen Kiosk-Kontext bestimmen die Modellwahl: Erkannt werden sollen ausschließlich Personen, die aktiv mit dem System interagieren --- Personen, die vorbeigehen oder sich seitlich zur Kamera befinden, dürfen das System nicht auslösen.
@@ -98,8 +95,6 @@ YOLO-basierte Detektoren erkennen Gesichter aus allen Winkeln einschließlich Se
 MediaPipe BlazeFace ist als frontaler Einzelpersonen-Detektor konzipiert: Das Anchor-Schema ist explizit auf Frontalgesichter ausgelegt, was für den Kiosk-Einsatz ein Vorteil ist --- Personen, die seitlich stehen oder vorbeigehen, werden so von vornherein nicht erkannt @bazarevsky2019blazeface[S.~2--3]. MediaPipe stellt dabei das quelloffene Inferenz-Framework bereit, in das BlazeFace als eingebettete Komponente integriert ist @lugaresi2019mediapipe[S.~1--2]. Mit einer CPU-Latenz von ca. 15--30 ms pro Frame ermöglicht BlazeFace Echtzeit-Verarbeitung auf Standard-Hardware ohne GPU-Anforderung.
 
 Als zweite Filterschicht wird Blickkontakt per Vision-LLM (Gemini 2.5 Flash) validiert, um auch frontal detektierte, aber nicht aktiv interagierende Personen herauszufiltern. Gemini klassifiziert Bilder direkt ohne vorherige Kalibrierung auf einzelne Nutzer --- für einen öffentlichen Kiosk mit wechselnden Personen ist das entscheidend, da kein nutzerspezifisches Training oder Setup möglich ist @radford2021clip[S.~1--3], @cheng2021gazesurvey[§1, S.~1--2]. Diese Kombination aus frontalem Detektor und Gaze-Validierung stellt sicher, dass nur Personen mit bewusstem Blickkontakt zum System als aktive Nutzer klassifiziert werden (Details Kap.~4.2). Für die frame-übergreifende Identitätszuordnung wird ein zweistufiges Tracking eingesetzt: Personen werden nicht kontinuierlich verfolgt, sondern bei jedem Frame neu erkannt und anschließend per Positions-Abgleich und ArcFace-Score der bekannten Identität zugeordnet. Dieses Erkennungsprinzip ist in der Literatur für Szenarien mit Personenwechsel etabliert @barquero2020longtermtracking[S.~1--3].
-
-Die Konfiguration und Nutzung der BlazeFace-Detektion sowie die Gaze-Validierung in der eigenen Implementierung werden in Kap.~4.1 und Kap.~4.2 beschrieben.
 
 == Auswahl des Erkennungsmodells
 
@@ -137,8 +132,6 @@ Die verworfenen Alternativen scheiden entlang derselben beiden Dimensionen aus: 
 
 Die Inferenz via ONNX Runtime liefert CPU-optimierte Verarbeitung ohne GPU-Server. Dies eliminiert sowohl die Infrastrukturkosten für dedizierte GPU-Instanzen als auch die Latenz durch Cloud-Calls für jeden Frame --- eine direkte Konsequenz der ONNX-Kompatibilität von InsightFace buffalo\_l.
 
-Die Einbindung von InsightFace buffalo\_l in die Erkennungspipeline und die Embedding-Berechnung werden in Kap.~5.1 beschrieben.
-
 == Auswahl der Persistenzschicht
 
 Das FaceStore-Interface-Design entkoppelt die Persistenzlogik vom Tracking-Code und ermöglicht den Wechsel zwischen Backends per Umgebungsvariable. Drei Persistenzlösungen wurden evaluiert:
@@ -165,8 +158,6 @@ Das FaceStore-ABC definiert eine einheitliche Schnittstelle mit den Methoden `fi
 Für die lokale Entwicklung wird SQLite als dateibasiertes Backend eingesetzt --- ohne Setup-Overhead und ohne laufende externe Services. Im Kubernetes-Deployment auf Azure ist SQLite nicht einsetzbar und wird durch Qdrant ersetzt. SAP HANA Cloud Vector Engine wurde als K8s-native Alternative evaluiert, schied jedoch aus: HANA ist primär eine relationale Datenbank, deren Vektorsuchfunktion als Erweiterung dazugekommen ist --- für einen Anwendungsfall, der ausschließlich Vektoren speichert und abfragt, ist das ein unnötiger Overhead. Qdrant hingegen ist von Grund auf für genau diesen Zweck gebaut: Die Konfiguration ist schlanker, der HNSW-Index direkt zugänglich, und das System war in der Praxis bereits erprobt. Die Entscheidung fiel damit nicht gegen SAP-Infrastruktur, sondern für das spezialisierte Werkzeug --- bei einem Prototyp mit klarem Fokus auf Vektorretrieval ist das der relevante Unterschied.
 
 Qdrant ist eine vektornative Datenbank, die als Kubernetes-Pod ohne Dateisystem-Lock-Probleme betrieben wird. Im System werden zwei Collections genutzt: `face_profiles` mit 512-dimensionalen ArcFace-Embeddings für die Gesichtsidentifikation und `conversation_chunks` mit 384-dimensionalen RAG-Embeddings (all-MiniLM-L12-v2) für das Gesprächsgedächtnis. Als Index-Algorithmus verwendet Qdrant HNSW (Kap.~2.2.1), der die für den Live-Betrieb erforderliche logarithmische Suchkomplexität liefert @malkov2020hnsw[S.~1--2], @johnson2019faiss[S.~1--3]. Die `conversation_chunks`-Collection dient dabei als nicht-parametrisches Gedächtnis im Sinne des in Kap.~2.3.3 hergeleiteten RAG-Mechanismus @lewis2020rag[S.~4--5], @guu2020realm[S.~1--3]; ihre konkrete Nutzung beschreibt Kap.~6.2.
-
-Die Implementierung des FaceStore-Interface sowie die Qdrant-Collections werden in Kap.~5.3 beschrieben.
 
 == Datenschutz und biometrische Daten
 

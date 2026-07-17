@@ -3,9 +3,7 @@
 
 Dieses Kapitel beschreibt die sitzungsübergreifende Personalisierungslogik des entwickelten Systems --- von der strukturierten Fakt-Extraktion am Sitzungsende über das RAG-basierte Chunk-Retrieval mid-session bis hin zur History-Isolation bei Gruppen-Sessions.
 Der Aufbau folgt dem Verarbeitungsfluss: Kap.~6.1 beschreibt, wie Gespräche beim Verlassen einer Person in ein dreikanaliges JSON-Schema extrahiert werden; Kap.~6.2 den Retrieval-Mechanismus, mit dem diese Fakten mid-session kontextuell in die laufende Sitzung injiziert werden; und Kap.~6.3 die datenschutzorientierte Sonderbehandlung bei Gruppen-Sessions.
-Die Abgrenzung zu den Grundlagenkapiteln ist klar: WARUM strukturierte Fakten statt roher Gesprächshistorie gewählt wurden --- Kontextfenster-Problem, Zusammenfassungstheorie, RAG-Architektur --- ist in Kap.~2.3 ausgeführt.
-Dieses Kapitel enthält keine Theoriewiederholungen, sondern die Implementierungsbeschreibung.
-Wie die erkannten Personen, deren Anwesenheits-Events das Personalisierungssystem auslösen, im Tracker verwaltet werden, ist in Kap.~4.4 beschrieben.
+WARUM strukturierte Fakten statt roher Gesprächshistorie gewählt wurden --- Kontextfenster-Problem, Zusammenfassungstheorie, RAG-Architektur --- ist in Kap.~2.3 ausgeführt.
 
 == Strukturierte Fakt-Extraktion
 

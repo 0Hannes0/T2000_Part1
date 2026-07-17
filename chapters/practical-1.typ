@@ -3,8 +3,7 @@
 
 Dieses Kapitel beschreibt die biometrische Identifikationslogik des entwickelten Systems --- von der Embedding-Berechnung über das zweistufige Tracking bis hin zur persistenten Profilspeicherung mit graduellem Embedding-Blending.
 Der Aufbau folgt dem Verarbeitungsfluss: Kap.~5.1 beschreibt die Berechnung des Gesichts-Embeddings via InsightFace und ONNX-Optimierung, Kap.~5.2 das zweistufige Tracking-Verfahren zur Frame-übergreifenden Personenidentifikation inklusive sitzungsinterner Embedding-Stabilisierung, und Kap.~5.3 die Persistenzschicht mit FaceStore-Interface und sitzungsübergreifendem EMA-Blending.
-Die Abgrenzung zu Kap.~4 ist klar: Kap.~4 beschrieb die Erkennungs-Pipeline bis zum CANDIDATE→ACTIVE-Übergang; Kap.~5 setzt an dem Punkt an, wo ein aktives Gesicht vorliegt, und beschreibt die biometrische Identifikation dieser Person sowie ihre persistente Erfassung.
-Warum InsightFace als Erkennungsmodell gewählt wurde und warum die Persistenzschicht von SQLite auf Qdrant migriert wurde, ist in Kap.~3.3 und Kap.~3.4 ausgeführt --- dieses Kapitel enthält keine Entscheidungsbegründungen, sondern die Implementierungsbeschreibung.
+Kap.~5 setzt an dem Punkt an, an dem ein aktives Gesicht vorliegt (Übergabe aus der Erkennungs-Pipeline in Kap.~4), und beschreibt dessen biometrische Identifikation sowie persistente Erfassung; die Entscheidungsbegründungen zu Modell- und Persistenzwahl finden sich in Kap.~3.3 und Kap.~3.4.
 
 == Biometrische Identifikation mit InsightFace
 
@@ -41,26 +40,7 @@ Das eingesetzte Modell w600k\_r50 --- bereitgestellt über das InsightFace-Frame
 
 Die Inferenz läuft via ONNX Runtime (optimiertes Laufzeitformat, Auswahl in Kap.~3.3) auf der CPU ohne GPU-Server-Anforderung, was eine Latenz von ~80 ms pro Embedding ermöglicht --- ausreichend für den periodischen Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
 
-Wie die berechneten Embeddings im zweistufigen Tracking-Prozess zur Personenidentifikation eingesetzt werden, beschreibt Kap.~5.2.
-
 == Zweistufiges Tracking und Embedding-Stabilisierung
-
-Das Frame-übergreifende Tracking arbeitet zweistufig und wird durch den folgenden Parameter gesteuert:
-
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left, left),
-    table.header(
-      strong[Parameter], strong[Wert], strong[Bedeutung],
-    ),
-    [`POSITION_MATCH_RADIUS`], [120 px], [Maximaler Abstand im Original-Frame für Stage-1-Positions-Matching],
-  ),
-  kind: table,
-  caption: [Tracking-Parameter für Stage-1-Positions-Matching],
-) <tab:tracking-param>
 
 Der Tracker in `presence/tracker.py` ordnet in jedem Detektionszyklus die neu erkannten Gesichter den bereits bekannten Personen zu.
 Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem ressourcenintensiven Stage 2 dient:
@@ -142,5 +122,3 @@ Dieses Exponential Weighted Moving Average-Verfahren @gardner2006exponentialsmoo
 
 Zusammen mit dem Embedding speichert `upsert_profile()` bei jedem Besuch auch Metadaten: `visit_count`, `last_seen` und einen beliebigen `metadata`-Payload.
 Diese Metadaten ermöglichen es der Begrüßungslogik in Kap.~6.1, zwischen einem Erstbesuch und einer wiederkehrenden Person zu unterscheiden und die Begrüßung entsprechend anzupassen.
-
-Kap.~6 beschreibt, wie der FaceStore neben den Gesichts-Embeddings auch Gesprächs-Chunks für die RAG-basierte Personalisierung speichert und abruft.

@@ -1,6 +1,6 @@
 = Grundlagen
 
-Dieses Kapitel legt den theoretischen Rahmen für die in den Kapiteln 4 bis 6 beschriebene Implementierung. Im Vordergrund stehen dabei drei Themenbereiche, die unmittelbar in den entwickelten Systemkomponenten Anwendung finden: kamerabasierte Gesichtsdetektion (Kap.~2.1), biometrische Identifikation über Gesichts-Embeddings (Kap.~2.2) sowie sitzungsübergreifendes Gedächtnis in LLM-basierten Systemen (Kap.~2.3). Die Darstellung folgt dem Prinzip der Zweckgerichtetheit: Es werden ausschließlich Konzepte eingeführt, die für die Nachvollziehbarkeit späterer Implementierungsentscheidungen notwendig sind.
+Dieses Kapitel legt den theoretischen Rahmen für die in den Kapiteln 4 bis 6 beschriebene Implementierung. Im Vordergrund stehen drei Themenbereiche, die unmittelbar in den entwickelten Systemkomponenten Anwendung finden: kamerabasierte Gesichtsdetektion (Kap.~2.1), biometrische Identifikation über Gesichts-Embeddings (Kap.~2.2) sowie sitzungsübergreifendes Gedächtnis in LLM-basierten Systemen (Kap.~2.3). Eingeführt werden ausschließlich Konzepte, die für die Nachvollziehbarkeit späterer Implementierungsentscheidungen notwendig sind.
 
 == Kamerabasierte Gesichtsdetektion
 
@@ -12,15 +12,11 @@ Das System setzt auf BlazeFace als Gesichtsdetektor --- einen für mobile Endger
 
 BlazeFace ist Bestandteil des MediaPipe-Frameworks, einer Echtzeit-Perception-Pipeline für mobile und serverbasierte Inferenz @lugaresi2019mediapipe[S.~1--2]. Die frontale Ausrichtung von BlazeFace entspricht dem Kiosk-Szenario: In der eigenen Implementierung wird die Kamera fest montiert, sodass Interaktionspartner frontal vor dem System stehen. Schnelle Detektoren wie BlazeFace erzielen auf frontalen, wenig okludierten Gesichtern vergleichbare Genauigkeit wie schwergewichtigere Modelle bei einem Bruchteil der Inferenzzeit @yang2016widerface[S.~1--2].
 
-Die Konfiguration und Nutzung dieses Detektionsansatzes in der eigenen Implementierung wird in Kap.~4.1 beschrieben.
-
 === Interaktionsvalidierung durch Vision-LLM
 
 Das System verzichtet auf klassische Blickrichtungsschätzung (Gaze Estimation), weil sie für jeden neuen Nutzer eine personenspezifische Kalibrierung erfordert --- in einem öffentlichen Kiosk mit wechselnden, unbekannten Besuchern ist dieser Aufwand ausgeschlossen. Aktuelle appearance-basierte Verfahren erreichen ihre Genauigkeit erst durch eine solche Kalibrierungsstufe, die systematische Abweichungen zwischen Personen kompensiert @cheng2021gazesurvey[§1, S.~1--2]; ohne diese Stufe verschlechtern sich die Vorhersagen unter realen „in the wild"-Bedingungen erheblich @zhang2015mpiigaze[S.~1--2]. Diese Abhängigkeit von individueller Kalibrierung schließt den klassischen Ansatz für die hier betrachtete Anwendung aus.
 
 Das entwickelte System ersetzt klassische Gaze-Estimation durch ein binäres Vision-LLM-Urteil: Das Modell entscheidet ohne benutzerspezifische Kalibrierung, ob eine Person in die Kamera schaut (Ja/Nein). Vision-Language-Modelle (VLMs) kombinieren visuelles Verstehen mit Sprachgenerierung und ermöglichen so eine Aufgabenbewältigung ohne vorheriges Training auf den jeweiligen Anwendungsfall --- darunter auch die hier benötigte Entscheidung, ob eine Person in die Kamera schaut @radford2021clip[S.~1--3], @cheng2021gazesurvey[§1, S.~1--2]. Diese Eigenschaft --- robuste Klassifikation ohne Kalibrierungsaufwand --- macht VLMs besonders geeignet für Szenarien mit wechselnden Nutzern an öffentlichen Terminals.
-
-Die Entscheidung für den Vision-LLM-basierten Ansatz zur Interaktionsvalidierung und dessen konkrete Implementierung werden in Kap.~4.2 beschrieben.
 
 == Biometrische Identifikation mit Gesichts-Embeddings
 
@@ -42,8 +38,6 @@ Ein Schwellwertvergleich auf dem Kosinus-Wert ermöglicht dann die binäre Entsc
 
 Für die effiziente Suche in hochdimensionalen Embedding-Räumen werden Approximate-Nearest-Neighbor-Algorithmen eingesetzt, die auf annähernde statt exakte Übereinstimmungen setzen und so den Suchraum erheblich verkleinern @johnson2019faiss[S.~1--3]. Das in dieser Arbeit eingesetzte Qdrant-Backend nutzt HNSW (Hierarchical Navigable Small World) --- einen graphbasierten Algorithmus, der auch bei großen Kollektionen schnell die ähnlichsten Vektoren findet @malkov2020hnsw[S.~1--2].
 
-Die Berechnung und Speicherung von Embeddings in der eigenen Implementierung werden in Kap.~5.1 und Kap.~5.2 beschrieben.
-
 === Metrisches Lernen: Angular Margin Loss
 
 Standard-Softmax-Klassifikation optimiert ein Netz darauf, Trainingsklassen korrekt zu klassifizieren --- sie stellt aber nicht sicher, dass Gesichter derselben Person im Vektorraum nah beieinander liegen, was für die Wiedererkennung entscheidend ist. Margin-basierte Verlustfunktionen adressieren genau diesen Mangel: Sie zwingen das Netz während des Trainings, einen festen Sicherheitsabstand zwischen Klassen einzuhalten, sodass Embeddings derselben Person eng beieinander, Embeddings verschiedener Personen weiter auseinander liegen --- ein Prinzip, das mit Large Margin Softmax auf normierten Embeddings erstmals systematisch umgesetzt wurde @liu2017sphereface[S.~1--3], @wang2018cosface[S.~1--2].
@@ -58,20 +52,14 @@ Konversationelle KI-Systeme, die über mehrere Sitzungen hinweg personalisiert i
 
 Das Kontextfenster eines Sprachmodells entspricht seinem Arbeitsgedächtnis: nur Informationen, die explizit im Prompt enthalten sind, stehen dem Modell bei der Generierung einer Antwort zur Verfügung. Auch wenn die Kapazität des Kontextfensters ausreicht, nutzen Sprachmodelle darin enthaltene Informationen nicht gleichmäßig: Relevante Information aus dem mittleren Teil langer Kontexte wird signifikant schlechter abgerufen als Information an Anfang oder Ende --- ein Befund, der unter dem Begriff „Lost in the Middle"-Effekt bekannt ist @liu2023lostinthemiddle[S.~4--6]. Das bloße Einbetten aller vergangenen Sitzungen in den Prompt ist damit keine robuste Strategie für sitzungsübergreifende Personalisierung.
 
-Die daraus folgenden Anforderungen an die Gedächtnisarchitektur dieses Systems werden in Kap.~6.1 diskutiert.
-
 === Gesprächszusammenfassung als Langzeitgedächtnis
 
 Für sitzungsübergreifende Personalisierung ist die Verdichtung vergangener Sitzungen durch Zusammenfassung der rohen Gesprächshistorie vorzuziehen: Systeme mit Zusammenfassungs- und Retrievalfähigkeiten übertreffen Standard-Encoder-Decoder-Architekturen bei langen Gesprächsverläufen deutlich @xu2022beyondgoldfish[S.~1]. Die strukturierte Extraktion von Fakten aus Gesprächen --- etwa über Präferenzen, Gewohnheiten oder wiederkehrende Themen --- ist eine Variante dieses Ansatzes, die gegenüber freier Zusammenfassung eine strukturiertere Abrufbarkeit bietet.
 
 Das vorliegende System folgt dem Grundgedanken von MemGPT @packer2024memgpt[S.~1--3] --- explizites Auslagern von Informationen aus dem Kontextfenster in einen externen Speicher --- setzt es aber durch strukturierte Faktextraktion und RAG-basiertes Retrieval um (Kap.~6.1 und 6.2).
 
-Die Realisierung der Zusammenfassung in der eigenen Implementierung wird in Kap.~6.1 beschrieben.
-
 === Retrieval-Augmented Generation
 
 Retrieval-Augmented Generation (RAG) kombiniert ein Sprachmodell, dessen Wissen fest im Modellgewicht gespeichert ist, mit einem extern gespeicherten, aktualisierbaren Wissensindex. Die Grundarchitektur ist zweistufig: Ein Retriever ruft kontextrelevante Dokumente aus dem Vektorindex ab, ein Generator konditioniert seine Ausgabe auf die abgerufenen Inhalte --- das Ergebnis sind „more specific, diverse and factual" Antworten verglichen mit einem rein parametrischen Modell @lewis2020rag[S.~4]. REALM zeigt, dass Retrieval-augmentierte Sprachmodelle durch die Trennung von parametrischem und nicht-parametrischem Wissen aktualisierbar sind, ohne das Modell erneut trainieren zu müssen @guu2020realm[S.~1--3] --- was für dynamische, benutzerspezifische Informationsbestände besonders relevant ist.
 
-Die Retrieval-Seite von RAG basiert auf semantischer Ähnlichkeitssuche im Embedding-Raum --- analog zur Kosinus-Ähnlichkeit aus Kap.~2.2.1. Anfrage und Dokument werden durch ein Embedding-Modell in denselben Vektorraum projiziert; thematische Nähe ist dann direkt als Skalarprodukt messbar. Das im System eingesetzte RAG-Retrievalmodell all-MiniLM-L12-v2 erzeugt 384-dimensionale Vektoren; seine Nutzung für das Chunk-Retrieval wird in Kap.~6.2 beschrieben.
-
-Kap.~6.2 beschreibt das RAG-Chunk-Retrieval in der eigenen Implementierung; Kap.~6.3 die History-Isolation zwischen parallelen Nutzern.
+Die Retrieval-Seite von RAG basiert auf semantischer Ähnlichkeitssuche im Embedding-Raum --- analog zur Kosinus-Ähnlichkeit aus Kap.~2.2.1. Anfrage und Dokument werden durch ein Embedding-Modell in denselben Vektorraum projiziert; thematische Nähe ist dann direkt als Skalarprodukt messbar. Das im System eingesetzte RAG-Retrievalmodell all-MiniLM-L12-v2 erzeugt 384-dimensionale Vektoren; seine Nutzung für das Chunk-Retrieval sowie die History-Isolation zwischen parallelen Nutzern werden in Kap.~6.2 und 6.3 beschrieben.
