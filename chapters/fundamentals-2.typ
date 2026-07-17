@@ -163,7 +163,7 @@ Qdrant ist eine vektornative Datenbank, die als Kubernetes-Pod ohne Dateisystem-
 
 == Datenschutz und biometrische Daten
 
-Gesichtsembeddings sind biometrische Daten im Sinne des Art.~9 Abs.~1 der DSGVO, da sie aus natürlichen Personen abgeleitet werden und zur eindeutigen Identifikation geeignet sind @dsgvo2016[Art.~9 Abs.~1]. Die Verarbeitung solcher Daten besonderer Kategorie unterliegt einem strengen Rechtsrahmen, der die Identifizierbarkeit betroffener Personen als zentrales Schutzgut anerkennt @voigt2017gdpr[S.~114--120], @hogenhout2025biometricprivacy[S.~2--4].
+Gesichtsembeddings sind biometrische Daten im Sinne des Art.~9 Abs.~1 der DSGVO, da sie aus natürlichen Personen abgeleitet werden und zur eindeutigen Identifikation geeignet sind @dsgvo2016[Art.~9 Abs.~1]. Die Verarbeitung solcher Daten besonderer Kategorie unterliegt einem strengen Rechtsrahmen, der die Identifizierbarkeit betroffener Personen als zentrales Schutzgut anerkennt @voigt2017gdpr[S.~114--120], @krivokucahahn2023biometricprotection[S.~639--641].
 
 Das entwickelte System ist ein interner SAP-Prototyp und wird nicht für Endkunden deployt. Die biometrischen Daten werden ausschließlich im internen Netzwerk verarbeitet und gespeichert: Der Qdrant-Pod läuft im SAP-eigenen Kubernetes-Cluster, und biometrische Embeddings verlassen diesen Cluster zu keinem Zeitpunkt. Eine explizite Einwilligung aller am Prototyp beteiligten Testpersonen liegt vor. Dieser Kontext unterscheidet das System grundlegend von einem öffentlichen Deployment-Szenario.
 

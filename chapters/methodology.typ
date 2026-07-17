@@ -47,7 +47,7 @@ Die Detektion erfolgt periodisch mit `FRAME_INTERVAL` von 1,0 s --- kein kontinu
   caption: [Konfiguration des Vision-LLM Gaze-Validators],
 ) <tab:gaze-config>
 
-Die Begründung für den Einsatz des Vision-LLM statt klassischer Gaze-Estimation ist in Kap.~3.2 und Kap.~2.1.2 ausgeführt @zhang2015mpiigaze[S.~1--2], @kellnhofer2019gaze360[S.~1]. Das System nutzt dafür ein binäres Vision-LLM-Urteil: schaut die Person in die Kamera oder nicht.
+Die Begründung für den Einsatz des Vision-LLM statt klassischer Gaze-Estimation ist in Kap.~3.2 und Kap.~2.1.2 ausgeführt @zhang2015mpiigaze[S.~1--2], @kellnhofer2019gaze360[S.~1], @yin2024clipgaze[S.~6729--6730]. Das System nutzt dafür ein binäres Vision-LLM-Urteil: schaut die Person in die Kamera oder nicht.
 
 Der verwendete Prompt lautet in der englischen Originalfassung: _„Look at this camera image from a kiosk. The camera is mounted at the top of the screen. Is the person's face pointing toward the screen? Answer 'yes' if the face is roughly frontal --- head upright or only slightly tilted. Answer 'no' if the head is clearly turned away, tilted far down, or tilted far up. Answer ONLY with 'yes' or 'no'."_ Die Formulierung ist bewusst auf Frontalität statt auf präzise Blickrichtung ausgelegt: Das Modell trifft eine grobe Interaktionsklassifikation, keine metrische Gaze-Schätzung --- was die im Kiosk-Kontext geforderte Robustheit gegenüber nutzerspezifischen Variationen erzeugt.
 
