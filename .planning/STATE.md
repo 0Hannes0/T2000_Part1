@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v3.0-quellenaudit
 milestone_name: Quellenaudit aller Kapitel
-status: phase_complete
-stopped_at: Completed 34-03-PLAN.md
-last_updated: "2026-07-18T13:55:20.502Z"
+status: ready_to_plan
+stopped_at: Phase 36 complete (3/3) — ready to discuss Phase 37
+last_updated: 2026-07-18T14:07:01.339Z
 last_activity: 2026-07-18
 progress:
   total_phases: 35
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-12)
 
 **Core value:** Entscheidungslogik hinter jeder technischen Wahl nachvollziehbar belegen — nicht nur was gebaut wurde, sondern warum genau so.
-**Current focus:** Phase 36 — nutzung-fachwissen
+**Current focus:** Phase 37 — wirtschaftliche bewertung
 
 ## Current Position
 
-Phase: 36 (nutzung-fachwissen) — EXECUTING
-Plan: 2 of 3
+Phase: 37
+Plan: Not started
 **Milestone:** v3.0-quellenaudit
 **Aktuell:** Phase 35 abgeschlossen — FACH-01 (Versuchsbeschreibung), FACH-02 (Gaze-Check FP/FN), FACH-03 (Gruppen-Sessions ~20%) alle ERFÜLLT
 **Nächste Aktion:** Nächste Phase planen
@@ -38,7 +38,7 @@ Progress: [███████░░░] 66%
 
 **Velocity:**
 
-- Total plans completed: 60
+- Total plans completed: 63
 - Average duration: —
 - Total execution time: —
 
@@ -69,6 +69,7 @@ Progress: [███████░░░] 66%
 | 23 | 2 | - | - |
 | 31 | 3 | - | - |
 | 35 | 3 | - | - |
+| 36 | 3 | - | - |
 
 **Recent Trend:**
 

@@ -967,7 +967,7 @@ Plans:
 | 33. Verwendung der Literatur (10P) | 3/3 | Complete    | 2026-07-17 |
 | 34. Methoden und Werkzeuge (10P) | 2/3 | In Progress|  |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
-| 36. Nutzung Fachwissen (10P) | 3/3 | Complete   | 2026-07-18 |
+| 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 0/3 | Pending | — |
 | 38. Nachhaltigkeitsaspekte (5P) | 0/3 | Pending | — |
 | 39. Umsetzbarkeit (5P) | 0/3 | Pending | — |
