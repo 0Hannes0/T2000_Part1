@@ -662,7 +662,7 @@ Plans:
 - [ ] **Phase 34: Methoden und Werkzeuge** — Anforderungsanalyse in Kap. 3 + ROC/Threshold-Diskussion in Kap. 7.1 (10P)
 - [ ] **Phase 35: Fachliche Bearbeitung** — Versuchsbeschreibung Kap. 7 + Gaze-Check-Evaluation + Gruppen-Sessions-Beleg (15P)
 - [x] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P) (completed 2026-07-18)
-- [ ] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P)
+- [x] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P) (completed 2026-07-18)
 - [ ] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P)
 - [ ] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P)
 - [ ] **Phase 40: Dokumentation** — Anhang A Systemparameter + IDLE/CANDIDATE/ACTIVE-Definition verifizieren (10P)
