@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0-quellenaudit
 milestone_name: Quellenaudit aller Kapitel
-status: ready_to_plan
-stopped_at: Completed 34-03-PLAN.md
-last_updated: "2026-07-18T12:20:00.000Z"
-last_activity: 2026-07-18 -- Phase 34 abgeschlossen — METH-01 und METH-02 Complete
+status: phase_complete
+stopped_at: Completed 35-03-PLAN.md
+last_updated: "2026-07-18T14:00:00.000Z"
+last_activity: 2026-07-18 -- Phase 35 complete — FACH-01/02/03 alle erfüllt
 progress:
   total_phases: 35
-  completed_phases: 10
-  total_plans: 65
-  completed_plans: 43
-  percent: 29
+  completed_phases: 11
+  total_plans: 68
+  completed_plans: 44
+  percent: 65
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-12)
 
 ## Current Position
 
-Phase: 35
-Plan: Not started
+Phase: 35 — ABGESCHLOSSEN
+Plan: 35-03 (alle 3 Pläne erledigt)
 **Milestone:** v3.0-quellenaudit
-**Aktuell:** Phase 34 abgeschlossen — METH-01 (Anforderungsanalyse Kap. 3.1.1) und METH-02 (FAR/FRR-Tradeoff Kap. 7.1) Complete
-**Nächste Aktion:** Phase 35 planen
-Last activity: 2026-07-18 -- Phase 34 abgeschlossen — METH-01 und METH-02 Complete
+**Aktuell:** Phase 35 abgeschlossen — FACH-01 (Versuchsbeschreibung), FACH-02 (Gaze-Check FP/FN), FACH-03 (Gruppen-Sessions ~20%) alle ERFÜLLT
+**Nächste Aktion:** Nächste Phase planen
+Last activity: 2026-07-18 -- Phase 35 complete — alle FACH-Kriterien erfüllt
 
 Progress: [██████░░░░] 62%
 
@@ -68,7 +68,7 @@ Progress: [██████░░░░] 62%
 | 22 | 3 | - | - |
 | 23 | 2 | - | - |
 | 31 | 3 | - | - |
-| 34 | 3 | - | - |
+| 35 | 3 | - | - |
 
 **Recent Trend:**
 
