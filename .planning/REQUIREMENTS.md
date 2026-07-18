@@ -176,8 +176,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | WISS-01 | Phase 36 — Nutzung Fachwissen | Complete |
 | WISS-02 | Phase 36 — Nutzung Fachwissen | Complete |
 | WISS-03 | Phase 36 — Nutzung Fachwissen | Complete |
-| WIRT-01 | Phase 37 — Wirtschaftliche Bewertung | Pending |
-| WIRT-02 | Phase 37 — Wirtschaftliche Bewertung | Pending |
+| WIRT-01 | Phase 37 — Wirtschaftliche Bewertung | Complete |
+| WIRT-02 | Phase 37 — Wirtschaftliche Bewertung | Complete |
 | NACH-01 | Phase 38 — Nachhaltigkeitsaspekte | Pending |
 | NACH-02 | Phase 38 — Nachhaltigkeitsaspekte | Pending |
 | UMSE-01 | Phase 39 — Umsetzbarkeit | Pending |
