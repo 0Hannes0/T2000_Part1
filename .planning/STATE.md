@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0-quellenaudit
 milestone_name: Quellenaudit aller Kapitel
 status: phase_complete
-stopped_at: Completed 35-03-PLAN.md
-last_updated: "2026-07-18T14:00:00.000Z"
-last_activity: 2026-07-18 -- Phase 35 complete — FACH-01/02/03 alle erfüllt
+stopped_at: Completed 34-03-PLAN.md
+last_updated: "2026-07-18T13:55:20.502Z"
+last_activity: 2026-07-18
 progress:
   total_phases: 35
-  completed_phases: 11
-  total_plans: 68
-  completed_plans: 44
-  percent: 65
+  completed_phases: 12
+  total_plans: 71
+  completed_plans: 47
+  percent: 34
 ---
 
 # Project State
@@ -21,18 +21,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-12)
 
 **Core value:** Entscheidungslogik hinter jeder technischen Wahl nachvollziehbar belegen — nicht nur was gebaut wurde, sondern warum genau so.
-**Current focus:** Phase 35 — fachliche Bearbeitung
+**Current focus:** Phase 36 — nutzung-fachwissen
 
 ## Current Position
 
-Phase: 35 — ABGESCHLOSSEN
-Plan: 35-03 (alle 3 Pläne erledigt)
+Phase: 36 (nutzung-fachwissen) — EXECUTING
+Plan: 2 of 3
 **Milestone:** v3.0-quellenaudit
 **Aktuell:** Phase 35 abgeschlossen — FACH-01 (Versuchsbeschreibung), FACH-02 (Gaze-Check FP/FN), FACH-03 (Gruppen-Sessions ~20%) alle ERFÜLLT
 **Nächste Aktion:** Nächste Phase planen
-Last activity: 2026-07-18 -- Phase 35 complete — alle FACH-Kriterien erfüllt
+Last activity: 2026-07-18
 
-Progress: [██████░░░░] 62%
+Progress: [███████░░░] 66%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [██████░░░░] 62%
 |-------|------|----------|-------|-------|
 | 01-repo-research | P01 | 258s | 1 | 1 |
 | 01-repo-research | P02 | 3min | 1 | 1 |
+| Phase 36-nutzung-fachwissen P03 | 4min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,7 @@ Recent decisions affecting current work:
 - Plan 34-02: ===‐Subsection statt == Heading für Anforderungsanalyse — verhindert Umnummerierung von 10 Querverweisen in 5 Dateien
 - Plan 34-02: Zielwert A-01 = ≤ 100 ms (nicht ≤ 80 ms) — Anforderung formuliert Spielraum, gemessener Wert in Beleg-Spalte
 - Plan 34-02: FAR/FRR-Tradeoff-Absatz mit Score-Verteilung 0,72–0,85/0,53–0,58 und Betriebspunkt 0,52 in Kap. 7.1 eingefügt
+- [Phase ?]: Typst pagebreak-in-container Fehler existierte vor Wave 2; WISS-Inhaltskriterien unberührt
 
 ### Pending Todos
 
@@ -119,6 +121,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-18T12:20:00.000Z
+Last session: 2026-07-18T13:55:20.494Z
 Stopped at: Completed 34-03-PLAN.md
 Resume file: None

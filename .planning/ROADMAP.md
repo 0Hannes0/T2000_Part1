@@ -661,7 +661,7 @@ Plans:
 - [x] **Phase 33: Verwendung der Literatur** — CLIP-Sprung reparieren + EMA-α-Beleg spezifizieren + Barquero-Audit (10P) (completed 2026-07-17)
 - [ ] **Phase 34: Methoden und Werkzeuge** — Anforderungsanalyse in Kap. 3 + ROC/Threshold-Diskussion in Kap. 7.1 (10P)
 - [ ] **Phase 35: Fachliche Bearbeitung** — Versuchsbeschreibung Kap. 7 + Gaze-Check-Evaluation + Gruppen-Sessions-Beleg (15P)
-- [ ] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P)
+- [x] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P) (completed 2026-07-18)
 - [ ] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P)
 - [ ] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P)
 - [ ] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P)
@@ -806,13 +806,13 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 36-01-PLAN.md — Audit: Kap. 2.2.2 auf ArcFace/CosFace-Erklärungstiefe prüfen; Kap. 6.2 auf RAG-Modell-Begründung prüfen; Kap. 5.3 auf EMA-α-Literaturkontext prüfen
+- [x] 36-01-PLAN.md — Audit: Kap. 2.2.2 auf ArcFace/CosFace-Erklärungstiefe prüfen; Kap. 6.2 auf RAG-Modell-Begründung prüfen; Kap. 5.3 auf EMA-α-Literaturkontext prüfen
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 36-02-PLAN.md — Umsetzung: ArcFace/CosFace-Absatz erweitern; RAG-Modell-Begründung mit Quelle ergänzen; EMA-α-Literaturkontext einfügen
+- [x] 36-02-PLAN.md — Umsetzung: ArcFace/CosFace-Absatz erweitern; RAG-Modell-Begründung mit Quelle ergänzen; EMA-α-Literaturkontext einfügen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 36-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; geometrische Erklärung verständlich; Quellenbelege vorhanden
+- [x] 36-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; geometrische Erklärung verständlich; Quellenbelege vorhanden
 
 ---
 
@@ -967,7 +967,7 @@ Plans:
 | 33. Verwendung der Literatur (10P) | 3/3 | Complete    | 2026-07-17 |
 | 34. Methoden und Werkzeuge (10P) | 2/3 | In Progress|  |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
-| 36. Nutzung Fachwissen (10P) | 0/3 | Pending | — |
+| 36. Nutzung Fachwissen (10P) | 3/3 | Complete   | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 0/3 | Pending | — |
 | 38. Nachhaltigkeitsaspekte (5P) | 0/3 | Pending | — |
 | 39. Umsetzbarkeit (5P) | 0/3 | Pending | — |

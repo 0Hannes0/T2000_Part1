@@ -80,8 +80,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### METH — Methoden und Werkzeuge
 
-- [ ] **METH-01**: Kap. 3 (Konzeption) wird um eine explizite Anforderungsanalyse erweitert: messbare Anforderungen (Latenz ≤ X ms, Erkennungsrate ≥ Y %, CPU-only) werden formuliert, gegen die Designentscheidungen nachvollziehbar geprüft werden können
-- [ ] **METH-02**: Kap. 7.1 (Evaluation) erhält eine ROC/Threshold-Kurven-Diskussion: der Tradeoff zwischen FAR und FRR bei unterschiedlichen Schwellenwerten wird explizit beschrieben und der gewählte Betriebspunkt (0,52) mit diesem Rahmen begründet
+- [x] **METH-01**: Kap. 3 (Konzeption) wird um eine explizite Anforderungsanalyse erweitert: messbare Anforderungen (Latenz ≤ X ms, Erkennungsrate ≥ Y %, CPU-only) werden formuliert, gegen die Designentscheidungen nachvollziehbar geprüft werden können
+- [x] **METH-02**: Kap. 7.1 (Evaluation) erhält eine ROC/Threshold-Kurven-Diskussion: der Tradeoff zwischen FAR und FRR bei unterschiedlichen Schwellenwerten wird explizit beschrieben und der gewählte Betriebspunkt (0,52) mit diesem Rahmen begründet
 
 ### FACH — Fachliche Bearbeitung
 
@@ -91,9 +91,9 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### WISS — Nutzung Fachwissen
 
-- [ ] **WISS-01**: Kap. 2.2.2 wird erweitert: der geometrische Unterschied zwischen ArcFace (Winkelmarge) und CosFace (Kosinusmarge) wird explizit erklärt — warum eine additive Winkelmarge stärker diskriminiert als eine Kosinusmarge
-- [ ] **WISS-02**: Die Wahl von `all-MiniLM-L12-v2` als RAG-Embedding-Modell (Kap. 6.2) wird mit einer Quelle oder einem messbaren Kriterium begründet (z. B. MTEB-Benchmark-Rang, Sentence-BERT-Vergleich)
-- [ ] **WISS-03**: Der α=0,2-Wert aus Kap. 5.3 erhält einen Literaturkontext: warum ist graduelles Blending für biometrische Langzeit-Embeddings sinnvoll (Verweis auf adaptive Embedding-Update-Methoden)
+- [x] **WISS-01**: Kap. 2.2.2 wird erweitert: der geometrische Unterschied zwischen ArcFace (Winkelmarge) und CosFace (Kosinusmarge) wird explizit erklärt — warum eine additive Winkelmarge stärker diskriminiert als eine Kosinusmarge
+- [x] **WISS-02**: Die Wahl von `all-MiniLM-L12-v2` als RAG-Embedding-Modell (Kap. 6.2) wird mit einer Quelle oder einem messbaren Kriterium begründet (z. B. MTEB-Benchmark-Rang, Sentence-BERT-Vergleich)
+- [x] **WISS-03**: Der α=0,2-Wert aus Kap. 5.3 erhält einen Literaturkontext: warum ist graduelles Blending für biometrische Langzeit-Embeddings sinnvoll (Verweis auf adaptive Embedding-Update-Methoden)
 
 ### WIRT — Wirtschaftliche Bewertung
 
@@ -168,14 +168,14 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | LITV-01 | Phase 33 — Verwendung der Literatur | Complete |
 | LITV-02 | Phase 33 — Verwendung der Literatur | Complete |
 | LITV-03 | Phase 33 — Verwendung der Literatur | Complete |
-| METH-01 | Phase 34 — Methoden und Werkzeuge | Pending |
-| METH-02 | Phase 34 — Methoden und Werkzeuge | Pending |
+| METH-01 | Phase 34 — Methoden und Werkzeuge | Complete |
+| METH-02 | Phase 34 — Methoden und Werkzeuge | Complete |
 | FACH-01 | Phase 35 — Fachliche Bearbeitung | Pending |
 | FACH-02 | Phase 35 — Fachliche Bearbeitung | Pending |
 | FACH-03 | Phase 35 — Fachliche Bearbeitung | Pending |
-| WISS-01 | Phase 36 — Nutzung Fachwissen | Pending |
-| WISS-02 | Phase 36 — Nutzung Fachwissen | Pending |
-| WISS-03 | Phase 36 — Nutzung Fachwissen | Pending |
+| WISS-01 | Phase 36 — Nutzung Fachwissen | Complete |
+| WISS-02 | Phase 36 — Nutzung Fachwissen | Complete |
+| WISS-03 | Phase 36 — Nutzung Fachwissen | Complete |
 | WIRT-01 | Phase 37 — Wirtschaftliche Bewertung | Pending |
 | WIRT-02 | Phase 37 — Wirtschaftliche Bewertung | Pending |
 | NACH-01 | Phase 38 — Nachhaltigkeitsaspekte | Pending |
