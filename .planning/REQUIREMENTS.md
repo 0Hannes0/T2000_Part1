@@ -102,8 +102,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### NACH — Nachhaltigkeitsaspekte
 
-- [ ] **NACH-01**: Kap. 3 erhält einen eigenständigen Abschnitt 3.7 „Nachhaltigkeitsaspekte" (ca. 1/2 Seite), der drei Dimensionen behandelt: (1) ökologisch — CPU-Inferenz vs. GPU, Energieverbrauch im Dauerbetrieb; (2) ökonomisch — TCO Open-Source vs. proprietär; (3) sozial — demographische Fehlerraten biometrischer Systeme (Verweis auf Buolamwini/Gebru), gesellschaftliche Implikationen von Gesichtserkennung im öffentlichen Raum
-- [ ] **NACH-02**: Kap. 7 (Evaluation) verweist im Abschnitt Erkennungsgenauigkeit explizit auf die soziale Nachhaltigkeitsdimension (demographische Bias, Buolamwini 2018) und bewertet die Implikation für den SAP-Kiosk-Kontext
+- [x] **NACH-01**: Kap. 3 erhält einen eigenständigen Abschnitt 3.7 „Nachhaltigkeitsaspekte" (ca. 1/2 Seite), der drei Dimensionen behandelt: (1) ökologisch — CPU-Inferenz vs. GPU, Energieverbrauch im Dauerbetrieb; (2) ökonomisch — TCO Open-Source vs. proprietär; (3) sozial — demographische Fehlerraten biometrischer Systeme (Verweis auf Buolamwini/Gebru), gesellschaftliche Implikationen von Gesichtserkennung im öffentlichen Raum
+- [x] **NACH-02**: Kap. 7 (Evaluation) verweist im Abschnitt Erkennungsgenauigkeit explizit auf die soziale Nachhaltigkeitsdimension (demographische Bias, Buolamwini 2018) und bewertet die Implikation für den SAP-Kiosk-Kontext
 
 ### UMSE — Umsetzbarkeit
 
@@ -178,8 +178,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | WISS-03 | Phase 36 — Nutzung Fachwissen | Complete |
 | WIRT-01 | Phase 37 — Wirtschaftliche Bewertung | Complete |
 | WIRT-02 | Phase 37 — Wirtschaftliche Bewertung | Complete |
-| NACH-01 | Phase 38 — Nachhaltigkeitsaspekte | Pending |
-| NACH-02 | Phase 38 — Nachhaltigkeitsaspekte | Pending |
+| NACH-01 | Phase 38 — Nachhaltigkeitsaspekte | Complete |
+| NACH-02 | Phase 38 — Nachhaltigkeitsaspekte | Complete |
 | UMSE-01 | Phase 39 — Umsetzbarkeit | Pending |
 | UMSE-02 | Phase 39 — Umsetzbarkeit | Pending |
 | DOKU-01 | Phase 40 — Dokumentation | Pending |
