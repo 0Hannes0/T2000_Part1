@@ -156,7 +156,7 @@ personalisierte Konversationserfahrung bereitstellen?
 - Phase 34 — Methoden/Werkzeuge (10P): Explizite Anforderungsanalyse in Kap. 3 + Schwellenwert-ROC-Diskussion in Kap. 7
 - Phase 35 — Fachliche Bearbeitung (15P): Kap. 7 Evaluation wissenschaftlich substanziell stärken (N-Werte, Versuchsaufbau, Gaze-Check-Vergleich)
 - Phase 36 — Nutzung Fachwissen (10P): ArcFace vs. CosFace geometrisch erklären + RAG-Modellwahl (all-MiniLM) belegen + EMA-α-Literaturkontext
-- Phase 37 — Wirtschaftliche Bewertung (5P): Konkrete Kostenschätzung mit Zahlen (API-Calls/Tag, Azure-Pod, Alternativvergleich)
+- [x] Phase 37 — Wirtschaftliche Bewertung (5P): Konkrete Kostenschätzung mit Zahlen (API-Calls/Tag, Azure-Pod, Alternativvergleich) — Validated in Phase 37: WIRT-01/02 erfüllt
 - Phase 38 — Nachhaltigkeitsaspekte (5P): Eigenständiger Abschnitt 3.7 mit ökologischen, ökonomischen und sozialen Aspekten
 - Phase 39 — Umsetzbarkeit (5P): Skalierbarkeitsaussagen (HNSW-Laufzeit bei N Profilen) + Produktivierungs-Roadmap (DSGVO-Maßnahmen)
 - Phase 40 — Dokumentation (10P): Parametertabellen-Anhang + Terminologie-Einführung der State-Machine-Zustände
@@ -181,4 +181,4 @@ Dieses Dokument entwickelt sich an Phasenübergängen weiter.
 3. "What This Is" noch korrekt? → Ggf. anpassen
 
 ---
-*Last updated: 2026-07-18 — Phase 36 complete: WISS-01/02/03 erfüllt (geodätische ArcFace-Erklärung, MTEB 56,53, biometrisches Dilemma-Paragraph)*
+*Last updated: 2026-07-18 — Phase 37 complete: WIRT-01/02 erfüllt (Annahmen-Satz 30 Besucher, Kostentabelle AWS $0,90/Azure $1,35 vs. ONNX $0,00, Fazit-Satz in Kap. 3.6)*
