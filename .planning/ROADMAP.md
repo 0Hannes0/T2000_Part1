@@ -832,7 +832,7 @@ Plans:
 - [x] 37-01-PLAN.md — Audit: aktuellen Stand von Kap. 3.6 lesen; fehlende Kostenzahlen und fehlenden Cloud-Vergleich dokumentieren
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 37-02-PLAN.md — Umsetzung: Kostenschätzung mit Rechenweg einfügen; Cloud-API-Preisvergleich ergänzen
+- [x] 37-02-PLAN.md — Umsetzung: Kostenschätzung mit Rechenweg einfügen; Cloud-API-Preisvergleich ergänzen
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 37-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; Zahlen plausibel und konsistent
@@ -968,7 +968,7 @@ Plans:
 | 34. Methoden und Werkzeuge (10P) | 2/3 | In Progress|  |
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
-| 37. Wirtschaftliche Bewertung (5P) | 1/3 | In Progress|  |
+| 37. Wirtschaftliche Bewertung (5P) | 2/3 | In Progress|  |
 | 38. Nachhaltigkeitsaspekte (5P) | 0/3 | Pending | — |
 | 39. Umsetzbarkeit (5P) | 0/3 | Pending | — |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |

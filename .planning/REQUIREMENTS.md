@@ -97,8 +97,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### WIRT — Wirtschaftliche Bewertung
 
-- [ ] **WIRT-01**: Kap. 3.6 (Wirtschaftliche Bewertung) wird um konkrete Kostenschätzungen erweitert: geschätzte Anzahl Gemini-API-Calls pro 8-Stunden-Kiosk-Tag (Gaze-Checks + Begrüßungen + Chats) und daraus resultierende Monatskosten bei SAP AI Core
-- [ ] **WIRT-02**: Ein Vergleich mit einer Cloud-API-Alternative (z. B. AWS Rekognition oder Azure Face API — Listenpreise öffentlich verfügbar) stellt die Open-Source/ONNX-Kosteneinsparung konkret dar
+- [x] **WIRT-01**: Kap. 3.6 (Wirtschaftliche Bewertung) wird um konkrete Kostenschätzungen erweitert: geschätzte Anzahl Gemini-API-Calls pro 8-Stunden-Kiosk-Tag (Gaze-Checks + Begrüßungen + Chats) und daraus resultierende Monatskosten bei SAP AI Core
+- [x] **WIRT-02**: Ein Vergleich mit einer Cloud-API-Alternative (z. B. AWS Rekognition oder Azure Face API — Listenpreise öffentlich verfügbar) stellt die Open-Source/ONNX-Kosteneinsparung konkret dar
 
 ### NACH — Nachhaltigkeitsaspekte
 
