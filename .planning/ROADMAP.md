@@ -664,7 +664,7 @@ Plans:
 - [x] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P) (completed 2026-07-18)
 - [x] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P) (completed 2026-07-18)
 - [x] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P) (completed 2026-07-19)
-- [ ] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P)
+- [x] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P) (completed 2026-07-19)
 - [ ] **Phase 40: Dokumentation** — Anhang A Systemparameter + IDLE/CANDIDATE/ACTIVE-Definition verifizieren (10P)
 - [ ] **Phase 41: Kreativität** — Originelle Beiträge in Kap. 8.1 + naive Alternative kontrastieren (5P)
 - [ ] **Phase 42: Selbstständigkeit** — Iterative Eigenentscheidungslogik an 3 Schlüsselstellen (5P)
@@ -882,7 +882,7 @@ Plans:
 - [x] 39-02-PLAN.md — Umsetzung: HNSW-Skalierbarkeitsabsatz ergänzen; DSGVO-Produktivierungsschritte in Kap. 8.2 formulieren
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 39-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; Zahlen konkret; drei DSGVO-Schritte benannt
+- [x] 39-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; Zahlen konkret; drei DSGVO-Schritte benannt
 
 ---
 
@@ -970,7 +970,7 @@ Plans:
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
 | 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
-| 39. Umsetzbarkeit (5P) | 2/3 | In Progress|  |
+| 39. Umsetzbarkeit (5P) | 3/3 | Complete   | 2026-07-19 |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
 | 42. Selbstständigkeit (5P) | 0/3 | Pending | — |
