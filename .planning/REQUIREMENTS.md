@@ -117,8 +117,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### KREA — Kreativität
 
-- [ ] **KREA-01**: Kap. 8.1 (Fazit) hebt explizit drei originelle Beiträge der Arbeit hervor: (1) Vision-LLM statt klassischer Gaze-Estimation als kalibrierungsfreie Interaktionsvalidierung, (2) spekulatives Pre-Computing der Begrüßung als Latenz-Engineering-Muster, (3) dreikanaliges Gedächtnisdesign (summary/facts_sentences/facts) als differenziertes Personalisierungskonzept
-- [ ] **KREA-02**: Im Methodenabschnitt (Kap. 3 oder 4) wird für die ungewöhnlichste Designentscheidung (Vision-LLM-Gaze) explizit das verdrängerte naive Alternativvorgehen (klassische Gaze-Estimation mit Kalibrierung) beschrieben — um den Kreativitäts-Mehrwert kontrastierend sichtbar zu machen
+- [x] **KREA-01**: Kap. 8.1 (Fazit) hebt explizit drei originelle Beiträge der Arbeit hervor: (1) Vision-LLM statt klassischer Gaze-Estimation als kalibrierungsfreie Interaktionsvalidierung, (2) spekulatives Pre-Computing der Begrüßung als Latenz-Engineering-Muster, (3) dreikanaliges Gedächtnisdesign (summary/facts_sentences/facts) als differenziertes Personalisierungskonzept
+- [x] **KREA-02**: Im Methodenabschnitt (Kap. 3 oder 4) wird für die ungewöhnlichste Designentscheidung (Vision-LLM-Gaze) explizit das verdrängerte naive Alternativvorgehen (klassische Gaze-Estimation mit Kalibrierung) beschrieben — um den Kreativitäts-Mehrwert kontrastierend sichtbar zu machen
 
 ### SELB — Selbstständigkeit
 
@@ -184,8 +184,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | UMSE-02 | Phase 39 — Umsetzbarkeit | Complete |
 | DOKU-01 | Phase 40 — Dokumentation | Complete |
 | DOKU-02 | Phase 40 — Dokumentation | Complete |
-| KREA-01 | Phase 41 — Kreativität | Pending |
-| KREA-02 | Phase 41 — Kreativität | Pending |
+| KREA-01 | Phase 41 — Kreativität | Complete |
+| KREA-02 | Phase 41 — Kreativität | Complete |
 | SELB-01 | Phase 42 — Selbstständigkeit | Pending |
 
 **Coverage:**

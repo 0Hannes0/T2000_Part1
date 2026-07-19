@@ -922,7 +922,7 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 41-01-PLAN.md — Audit: Kap. 8.1 auf explizite Originalitätsbenennung prüfen; Gaze-Check-Abschnitt auf Kontrastierung mit naiver Alternative prüfen
+- [x] 41-01-PLAN.md — Audit: Kap. 8.1 auf explizite Originalitätsbenennung prüfen; Gaze-Check-Abschnitt auf Kontrastierung mit naiver Alternative prüfen
 
 **Wave 2** *(blocked on Wave 1)*
 - [ ] 41-02-PLAN.md — Umsetzung: Originalitäts-Absatz in Kap. 8.1 einfügen; Kontrastierungs-Passage für Gaze-Check ergänzen
@@ -972,5 +972,5 @@ Plans:
 | 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
 | 39. Umsetzbarkeit (5P) | 3/3 | Complete    | 2026-07-19 |
 | 40. Dokumentation (10P) | 3/3 | Complete    | 2026-07-19 |
-| 41. Kreativität (5P) | 0/3 | Pending | — |
+| 41. Kreativität (5P) | 1/3 | In Progress|  |
 | 42. Selbstständigkeit (5P) | 0/3 | Pending | — |
