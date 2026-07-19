@@ -970,7 +970,7 @@ Plans:
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
 | 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
-| 39. Umsetzbarkeit (5P) | 3/3 | Complete   | 2026-07-19 |
+| 39. Umsetzbarkeit (5P) | 3/3 | Complete    | 2026-07-19 |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
 | 42. Selbstständigkeit (5P) | 0/3 | Pending | — |
