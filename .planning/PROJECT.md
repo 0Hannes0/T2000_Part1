@@ -159,7 +159,7 @@ personalisierte Konversationserfahrung bereitstellen?
 - [x] Phase 37 — Wirtschaftliche Bewertung (5P): Konkrete Kostenschätzung mit Zahlen (API-Calls/Tag, Azure-Pod, Alternativvergleich) — Validated in Phase 37: WIRT-01/02 erfüllt
 - [x] Phase 38 — Nachhaltigkeitsaspekte (5P): Eigenständiger Abschnitt 3.7 mit ökologischen, ökonomischen und sozialen Aspekten — Validated in Phase 38: NACH-01/02 erfüllt
 - [x] Phase 39 — Umsetzbarkeit (5P): Skalierbarkeitsaussagen (HNSW-Laufzeit bei N Profilen) + Produktivierungs-Roadmap (DSGVO-Maßnahmen) — Validated in Phase 39: UMSE-01/02 erfüllt
-- Phase 40 — Dokumentation (10P): Parametertabellen-Anhang + Terminologie-Einführung der State-Machine-Zustände
+- [x] Phase 40 — Dokumentation (10P): Anhang A2 Systemparameter (6 Parameter) + IDLE/CANDIDATE/ACTIVE-Definition in fundamentals-2.typ — Validated in Phase 40: DOKU-01/02 erfüllt
 - Phase 41 — Kreativität (5P): Originelle Beiträge (Vision-LLM-Gaze, spekulatives Pre-Computing, dreikanaliges Gedächtnis) explizit als eigene Leistung benennen
 - Phase 42 — Selbstständigkeit (5P): Eigenständige Entscheidungslogik durch Kontrastierung mit naiver Lösung an Schlüsselstellen sichtbar machen
 
