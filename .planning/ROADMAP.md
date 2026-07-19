@@ -856,7 +856,7 @@ Plans:
 - [x] 38-01-PLAN.md — Audit: prüfen ob 3.7 existiert und was fehlt; Buolamwini-Eintrag in sources.bib und Kap. 7 prüfen
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 38-02-PLAN.md — Umsetzung: Abschnitt 3.7 in kap3.typ anlegen (ca. ½ Seite, drei Dimensionen); Buolamwini-Verweis in Kap. 7 einfügen; BibTeX-Eintrag ergänzen
+- [x] 38-02-PLAN.md — Umsetzung: Abschnitt 3.7 in kap3.typ anlegen (ca. ½ Seite, drei Dimensionen); Buolamwini-Verweis in Kap. 7 einfügen; BibTeX-Eintrag ergänzen
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 38-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; Abschnitt 3.7 vollständig; Bias-Bewertung vorhanden
@@ -969,7 +969,7 @@ Plans:
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
-| 38. Nachhaltigkeitsaspekte (5P) | 1/3 | In Progress|  |
+| 38. Nachhaltigkeitsaspekte (5P) | 2/3 | In Progress|  |
 | 39. Umsetzbarkeit (5P) | 0/3 | Pending | — |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
