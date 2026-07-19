@@ -879,7 +879,7 @@ Plans:
 - [x] 39-01-PLAN.md — Audit: HNSW-Skalierbarkeitsaussage in Kap. 3.4 / Kap. 7 suchen und Lücke dokumentieren; Kap. 8.2 auf DSGVO-Roadmap prüfen
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 39-02-PLAN.md — Umsetzung: HNSW-Skalierbarkeitsabsatz ergänzen; DSGVO-Produktivierungsschritte in Kap. 8.2 formulieren
+- [x] 39-02-PLAN.md — Umsetzung: HNSW-Skalierbarkeitsabsatz ergänzen; DSGVO-Produktivierungsschritte in Kap. 8.2 formulieren
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 39-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; Zahlen konkret; drei DSGVO-Schritte benannt
@@ -970,7 +970,7 @@ Plans:
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
 | 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
-| 39. Umsetzbarkeit (5P) | 1/3 | In Progress|  |
+| 39. Umsetzbarkeit (5P) | 2/3 | In Progress|  |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
 | 42. Selbstständigkeit (5P) | 0/3 | Pending | — |
