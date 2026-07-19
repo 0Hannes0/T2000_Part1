@@ -112,8 +112,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### DOKU — Dokumentation
 
-- [ ] **DOKU-01**: Ein Anhang A „Systemparameter" wird angelegt und enthält eine Tabelle aller konfigurierbaren Parameter des Systems (CANDIDATE_SECS, LEAVE_SECS, SIMILARITY_THRESHOLD, FRAME_INTERVAL, GROUP_ARRIVAL_WINDOW_SECS, EMA-α) mit Wert, Einheit und Kap.-Verweis
-- [ ] **DOKU-02**: IDLE, CANDIDATE und ACTIVE werden am ersten Auftreten im Fließtext (spätestens Kap. 3.1) als definierte Bezeichnungen eingeführt, bevor sie ohne Erklärung in Kap. 4+ verwendet werden
+- [x] **DOKU-01**: Ein Anhang A „Systemparameter" wird angelegt und enthält eine Tabelle aller konfigurierbaren Parameter des Systems (CANDIDATE_SECS, LEAVE_SECS, SIMILARITY_THRESHOLD, FRAME_INTERVAL, GROUP_ARRIVAL_WINDOW_SECS, EMA-α) mit Wert, Einheit und Kap.-Verweis
+- [x] **DOKU-02**: IDLE, CANDIDATE und ACTIVE werden am ersten Auftreten im Fließtext (spätestens Kap. 3.1) als definierte Bezeichnungen eingeführt, bevor sie ohne Erklärung in Kap. 4+ verwendet werden
 
 ### KREA — Kreativität
 
@@ -182,8 +182,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | NACH-02 | Phase 38 — Nachhaltigkeitsaspekte | Complete |
 | UMSE-01 | Phase 39 — Umsetzbarkeit | Complete |
 | UMSE-02 | Phase 39 — Umsetzbarkeit | Complete |
-| DOKU-01 | Phase 40 — Dokumentation | Pending |
-| DOKU-02 | Phase 40 — Dokumentation | Pending |
+| DOKU-01 | Phase 40 — Dokumentation | Complete |
+| DOKU-02 | Phase 40 — Dokumentation | Complete |
 | KREA-01 | Phase 41 — Kreativität | Pending |
 | KREA-02 | Phase 41 — Kreativität | Pending |
 | SELB-01 | Phase 42 — Selbstständigkeit | Pending |

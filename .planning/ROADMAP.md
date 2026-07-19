@@ -665,7 +665,7 @@ Plans:
 - [x] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P) (completed 2026-07-18)
 - [x] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P) (completed 2026-07-19)
 - [x] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P) (completed 2026-07-19)
-- [ ] **Phase 40: Dokumentation** — Anhang A Systemparameter + IDLE/CANDIDATE/ACTIVE-Definition verifizieren (10P)
+- [x] **Phase 40: Dokumentation** — Anhang A Systemparameter + IDLE/CANDIDATE/ACTIVE-Definition verifizieren (10P) (completed 2026-07-19)
 - [ ] **Phase 41: Kreativität** — Originelle Beiträge in Kap. 8.1 + naive Alternative kontrastieren (5P)
 - [ ] **Phase 42: Selbstständigkeit** — Iterative Eigenentscheidungslogik an 3 Schlüsselstellen (5P)
 
@@ -899,13 +899,13 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 40-01-PLAN.md — Audit: prüfen ob Anhang A existiert und welche Parameter fehlen; IDLE/CANDIDATE/ACTIVE-Erstdefinition im Dokument lokalisieren
+- [x] 40-01-PLAN.md — Audit: prüfen ob Anhang A existiert und welche Parameter fehlen; IDLE/CANDIDATE/ACTIVE-Erstdefinition im Dokument lokalisieren
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 40-02-PLAN.md — Umsetzung: Anhang A anlegen mit vollständiger Parametertabelle; Terminologie-Einführung an erster Stelle sicherstellen
+- [x] 40-02-PLAN.md — Umsetzung: Anhang A anlegen mit vollständiger Parametertabelle; Terminologie-Einführung an erster Stelle sicherstellen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 40-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; alle 6 Parameter in Tabelle; Definitionen vor erstem Gebrauch vorhanden
+- [x] 40-03-PLAN.md — Finalcheck: Kriterien 1–2 verifizieren; alle 6 Parameter in Tabelle; Definitionen vor erstem Gebrauch vorhanden
 
 ---
 
@@ -971,6 +971,6 @@ Plans:
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
 | 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
 | 39. Umsetzbarkeit (5P) | 3/3 | Complete    | 2026-07-19 |
-| 40. Dokumentation (10P) | 0/3 | Pending | — |
+| 40. Dokumentation (10P) | 3/3 | Complete    | 2026-07-19 |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
 | 42. Selbstständigkeit (5P) | 0/3 | Pending | — |
