@@ -122,7 +122,7 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### SELB — Selbstständigkeit
 
-- [ ] **SELB-01**: An drei Schlüsselstellen der Arbeit (Modellwahl Kap. 3.3, Schwellenwert-Kalibrierung Kap. 5.1, EMA-α Kap. 5.3) wird die iterative Eigenentscheidung explizit formuliert: was war die naive/naheliegende Lösung, warum wurde sie verworfen, welche eigene Erkenntnis führte zur gewählten Lösung
+- [x] **SELB-01**: An drei Schlüsselstellen der Arbeit (Modellwahl Kap. 3.3, Schwellenwert-Kalibrierung Kap. 5.1, EMA-α Kap. 5.3) wird die iterative Eigenentscheidung explizit formuliert: was war die naive/naheliegende Lösung, warum wurde sie verworfen, welche eigene Erkenntnis führte zur gewählten Lösung
 
 ## Out of Scope
 
@@ -186,7 +186,7 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | DOKU-02 | Phase 40 — Dokumentation | Complete |
 | KREA-01 | Phase 41 — Kreativität | Complete |
 | KREA-02 | Phase 41 — Kreativität | Complete |
-| SELB-01 | Phase 42 — Selbstständigkeit | Pending |
+| SELB-01 | Phase 42 — Selbstständigkeit | Complete |
 
 **Coverage:**
 - v1 requirements: 22 total
