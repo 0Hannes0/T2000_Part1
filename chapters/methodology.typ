@@ -1,82 +1,29 @@
 = Personenerkennung
 #import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
-Dieses Kapitel beschreibt die vollständige Personenerkennungs-Pipeline des entwickelten Systems --- vom Kamerasignal über Gesichtsdetektion, Interaktionsvalidierung und Zustandsverwaltung bis hin zu den WebSocket-Events, die das Frontend über Anwesenheit und Identität einer Person informieren. Im Vordergrund steht das WIE der Implementierung; die Begründung der Technologieentscheidungen ist bereits in Kap.~3 erfolgt.
+Dieses Kapitel zeigt, wie die Personenerkennung im System umgesetzt ist: vom Kamerabild über die Gesichtsdetektion und die Prüfung, ob jemand wirklich mit dem Kiosk interagieren will, bis zu den Ereignissen, die das Frontend über Anwesenheit und Identität informieren. Es geht hier um das WIE der Umsetzung --- warum welche Technologie gewählt wurde, steht in Kap.~3.
 
 == Gesichtsdetektion mit MediaPipe BlazeFace
 
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left, left),
-    table.header(
-      strong[Filter], strong[Wert], strong[Wirkung],
-    ),
-    [`MIN_DETECTION_CONFIDENCE`], [0,5], [MediaPipe-interne Schwelle für die Bounding-Box-Validierung --- verwirft Detektionen unter diesem Konfidenzwert],
-    [`MIN_FACE_WIDTH_RATIO`], [0,06], [Mindestbreite eines erkannten Gesichts relativ zur Frame-Breite --- filtert Hintergrundpersonen heraus (< 6 % des Frame-Bereichs)],
-    [`DETECTION_UPSCALE`], [2,5], [Frame wird vor Übergabe an MediaPipe um Faktor 2,5 vergrößert; Bounding-Boxen werden anschließend zurückgerechnet],
-  ),
-  kind: table,
-  caption: [Konfigurationsparameter der BlazeFace-Detektion],
-) <tab:blaze-params>
+Die Detektion nutzt drei konfigurierbare Filter (`MIN_DETECTION_CONFIDENCE` = 0,5, `MIN_FACE_WIDTH_RATIO` = 0,06 und `DETECTION_UPSCALE` = 2,5; vollständige Parameter siehe Anhang A2). Sie sortieren unerwünschte Detektionen aus. Der wichtigste ist `MIN_FACE_WIDTH_RATIO` mit 0,06. Er löst ein praktisches Problem: Eine Kamera sieht nicht nur die Person direkt vor dem Kiosk, sondern auch alle, die im Hintergrund vorbeigehen. Ohne diesen Filter würde jedes dieser Gesichter einen 4-Sekunden-Timer und damit eine Sitzung anstoßen --- der Kiosk würde also ständig auf Passanten reagieren, die gar nicht stehenbleiben. Der Filter nutzt aus, dass ein weit entferntes Gesicht im Bild klein erscheint: Nimmt ein Gesicht weniger als 6 % der Bildbreite ein, steht die Person zu weit weg, um interagieren zu wollen, und wird aussortiert.
 
-Die drei Filter schließen unerwünschte Detektionen auf unterschiedlichen Ebenen aus.
-`MIN_FACE_WIDTH_RATIO` von 0,06 ist dabei der systemkritischste: Ohne diesen Filter würde jede Person, die am Kiosk vorbeiläuft, einen 4-Sekunden-CANDIDATE-Timer auslösen, obwohl sie gar nicht mit dem Kiosk interagieren will --- der Schwellenwert trennt Personen im direkten Interaktionsbereich von Passanten im Hintergrund.
-`DETECTION_UPSCALE` von 2,5 kompensiert die distanzbedingte Gesichtsverkleinerung: Da BlazeFace bei kleinen Gesichtern in der Originalgröße an seine Detektionsgrenzen stößt @bazarevsky2019blazeface[S.~2--3], wird der Frame hochskaliert und die Bounding-Box-Koordinaten werden anschließend zurückgerechnet.
-Die Detektion erfolgt periodisch mit `FRAME_INTERVAL` von 1,0 s --- kein kontinuierlicher Scan, sondern ein getakteter Stichprobenansatz, der die CPU-Last begrenzt und gleichzeitig eine ausreichend hohe zeitliche Auflösung bietet @lugaresi2019mediapipe[S.~1--2].
+`DETECTION_UPSCALE` von 2,5 gleicht das Gegenteil aus: BlazeFace erkennt sehr kleine Gesichter schlechter @bazarevsky2019blazeface[S.~2--3]. Der Frame wird deshalb vor der Detektion um Faktor 2,5 vergrößert, danach werden die gefundenen Boxen wieder auf die Originalgröße zurückgerechnet.
+
+Die Detektion läuft nicht durchgehend, sondern im Takt von `FRAME_INTERVAL` = 1,0 s. Dieser Stichprobenansatz hält die CPU-Last niedrig und reicht zeitlich völlig aus @lugaresi2019mediapipe[S.~1--2].
 
 == Gaze-Validierung via Vision-LLM
 
-#figure(
-  table(
-    columns: (auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left),
-    table.header(
-      strong[Aspekt], strong[Eigenschaft],
-    ),
-    [Modell], [Gemini 2.5 Flash über SAP AI Core (`thinking_budget=0`, `temperature=0`, `max_output_tokens=50`)],
-    [Eingabe], [JPEG-kodiertes Kamerabild (Qualitätsstufe 70) plus Textaufforderung],
-    [Ausgabe], [Binäre Klassifikation: „yes" → Person schaut in die Kamera, „no" → nicht, Timeout/Fehler → None (Retry)],
-    [Timeout], [`GAZE_TIMEOUT_SECS` = 9,0 s; SDK-Aufruf läuft in separatem Hintergrund-Thread],
-  ),
-  kind: table,
-  caption: [Konfiguration des Vision-LLM Gaze-Validators],
-) <tab:gaze-config>
+Der Gaze-Check läuft über Gemini 2.5 Flash (SAP AI Core) mit `temperature=0` und abgeschalteter interner Nachdenk-Phase (`thinking_budget=0`); Timeout ist `GAZE_TIMEOUT_SECS` = 9,0 s (vollständige Konfiguration siehe Anhang A2). Warum hier ein Vision-LLM statt einer klassischen Gaze-Estimation zum Einsatz kommt, ist in Kap.~3.2 und Kap.~2.1.2 begründet. Für die Umsetzung reicht ein binäres Urteil: Schaut die Person in die Kamera oder nicht?
 
-Die Begründung für den Einsatz des Vision-LLM statt klassischer Gaze-Estimation ist in Kap.~3.2 und Kap.~2.1.2 ausgeführt @zhang2015mpiigaze[S.~1--2], @kellnhofer2019gaze360[S.~1], @yin2024clipgaze[S.~6729--6730]. Das System nutzt dafür ein binäres Vision-LLM-Urteil: schaut die Person in die Kamera oder nicht.
+Der verwendete Prompt lautet in der englischen Originalfassung: _„Look at this camera image from a kiosk. The camera is mounted at the top of the screen. Is the person's face pointing toward the screen? Answer 'yes' if the face is roughly frontal --- head upright or only slightly tilted. Answer 'no' if the head is clearly turned away, tilted far down, or tilted far up. Answer ONLY with 'yes' or 'no'."_ Bewusst wird nur nach Frontalität gefragt, nicht nach einer genauen Blickrichtung. Das Modell soll grob einschätzen, ob jemand interagieren will --- und das robust genug, dass es bei verschiedenen Personen zuverlässig funktioniert.
 
-Der verwendete Prompt lautet in der englischen Originalfassung: _„Look at this camera image from a kiosk. The camera is mounted at the top of the screen. Is the person's face pointing toward the screen? Answer 'yes' if the face is roughly frontal --- head upright or only slightly tilted. Answer 'no' if the head is clearly turned away, tilted far down, or tilted far up. Answer ONLY with 'yes' or 'no'."_ Die Formulierung ist bewusst auf Frontalität statt auf präzise Blickrichtung ausgelegt: Das Modell trifft eine grobe Interaktionsklassifikation, keine metrische Gaze-Schätzung --- was die im Kiosk-Kontext geforderte Robustheit gegenüber nutzerspezifischen Variationen erzeugt.
+Der Ablauf startet, sobald eine Person `CANDIDATE_SECS` = 4,0 s ununterbrochen erkannt wurde. Der Kameraframe wird mit OpenCV als JPEG (Qualitätsstufe 70) kodiert und mit dem Prompt an Gemini 2.5 Flash über SAP AI Core geschickt. Da der SDK-Aufruf synchron blockiert, läuft er in einem eigenen Hintergrund-Thread und hält den Detektions-Loop nicht auf.
 
-Der funktionale Ablauf startet, sobald die Person `CANDIDATE_SECS` = 4,0 s ununterbrochen erkannt wurde: Der aktuelle Kameraframe wird mittels OpenCV als JPEG mit Qualitätsstufe 70 kodiert und zusammen mit dem obigen Prompt an das Modell Gemini 2.5 Flash über SAP AI Core geschickt.
-Da der zugrunde liegende SDK-Aufruf synchron blockiert, wird er in einem separaten Hintergrund-Thread ausgeführt, sodass der Detektions-Loop nicht blockiert wird.
-Aus der Modellantwort ergeben sich drei Pfade: Antwortet das Modell mit „yes", wird der Übergang zu ACTIVE freigegeben, wie in Kap.~4.3 detailliert beschrieben. Antwortet es mit „no", fällt die State Machine zurück nach IDLE.
-Überschreitet der Aufruf die Wartezeit von `GAZE_TIMEOUT_SECS` = 9,0 s oder tritt ein Fehler auf, gibt der Gaze-Validator None zurück --- die State Machine verbleibt in diesem Fall im CANDIDATE-Zustand und wiederholt die Prüfung im nächsten Frame, ohne in IDLE zurückzufallen.
-Dieser Retry-Mechanismus stellt sicher, dass ein kurzzeitiger LLM-Verbindungsfehler nicht zum Verlust einer bereits erkannten Interaktionsabsicht führt.
+Aus der Antwort ergeben sich drei Pfade. Bei „yes" wird der Übergang nach ACTIVE freigegeben (Details in Kap.~4.3), bei „no" fällt die Maschine zurück nach IDLE. Überschreitet der Aufruf `GAZE_TIMEOUT_SECS` = 9,0 s oder schlägt er fehl, bleibt die Maschine im CANDIDATE-Zustand, statt nach IDLE zurückzufallen, und prüft im nächsten Frame erneut. So kostet ein kurzer Verbindungsfehler nicht gleich eine schon erkannte Interaktionsabsicht.
 
 == State Machine: IDLE → CANDIDATE → ACTIVE
 
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left, left),
-    table.header(
-      strong[Parameter], strong[Wert], strong[Bedeutung],
-    ),
-    [`CANDIDATE_SECS`], [4,0 s], [Person muss vier Sekunden ununterbrochen erkannt werden, bevor der Gaze-Check startet],
-    [`LEAVE_SECS`], [10,0 s], [Kein Gesicht für zehn Sekunden führt von ACTIVE zurück nach IDLE],
-    [`GAZE_TIMEOUT_SECS`], [9,0 s], [Maximale Wartezeit auf die Vision-LLM-Antwort; bei Überschreitung Retry ohne IDLE-Reset],
-    [`GREETING_WAIT_SECS`], [1,5 s], [Maximale Nachwartezeit nach Gaze-Bestätigung auf den vorbereiteten Begrüßungstext],
-    [`FRAME_INTERVAL`], [1,0 s], [Periodisches Detektions-Intervall --- kein kontinuierlicher Scan],
-  ),
-  kind: table,
-  caption: [Parametrisierung der PresenceStateMachine],
-) <tab:statemachine-params>
+Der Zustandsautomat kennt drei Zustände und wird über fünf Zeitparameter gesteuert (`CANDIDATE_SECS` = 4,0 s, `LEAVE_SECS` = 10,0 s, `GREETING_WAIT_SECS` = 1,5 s u.~a.; vollständige Parameter siehe Anhang A2). @fig:statemachine zeigt die Übergänge.
 
 #figure(
   diagram(
@@ -98,42 +45,18 @@ Dieser Retry-Mechanismus stellt sicher, dass ein kurzzeitiger LLM-Verbindungsfeh
   caption: [Zustandsdiagramm der PresenceStateMachine],
 ) <fig:statemachine>
 
-Sobald `CANDIDATE_SECS` = 4,0 s überschritten sind, startet das System zwei Aufgaben gleichzeitig: die Gaze-Validierung und die biometrische Identifikation.
-Sobald die Identifikation vorliegt --- sie liefert Personenname, Wiederkehr-Status, bevorzugte Sprache und Gesprächskontext aus vorherigen Sitzungen und ist nach ~80 ms fertig --- startet das System einen dritten parallelen Vorgang: einen eigenen Vision-LLM-Aufruf, der aus dem Kamerabild und diesen Personendaten bereits einen fertigen Begrüßungssatz generiert.
-Diese Begrüßung wird damit spekulativ erzeugt, während der Gaze-Check noch läuft --- ihr Ergebnis wird erst verwendet, wenn der Gaze-Check positiv ausfällt.
-Sobald die Gaze-Validierung abgeschlossen ist, entscheidet ihr Ergebnis über den Übergang: Gibt sie True zurück, wird der Zustand auf ACTIVE gesetzt; der bereits generierte Begrüßungstext wird mit einem Timeout von `GREETING_WAIT_SECS` = 1,5 s eingesammelt und anschließend über das WebSocket-System nach außen signalisiert.
-Gibt sie False zurück, wechselt die Maschine zurück nach IDLE und verwirft die spekulativ erzeugte Begrüßung.
-Tritt ein Timeout nach `GAZE_TIMEOUT_SECS` = 9,0 s auf und gibt der Gaze-Validator None zurück, erfolgt kein Zustandswechsel --- im nächsten Detektionszyklus wird sofort erneut geprüft.
-Dieser Retry-Mechanismus ist bewusst nicht als eigener Zustand modelliert: ein LLM-Verbindungsfehler ist kein inhaltlicher Sonderfall, sondern ein technisches Interim.
+Sobald `CANDIDATE_SECS` = 4,0 s überschritten sind, laufen zwei Dinge gleichzeitig an: die Gaze-Validierung und die biometrische Identifikation. Die Identifikation liefert nach rund 80 ms Name, Wiederkehr-Status, bevorzugte Sprache und den Gesprächskontext aus früheren Sitzungen. Mit diesen Daten startet parallel ein dritter Vorgang, der aus Kamerabild und Personendaten schon einen fertigen Begrüßungssatz erzeugt --- vorsorglich, während der Gaze-Check noch läuft. Gebraucht wird er nur, wenn der Check positiv ausfällt.
 
-Der Übergang ACTIVE → IDLE tritt nach `LEAVE_SECS` = 10,0 s ein, in denen kein Gesicht der Person erkannt wurde.
-Das System toleriert kurze Unterbrechungen der Sichtbarkeit: Wird die Person im nächsten Detektionszyklus erneut erkannt, wird der `gone_since`-Timer zurückgesetzt, ohne den ACTIVE-Zustand zu verlassen --- ein normales Wegsehen oder kurzes Verlassen des Sichtfeldes beendet die Sitzung also nicht sofort.
+Über den Übergang entscheidet dann der Gaze-Check. Fällt er positiv aus, geht der Zustand auf ACTIVE, die vorbereitete Begrüßung wird mit maximal `GREETING_WAIT_SECS` = 1,5 s Nachlauf eingesammelt und über das WebSocket-System gemeldet. Fällt er negativ aus, geht es zurück nach IDLE und die Begrüßung wird verworfen. Bei einem Timeout nach `GAZE_TIMEOUT_SECS` = 9,0 s bleibt der Zustand unverändert und der nächste Zyklus prüft erneut. Dieser Wiederholfall bekommt bewusst keinen eigenen Zustand: Ein Verbindungsfehler ist kein inhaltlicher Sonderfall, sondern nur eine technische Zwischenphase.
+
+Der Rückweg von ACTIVE nach IDLE greift erst, wenn `LEAVE_SECS` = 10,0 s lang kein Gesicht der Person erkannt wurde. Kurze Unterbrechungen werden toleriert: Für jede Person merkt sich das System, seit wann sie nicht mehr gesehen wurde (`gone_since`). Taucht sie im nächsten Zyklus wieder auf, wird dieser Zeitstempel zurückgesetzt und die Sitzung läuft weiter. Erst nach vollen zehn Sekunden ohne ein einziges Wiedersehen endet die Sitzung. Normales Wegsehen oder kurzes Aus-dem-Bild-Treten beendet sie also nicht.
 
 == Paralleles Multi-Person-Tracking und Gruppen-Erkennung
 
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left, left),
-    table.header(
-      strong[Parameter], strong[Wert], strong[Bedeutung],
-    ),
-    [`POSITION_MATCH_RADIUS`], [120 px], [Schwelle der Positions-Stufe der Zuordnung (Wirkung in Kap.~5.2)],
-    [`SIMILARITY_THRESHOLD`], [0,52 (kalibriert; vgl. Kap.~5.1)], [Schwelle der ArcFace-Stufe der Zuordnung (Wirkung in Kap.~5.2)],
-    [`GROUP_ARRIVAL_WINDOW_SECS`], [2,0 s], [Sammel-Fenster für parallele ACTIVE-Übergänge --- verschmilzt sie zu `group_arrived`],
-    [IDLE-Eviction], [`LEAVE_SECS` · 6 ≈ 60 s], [IDLE-Tracker werden nach diesem Zeitraum aus der Liste entfernt],
-  ),
-  kind: table,
-  caption: [Parametrisierung des PersonTracker für Multi-Person-Tracking],
-) <tab:tracker-params>
+Das Multi-Person-Tracking wird über `POSITION_MATCH_RADIUS` = 120 px, `SIMILARITY_THRESHOLD` = 0,52 und das Sammel-Fenster `GROUP_ARRIVAL_WINDOW_SECS` = 2,0 s gesteuert (vollständige Parameter siehe Anhang A2).
 
-Der `PersonTracker` in `presence/tracker.py` führt für jede erkannte Person eine eigene `PresenceStateMachine`.
-Jede Person durchläuft damit den vollständigen IDLE → CANDIDATE → ACTIVE-Zyklus aus Kap.~4.3 unabhängig von allen übrigen Personen im Frame.
-Diese Pro-Person-Trennung ist das zentrale Designprinzip: Die Sitzungssemantik einer Person --- ihr CANDIDATE-Timer, ihr Gaze-Ergebnis, ihre biometrische Identität --- beeinflusst niemals den Zustand einer anderen Person.
-Mehrere Personen können gleichzeitig den CANDIDATE-Übergang durchlaufen, und für jede läuft eine eigene Instanz des parallelen Gaze-Identifikations-Flows aus Kap.~4.3.
+Der `PersonTracker` führt für jede erkannte Person eine eigene Zustandsmaschine. Jede durchläuft den IDLE → CANDIDATE → ACTIVE-Zyklus aus Kap.~4.3 unabhängig von den anderen im Bild: CANDIDATE-Timer, Gaze-Ergebnis und Identität einer Person beeinflussen nie den Zustand einer anderen. Mehrere Personen können also gleichzeitig den CANDIDATE-Übergang durchlaufen.
 
-In jedem Detektionszyklus ordnet der Tracker die neu eingehenden Bounding-Boxen den bekannten `_TrackedPerson`-Einträgen zu. Auf der Architekturebene relevant ist nur das _Prinzip_: Eine schnelle, positionsbasierte Stufe prüft zuerst, ob eine neue Detektion geometrisch zu einer bereits bekannten Person passt; nur wenn das nicht eindeutig ist, wird das vergleichsweise teure ArcFace-Embedding berechnet und gegen die bekannten Profile abgeglichen. Die konkreten Schwellwerte (`POSITION_MATCH_RADIUS`, `SIMILARITY_THRESHOLD`) und der vollständige Algorithmus sind in Kap.~5.2 ausgeführt. Das Vorgehen folgt dem Tracking-by-Detection-Ansatz @bewley2016sort[S.~1--3]: Jedes neue Detektionsergebnis wird einer bereits bekannten Person zugeordnet --- zunächst über ihre Position, dann über ihr Erscheinungsbild @wojke2017deepsort[S.~1--3]. Diese Kombination ist besonders für Szenarien geeignet, in denen Personen längere Zeit vor der Kamera stehen und kurz wegsehen können @barquero2020longtermtracking[S.~1--3].
+Zur Zuordnung neuer Gesichter zu bekannten Personen prüft der Tracker zuerst eine schnelle, positionsbasierte Stufe; nur bei Uneindeutigkeit wird das teurere ArcFace-Embedding berechnet. Dieses zweistufige Tracking-by-Detection --- Position zuerst, Erscheinungsbild nur bei Bedarf --- passt gut zum Kiosk, wo Personen länger stehen und zwischendurch wegsehen @bewley2016sort[S.~1--3], @wojke2017deepsort[S.~1--3], @barquero2020longtermtracking[S.~1--3]. Schwellwerte und vollständiger Algorithmus stehen in Kap.~5.2.
 
-Für die Gruppen-Logik gilt das `GROUP_ARRIVAL_WINDOW_SECS`-Sammel-Fenster von 2,0 s: Erreichen mehrere Personen innerhalb dieser Zeitspanne die ACTIVE-Schwelle, werden sie zu einem gemeinsamen `group_arrived`-Event zusammengefasst. IDLE-Einträge werden nach `LEAVE_SECS` · 6 ≈ 60 s aus der Liste entfernt, damit das Tracking-Register nicht unbegrenzt wächst.
+Für Gruppen gilt das Sammel-Fenster `GROUP_ARRIVAL_WINDOW_SECS` = 2,0 s: Erreichen mehrere Personen innerhalb dieser Zeit die ACTIVE-Schwelle, fasst das System sie zu einem gemeinsamen `group_arrived`-Ereignis zusammen. IDLE-Einträge werden nach `LEAVE_SECS` · 6 ≈ 60 s entfernt, damit das Register nicht unbegrenzt wächst.

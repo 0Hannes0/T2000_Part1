@@ -1,52 +1,29 @@
 = Biometrische Identifikation und Persistenz
 #import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
-Dieses Kapitel beschreibt die biometrische Identifikationslogik des entwickelten Systems --- von der Embedding-Berechnung über das zweistufige Tracking bis hin zur persistenten Profilspeicherung mit graduellem Embedding-Blending.
-Der Aufbau folgt dem Verarbeitungsfluss: Kap.~5.1 beschreibt die Berechnung des Gesichts-Embeddings via InsightFace und ONNX-Optimierung, Kap.~5.2 das zweistufige Tracking-Verfahren zur Frame-übergreifenden Personenidentifikation inklusive sitzungsinterner Embedding-Stabilisierung, und Kap.~5.3 die Persistenzschicht mit FaceStore-Interface und sitzungsübergreifendem EMA-Blending.
-Kap.~5 setzt an dem Punkt an, an dem ein aktives Gesicht vorliegt (Übergabe aus der Erkennungs-Pipeline in Kap.~4), und beschreibt dessen biometrische Identifikation sowie persistente Erfassung; die Entscheidungsbegründungen zu Modell- und Persistenzwahl finden sich in Kap.~3.3 und Kap.~3.4.
+Dieses Kapitel beschreibt, wie das System ein erkanntes Gesicht identifiziert und über mehrere Besuche hinweg speichert.
+Es setzt dort an, wo Kap.~4 aufhört: Ein aktives Gesicht liegt bereits vor.
+Der Aufbau folgt dem Verarbeitungsfluss --- Kap.~5.1 berechnet das Gesichts-Embedding, Kap.~5.2 ordnet es über ein zweistufiges Tracking einer Person zu, und Kap.~5.3 speichert es dauerhaft und aktualisiert es bei jedem Besuch.
+Die Begründungen zur Modell- und Persistenzwahl stehen in Kap.~3.3 und Kap.~3.4.
 
 == Biometrische Identifikation mit InsightFace
 
-Die Embedding-Berechnung basiert auf dem InsightFace-Modellpaket buffalo\_l mit folgenden Kennwerten:
+Die Embedding-Berechnung nutzt das InsightFace-Modellpaket buffalo\_l mit dem Modell w600k\_r50 (ArcFace ResNet50): 512-dimensionale Embeddings aus einem 112×112-px-Crop, berechnet über die ONNX Runtime (CPU) in ~80 ms, bei einer LFW-Genauigkeit von 99,83 % und `SIMILARITY_THRESHOLD` = 0,52 (vollständige Kennwerte siehe Anhang A2).
 
-#figure(
-  table(
-    columns: (auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left),
-    table.header(
-      strong[Aspekt], strong[Eigenschaft],
-    ),
-    [Modellpaket], [InsightFace buffalo\_l],
-    [Modell], [w600k\_r50 (ArcFace ResNet50, auf WebFace600K trainiert)],
-    [Embedding-Dimension], [512],
-    [Crop-Größe], [112×112 px],
-    [Inference-Backend], [ONNX Runtime (CPUExecutionProvider)],
-    [Latenz], [~80 ms pro Embedding-Berechnung],
-    [LFW-Genauigkeit], [99,83 %],
-    [`SIMILARITY_THRESHOLD`], [0,52 ],
-  ),
-  kind: table,
-  caption: [Kennwerte des InsightFace buffalo\_l Erkennungsmodells],
-) <tab:insightface-kennwerte>
+Sobald der Presence Service ein aktives Gesicht identifiziert hat, beginnt die Identifikation mit der Embedding-Berechnung.
+Ausgangspunkt ist die Bounding Box aus Kap.~4.1.
+Dieser Bildausschnitt wird in `face_id.py` auf 112×112 Pixel skaliert --- die Eingabegröße, die das w600k\_r50-Modell erwartet.
 
-Sobald der Presence Service ein aktives Gesicht identifiziert hat, beginnt die biometrische Identifikation mit der Berechnung des Gesichts-Embeddings.
-Ausgangspunkt ist die Bounding Box, die BlazeFace in Kap.~4.1 für das erkannte Gesicht geliefert hat.
-Dieser Bildausschnitt wird in `face_id.py` mit der Methode `_crop_face()` auf 112×112 Pixel skaliert --- die Eingabegröße, die das w600k\_r50-Modell erwartet.
+Aus diesem Crop berechnet das Modell ein L2-normiertes, 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im Embedding-Raum aus Kap.~2.2.1 @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß dient der Kosinus-Score (Werte nahe 1,0 = hohe Übereinstimmung); der Schwellenwert `SIMILARITY_THRESHOLD` trennt „gleiche Person" von „neue Person".
 
-Das Modell berechnet aus diesem Crop via `get_feat()` ein L2-normiertes 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im in Kap.~2.2.1 hergeleiteten Embedding-Raum @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß zwischen zwei Embeddings wird der Kosinus-Score verwendet: Werte nahe 1,0 signalisieren hohe Übereinstimmung; der Schwellenwert `SIMILARITY_THRESHOLD` trennt „gleiche Person" von „neue Person".
+Den Schwellenwert habe ich iterativ kalibriert. Startpunkt war der Literaturwert 0,65 für ArcFace-Verifikation @deng2019arcface[S.~4--5]. Bei konstanter Beleuchtung liegen die Kosinus-Scores echter Wiedererkennungen typischerweise bei 0,72--0,85; ändert sich Licht oder Aussehen (z.~B. eine neue Brille), fallen sie auf 0,53--0,58. Mit 0,65 werden solche legitimen Wiedererkennungen fälschlich als neue Person gewertet. Eine eigene Messreihe bestätigte das und führte zur Absenkung auf 0,52 --- die konkreten Erkennungsraten stehen in Kap.~7.3.
 
-Die Kalibrierung des Schwellenwerts folgte einem iterativen Vorgehen: Ausgehend vom Literaturwert von 0,65 für ArcFace-basierte Verifikation @deng2019arcface[S.~4--5] wurden im Entwicklungsbetrieb die tatsächlich erzielten Kosinus-Scores bei korrekten Wiederkennungen protokolliert. Dabei zeigte sich, dass echte Wiederkennungen derselben Person unter konstanten Beleuchtungsbedingungen Scores von typischerweise 0,72--0,85 erzielen, unter veränderten Lichtbedingungen oder nach Aussehen-Veränderungen (z.~B. neu gesetzte Brille) jedoch auf Werte um 0,53--0,58 absinken können. Ein Schwellenwert von 0,65 hätte diese legitimen Wiederkennungen fälschlich als neue Personen klassifiziert; der gewählte Wert von 0,52 stellt sicher, dass solche Grenzfälle korrekt zugeordnet werden. Die Testergebnisse sind in Kap.~7.3 ausgewiesen. Im Testablauf bestätigte sich dies: Testpersonen, die nach einer Aussehen-Veränderung wiederkehrten, wurden mit dem Ausgangswert~0,65 tatsächlich nicht erkannt. Die eigene Kalibrierungsentscheidung, den Schwellenwert auf~0,52 abzusenken, ergab sich direkt aus diesen Beobachtungen.
-
-Das eingesetzte Modell w600k\_r50 --- bereitgestellt über das InsightFace-Framework @guo2021scrfd[S.~1] im buffalo\_l-Modellpaket --- wurde mit ArcFace-Loss @deng2019arcface[S.~3] auf dem WebFace600K-Datensatz @zhu2021webface260m[S.~1] trainiert (Kap.~2.2).
-
-Die Inferenz läuft via ONNX Runtime (optimiertes Laufzeitformat, Auswahl in Kap.~3.3) auf der CPU ohne GPU-Server-Anforderung, was eine Latenz von ~80 ms pro Embedding ermöglicht --- ausreichend für den periodischen Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
+Das Modell w600k\_r50 wurde mit ArcFace-Loss auf einem großen Gesichtsdatensatz trainiert (Details in Kap.~2.2) @deng2019arcface[S.~3]. Die Inferenz läuft über die ONNX Runtime (Auswahl in Kap.~3.3) auf der CPU, ohne GPU-Server --- ~80 ms pro Embedding, schnell genug für den Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
 
 == Zweistufiges Tracking und Embedding-Stabilisierung
 
 Der Tracker in `presence/tracker.py` ordnet in jedem Detektionszyklus die neu erkannten Gesichter den bereits bekannten Personen zu.
-Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem ressourcenintensiven Stage 2 dient:
+Das geschieht zweistufig: Stage 1 ist ein günstiger Vorfilter, Stage 2 die teurere Embedding-Berechnung. @fig:tracking-algorithmus zeigt den Ablauf:
 
 #figure(
   diagram(
@@ -69,63 +46,26 @@ Dies erfolgt zweistufig, wobei Stage 1 als kostengünstiger Präfilter vor dem r
   caption: [Zweistufiger Tracking-Algorithmus: Positions-Präfilter vor ArcFace-Matching],
 ) <fig:tracking-algorithmus>
 
-*Stage 1 --- Positions-Matching:* Der Mittelpunkt der neuen Detektion wird im Original-Frame-Koordinatensystem mit den zuletzt bekannten Mittelpunkten aller aktiven Personen verglichen.
-Liegt der euklidische Abstand innerhalb von `POSITION_MATCH_RADIUS` = 120 px, gilt die Detektion als Treffer und wird dieser Person zugewiesen --- ohne dass ein ArcFace-Embedding berechnet werden muss.
-Bei mehreren Trefferkandidaten gewinnt die nächstgelegene Person (closest-first).
-Damit wird das zweistufige Tracking-Prinzip aus Kap.~4.3 (SORT @bewley2016sort[S.~1--3]) umgesetzt.
-Die Koordinaten werden dabei auf den Original-Frame-Maßstab zurückgerechnet, da BlazeFace mit `DETECTION_UPSCALE` = 2,5 arbeitet und die zurückgegebenen Bounding-Box-Koordinaten entsprechend skaliert sind.
+*Stage 1 --- Positions-Matching:* Der Mittelpunkt der neuen Detektion wird mit den zuletzt bekannten Mittelpunkten aller aktiven Personen verglichen. Liegt der Abstand innerhalb von `POSITION_MATCH_RADIUS` (120 px), gilt die Detektion als Treffer und wird dieser Person zugewiesen --- ganz ohne ArcFace-Embedding; bei mehreren Kandidaten gewinnt die nächstgelegene Person. Das setzt das Tracking-Prinzip aus Kap.~4.3 (SORT @bewley2016sort[S.~1--3]) um. Die Koordinaten werden dabei auf den Original-Frame zurückgerechnet, da BlazeFace mit `DETECTION_UPSCALE` = 2,5 arbeitet.
 
-*Stage 2 --- ArcFace-Matching:* Nur Detektionen, die Stage 1 keiner bekannten Person zuordnen konnte, durchlaufen die kostspielige Embedding-Berechnung.
-Der berechnete Kosinus-Score wird gegen alle gespeicherten Profile verglichen.
-Liegt der höchste Score über `SIMILARITY_THRESHOLD`, wird die Detektion der entsprechenden Person zugewiesen; liegt er darunter, wird eine neue `_TrackedPerson` mit einer eigenen `PresenceStateMachine` angelegt.
-Diese Kombination aus positionsbasiertem Präfilter und Deep-Appearance-Matching entspricht dem DeepSORT-Muster @wojke2017deepsort[S.~1--3] und ermöglicht robuste Personenzuordnung auch bei temporärer Nicht-Frontalorientierung @barquero2020longtermtracking[S.~3--4].
-Nach erfolgreichem Stage-1- oder Stage-2-Match wird `upsert_profile()` aufgerufen (Details in Kap.~5.3).
+*Stage 2 --- ArcFace-Matching:* Nur Detektionen ohne Stage-1-Treffer durchlaufen die Embedding-Berechnung. Der Kosinus-Score wird gegen alle gespeicherten Profile verglichen. Liegt der höchste Score über `SIMILARITY_THRESHOLD`, wird die Detektion der Person zugewiesen; liegt er darunter, entsteht eine neue `_TrackedPerson` mit eigener `PresenceStateMachine`. Diese Kombination aus Positions-Vorfilter und Embedding-Vergleich entspricht dem DeepSORT-Muster @wojke2017deepsort[S.~1--3] und ordnet Personen auch dann zuverlässig zu, wenn sie kurz zur Seite blicken @barquero2020longtermtracking[S.~3--4]. Nach einem Treffer in Stage 1 oder Stage 2 wird `upsert_profile()` aufgerufen (Details in Kap.~5.3).
 
-Innerhalb einer Sitzung stabilisiert der Tracker das Embedding einer Person durch einen kumulativen normalisierten Mittelwert: Frame n trägt das Gewicht 1/n bei (`_running_avg()`), sodass alle bisherigen Frames gleichgewichtet in das Sitzungs-Embedding eingehen.
-Kurzzeitige Pose-Änderungen oder schlechte Einzelframes dominieren das Sitzungs-Embedding dadurch nicht.
-Das resultierende Sitzungs-Embedding ist stabiler als ein einzelnes Frame-Embedding und bildet die Grundlage für den sitzungsübergreifenden Upsert in Kap.~5.3.
+Innerhalb einer Sitzung stabilisiert der Tracker das Embedding einer Person durch einen laufenden Mittelwert: Frame n trägt mit dem Gewicht 1/n bei (`_running_avg()`), sodass einzelne schlechte Frames das Sitzungs-Embedding nicht dominieren. Dieses stabilere Embedding ist die Grundlage für den sitzungsübergreifenden Upsert in Kap.~5.3.
 
 == Qdrant-Persistenz und EMA-Blending
 
-Die Persistenzschicht basiert auf einem abstrakten FaceStore-Interface mit zwei Backends und nutzt folgende Konfiguration:
+Die Persistenzschicht basiert auf einem abstrakten FaceStore-Interface (Strategy-Pattern) mit zwei Backends, deren Auswahl per ENV-Variable `FACE_STORE_BACKEND` erfolgt: `SQLiteFaceStore` für die lokale Entwicklung und `QdrantFaceStore` für das Kubernetes-Deployment (Konfigurationsdetails siehe Anhang A2).
 
-#figure(
-  table(
-    columns: (auto, 1fr),
-    stroke: 0.5pt,
-    inset: (x: 6pt, y: 5pt),
-    align: (left, left),
-    table.header(
-      strong[Aspekt], strong[Eigenschaft],
-    ),
-    [FaceStore-Typ], [Abstrakte Basisklasse (Strategy-Pattern)],
-    [Backend-Auswahl], [ENV-Variable `FACE_STORE_BACKEND`],
-    [Verfügbare Implementierungen], [SQLiteFaceStore (lokale Entwicklung) / QdrantFaceStore (Kubernetes-Deployment)],
-    [Vektordimensionen (Qdrant)], [512-dim ArcFace-Embeddings / 384-dim RAG-Chunks (vgl. Kap.~6)],
-    [Ähnlichkeitsmaß], [Kosinus-Distanz (HNSW-Index, vgl. Kap.~2.2.1)],
-  ),
-  kind: table,
-  caption: [Konfiguration der FaceStore-Persistenzschicht],
-) <tab:facestore-config>
+Das FaceStore-Interface trennt die Persistenz vom Identifikations-Algorithmus (Begründung vgl. Kap.~3.4): Über `FACE_STORE_BACKEND` wählt eine Factory zur Laufzeit zwischen `SQLiteFaceStore` und `QdrantFaceStore`. Qdrant sucht per HNSW-Index nach der ähnlichsten Person; liegt deren Kosinus-Score über `SIMILARITY_THRESHOLD`, gilt die Person als bekannt. Die `conversation_chunks`-Collection für die RAG-Embeddings wird in Kap.~6.2 beschrieben.
 
-Das FaceStore-Interface entkoppelt die Persistenzschicht vom Identifikations-Algorithmus (Designbegründung vgl. Kap.~3.4): Über die Umgebungsvariable `FACE_STORE_BACKEND` wählt eine Factory-Funktion zur Laufzeit zwischen `SQLiteFaceStore` und `QdrantFaceStore`.
-
-Qdrant nutzt einen HNSW-Index für Kosinus-Ähnlichkeitssuche über die 512-dimensionalen ArcFace-Embeddings: `find_profile()` gibt das Profil mit dem höchsten Kosinus-Score zurück; liegt dieser Score über `SIMILARITY_THRESHOLD`, gilt die Person als bekannt. Die `conversation_chunks`-Collection für RAG-Embeddings und ihre Nutzung werden in Kap.~6.2 beschrieben.
-
-Bei jedem Besuch einer bekannten Person wird das gespeicherte Embedding nicht überschrieben, sondern graduell nach der folgenden Formel aktualisiert:
+Bei jedem Besuch einer bekannten Person steht man vor einem Zielkonflikt.
+Ein festes, nie verändertes Template veraltet mit der Zeit: Ändert sich das Aussehen durch Licht, Frisur oder Alterung, sinken die Kosinus-Scores und die Person wird irgendwann fälschlich abgewiesen. Das Embedding einfach mit dem neuesten zu überschreiben, hat das umgekehrte Problem: Ein einziger schlechter Frame kann das Profil dauerhaft verschlechtern. Deshalb wird das gespeicherte Embedding nicht überschrieben, sondern bei jedem Besuch graduell aktualisiert:
 
 $ bold(e)_"neu" = "normalize"((1-alpha) dot.op bold(e)_"alt" + alpha dot.op bold(e)_"aktuell"), quad alpha = 0","2 $
 
-Als nahe liegende Ausgangshypothese wurde ein gleichgewichtiges Blending mit $alpha = 0","5$ erwogen: Neues und altes Embedding würden dabei zu gleichen Teilen eingehen. Im Entwicklungsbetrieb zeigte sich jedoch, dass $alpha = 0","5$ einzelnen atypischen Frames --- schlechte Beleuchtung, teilweise verdecktes Gesicht --- zu viel Einfluss ließ; das gespeicherte Profil verschob sich dadurch messbar in Richtung des Ausreißers, was bei Folgebesuchen zu sinkenden Erkennungsscores führte. Diese Beobachtung führte zur Wahl von $alpha = 0","2$: Das Langzeit-Embedding dominiert mit 80 % Gewicht und bleibt gegenüber kurzfristigen Ausreißern stabil.
+Der Faktor $alpha$ steuert, wie stark der aktuelle Besuch das gespeicherte Profil verändert. Ich habe ihn empirisch bestimmt. Zuerst lag die Wahl bei $alpha = 0","5$, also gleiches Gewicht für Alt und Neu. Im Testbetrieb bekamen dadurch einzelne schlechte Frames zu viel Einfluss und die Erkennungsscores sanken bei Folgebesuchen. Mit $alpha = 0","2$ zählt das gespeicherte Langzeit-Embedding zu 80 % und der aktuelle Besuch nur zu 20 %. Das balanciert beide Anforderungen: stabil gegenüber einzelnen Ausreißern, aber offen für echte Veränderungen (neue Frisur, Brille) über mehrere Besuche --- der Einfluss eines Besuchs sinkt nach fünf weiteren auf $(0{,}8)^5 approx 33~%$ (eigene Beobachtung). Der Normierungsschritt stellt anschließend die L2-Norm wieder her (vgl. Kap.~5.1). Dieses Vorgehen entspricht dem etablierten Exponential-Weighted-Moving-Average-Prinzip adaptiver Erscheinungsmodelle @dewan2016adaptiveappearance[S.~129--131], @gardner2006exponentialsmoothing[§2--3].
 
-Mit $alpha = 0","2$ trägt das aktuelle Sitzungs-Embedding 20 % bei, das gespeicherte Langzeit-Embedding 80 %.
-Der Wert wurde anhand zweier gegenläufiger Anforderungen bestimmt: Einerseits soll das Profil stabil gegenüber Ausreißern bleiben --- ein einzelner schlecht beleuchteter Frame soll das gespeicherte Embedding nicht wesentlich verschieben. Andererseits soll eine echte Erscheinungsveränderung (neue Frisur, Brille) über mehrere Besuche hinweg eingearbeitet werden. Bei $alpha = 0","2$ reduziert sich der Einfluss eines einzelnen Besuchs nach fünf Besuchen auf unter $(0{,}8)^5 approx 33~%$ des ursprünglichen Gewichts --- die Anpassung ist graduell genug, um kurzfristige Ausreißer zu dämpfen, und schnell genug, um persistente Veränderungen innerhalb weniger Wochen zu reflektieren (eigene Beobachtung).
-Der Normierungsschritt stellt die L2-Norm wieder her (vgl. Kap.~5.1).
-Ein statisches Template veraltet, sobald sich das Erscheinungsbild einer Person verändert --- durch wechselnde Beleuchtung, Frisurveränderungen oder Alterung --- und die Kosinus-Scores sinken dabei selbst bei korrekten Identitäten unter den Schwellenwert, was zu falschen Zurückweisungen führt; das biometrische Dilemma besteht darin, dass direktes Überschreiben das entgegengesetzte Risiko birgt: Ein einziger atypischer Frame --- schlechte Beleuchtung, teilweise verdecktes Gesicht --- kann das gespeicherte Profil dauerhaft verschlechtern. Adaptive Erscheinungsmodelle lösen dieses Dilemma, indem sie das gespeicherte Template durch gewichtete Mittelung inkrementell aktualisieren --- das Langzeit-Template bleibt gegenüber Ausreißern stabil, konvergiert jedoch graduell auf persistente Erscheinungsveränderungen @dewan2016adaptiveappearance[S.~129--131].
-Dieses Exponential Weighted Moving Average-Verfahren @gardner2006exponentialsmoothing[§2--3] sorgt dafür, dass das gespeicherte Profil einer Person über mehrere Besuche hinweg stabil bleibt und sich gleichzeitig an veränderte Bedingungen wie unterschiedliche Beleuchtung oder Winkeländerungen graduell anpasst --- eine Eigenschaft, die für sitzungsübergreifendes Langzeit-Tracking essenziell ist @dewan2016adaptiveappearance[S.~129--131].
-
-Zusammen mit dem Embedding speichert `upsert_profile()` bei jedem Besuch auch Metadaten: `visit_count`, `last_seen` und einen beliebigen `metadata`-Payload.
-Diese Metadaten ermöglichen es der Begrüßungslogik in Kap.~6.1, zwischen einem Erstbesuch und einer wiederkehrenden Person zu unterscheiden und die Begrüßung entsprechend anzupassen.
+Zusammen mit dem Embedding speichert `upsert_profile()` bei jedem Besuch auch Metadaten (`visit_count`, `last_seen` und einen `metadata`-Payload). Diese ermöglichen es der Begrüßungslogik in Kap.~6.1, zwischen Erstbesuch und wiederkehrender Person zu unterscheiden.
 
 
 

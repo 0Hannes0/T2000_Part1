@@ -1,11 +1,11 @@
 = Konzeption
 #import "@preview/fletcher:0.5.7": diagram, node, edge, shapes
 
-Dieses Kapitel begründet die zentralen Designentscheidungen des entwickelten Systems und legt damit das konzeptionelle Fundament für die Implementierungsbeschreibung der folgenden Kapitel. Im Vordergrund steht nicht die Beschreibung des Implementierten, sondern die nachvollziehbare Herleitung, warum genau diese Technologien und Architekturentscheidungen getroffen wurden. Kap.~3.1 gibt einen Überblick über die Gesamtarchitektur, Kap.~3.2 bis 3.4 begründen die drei zentralen Technologieentscheidungen (Detektionsansatz, Erkennungsmodell, Persistenzschicht), Kap.~3.5 und 3.6 behandeln mit Datenschutz und Wirtschaftlichkeit zwei querschnittliche Aspekte. Die Implementierungsdetails der einzelnen Komponenten folgen in den Kapiteln 4 bis 6.
+Dieses Kapitel begründet die zentralen Designentscheidungen des Systems. Es geht dabei nicht darum, das Implementierte zu beschreiben, sondern nachvollziehbar herzuleiten, warum diese Technologien gewählt wurden. Kap.~3.1 gibt den Architekturüberblick, Kap.~3.2 bis 3.4 begründen die drei Technologieentscheidungen (Detektion, Erkennungsmodell, Persistenz), Kap.~3.5 bis 3.7 behandeln Datenschutz, Wirtschaftlichkeit und Nachhaltigkeit. Die Implementierungsdetails folgen in den Kapiteln 4 bis 6.
 
 == Gesamtarchitektur und Systemüberblick
 
-Das entwickelte System besteht aus vier lose gekoppelten Diensten, die das Microservice-Prinzip umsetzen: Jeder Dienst ist unabhängig deploybar, hat klar abgegrenzte Verantwortlichkeiten und kommuniziert über definierte Schnittstellen @dragoni2017microservices[S.~1--3]. Diese Architekturentscheidung ermöglicht es, einzelne Komponenten --- etwa das Erkennungsmodell oder die Persistenzschicht --- unabhängig auszutauschen, ohne den restlichen Systemstack zu verändern. Das quelloffene MediaPipe-Framework ist dabei Grundlage für die Wahrnehmungs- und Verarbeitungspipeline (perception pipeline) des Presence Service und steht exemplarisch für den Open-Source-orientierten Stack @lugaresi2019mediapipe[S.~1--2]. Die vier Services sind: das Frontend (React, Port 5173), das Backend (FastAPI, Port 8000), der MCP Panel Server (FastMCP, Port 8001) und der Presence Service (Python/MediaPipe, Port 8002).
+Das System besteht aus vier lose gekoppelten Diensten nach dem Microservice-Prinzip: Jeder Dienst ist unabhängig deploybar, hat klar abgegrenzte Aufgaben und kommuniziert über feste Schnittstellen @dragoni2017microservices[S.~1--3]. So lässt sich eine Komponente --- etwa das Erkennungsmodell oder die Persistenzschicht --- austauschen, ohne den Rest anzufassen. Die Wahrnehmungspipeline des Presence Service baut auf dem quelloffenen MediaPipe-Framework auf, das stellvertretend für den Open-Source-Stack steht @lugaresi2019mediapipe[S.~1--2]. Die vier Dienste sind das Frontend (React, Port 5173), das Backend (FastAPI, Port 8000), der MCP Panel Server (FastMCP, Port 8001) und der Presence Service (Python/MediaPipe, Port 8002).
 
 #figure(
   diagram(
@@ -13,15 +13,15 @@ Das entwickelte System besteht aus vier lose gekoppelten Diensten, die das Micro
     node-corner-radius: 3pt,
     spacing: (14pt, 22pt),
     node((1,0),  align(center)[*Frontend :5173*\ #text(size:7.5pt)[React 19 · 3D Avatar · VAD · Panels]], width:110pt, name:<fe>),
-    node((1,2),  align(center)[*Backend :8000*\ #text(size:7.5pt)[FastAPI · STT · Chat · TTS · Summarize]], width:110pt, name:<be>),
+    node((1,2),  align(center)[*Backend :8000*\ #text(size:7.5pt)[FastAPI · Dialog · STT · Summarize]], width:110pt, name:<be>),
     node((3,2),  align(center)[*MCP Panel :8001*\ #text(size:7.5pt)[map · chart · Aktienkurse · News]], width:100pt, name:<mcp>),
     node((-1,2), align(center)[*Presence :8002*\ #text(size:7.5pt)[BlazeFace · InsightFace · FaceStore]], width:100pt, name:<ps>),
-    node((3,4),  align(center)[*SAP AI Core*\ #text(size:7.5pt)[Gemini 2.5 Flash · Kokoro TTS]], width:100pt, fill:luma(235), name:<ai>),
+    node((3,4),  align(center)[*SAP AI Core*\ #text(size:7.5pt)[gpt-4o Realtime · Gemini 2.5 Flash · Whisper]], width:110pt, fill:luma(235), name:<ai>),
     node((-1,4), align(center)[*Persistenz*\ #text(size:7.5pt)[Qdrant :6333 (K8s) · SQLite (lokal)]], width:100pt, fill:luma(235), name:<db>),
     edge(<fe>,  <be>,  "<->", label: text(size:7.5pt)[HTTP + WebSocket]),
     edge(<fe>,  <ps>,  "<->", bend: 10deg, label: text(size:7.5pt)[WebSocket :8002]),
     edge(<be>,  <mcp>, "->",  label: text(size:7.5pt)[MCP Tool-Calls]),
-    edge(<be>,  <ai>,  "<->", bend: -15deg, label: text(size:7.5pt)[Chat · STT · TTS]),
+    edge(<be>,  <ai>,  "<->", bend: -15deg, label: text(size:7.5pt)[Dialog · STT]),
     edge(<be>,  <db>,  "<->", bend: 15deg,  label: text(size:7.5pt)[RAG · Profile]),
     edge(<mcp>, <ai>,  "->",  label: text(size:7.5pt)[LLM-Calls]),
     edge(<ps>,  <ai>,  "->",  bend: -20deg, label: text(size:7.5pt)[Gaze-Check · Greeting]),
@@ -31,46 +31,15 @@ Das entwickelte System besteht aus vier lose gekoppelten Diensten, die das Micro
   caption: [Systemarchitektur: vier Microservices mit definierten Kommunikationsschnittstellen],
 ) <fig:systemarchitektur>
 
-Die drei Hauptdatenflüsse des Systems verlaufen über HTTP und WebSocket zwischen Frontend und Backend, über MCP-Tool-Calls zwischen Backend und MCP Panel Server sowie über eine dedizierte WebSocket-Verbindung zwischen Presence Service und Frontend für Presence-Events.
+Die drei Hauptdatenflüsse verlaufen über HTTP und WebSocket zwischen Frontend und Backend, über MCP-Tool-Calls zwischen Backend und MCP Panel Server sowie über eine WebSocket-Verbindung zwischen Presence Service und Frontend für Presence-Events.
 
-Der Presence Service bildet die Kernkomponente des Systems: Er verarbeitet den Kamerastream, führt Gesichtsdetektion, Tracking und biometrische Identifikation durch und persistiert Nutzerprofile. SAP AI Core dient als LLM-Infrastruktur für die Kerndienste des Systems: Gemini 2.5 Flash übernimmt Gaze-Check, Begrüßungsgenerierung und LLM-Chat.
+Der Presence Service ist die Kernkomponente: Er verarbeitet den Kamerastream, führt Gesichtsdetektion, Tracking und Identifikation durch und speichert die Nutzerprofile. SAP AI Core stellt die Sprachmodelle bereit: Das Gespräch --- Spracheingabe und -ausgabe --- läuft über ein Realtime-Sprachmodell (gpt-4o Realtime), Gemini 2.5 Flash übernimmt die Bild- und Textaufgaben (Gaze-Check, Begrüßung, Sitzungszusammenfassung). Ein Whisper-Modell erzeugt zusätzlich ein Transkript der Nutzeräußerung, das den Kontextabruf für das Gesprächsgedächtnis auslöst (vgl.~Kap.~6.2).
 
-Die Zustandsverwaltung jeder erkannten Person wird durch eine `PresenceStateMachine` modelliert, die drei Zustände kennt: _IDLE_ (Person nicht aktiv erkannt), _CANDIDATE_ (Person erkannt, Interaktionsabsicht wird durch den Gaze-Check geprüft) und _ACTIVE_ (Gaze-Check positiv, Sitzung läuft). Kap.~4.3 beschreibt den Zustandsautomaten vollständig.
-
-#figure(
-  diagram(
-    node-stroke: 0.5pt,
-    node-corner-radius: 3pt,
-    spacing: (10pt, 18pt),
-    node((0,0), [Kamera], name:<cam>),
-    node((0,1), align(center)[MediaPipe BlazeFace\ #text(size:7.5pt)[Bounding Boxes]], width:130pt, name:<det>),
-    node((0,2), align(center)[PersonTracker\ #text(size:7.5pt)[Stage 1: Position · Stage 2: ArcFace]], width:140pt, name:<tr>),
-    node((0,3), align(center)[PresenceStateMachine\ #text(size:7.5pt)[IDLE → CANDIDATE → ACTIVE]], width:140pt, name:<sm>),
-    node((-2,4), align(center)[Gaze-Check\ #text(size:7.5pt)[Gemini 2.5 Flash]], width:90pt, name:<gz>),
-    node((0,4),  align(center)[Face-ID\ #text(size:7.5pt)[InsightFace buffalo\_l]], width:90pt, name:<fid>),
-    node((2,4),  align(center)[Greeting-Gen\ #text(size:7.5pt)[Gemini 2.5 Flash]], width:90pt, name:<gr>),
-    node((0,5),  align(center)[FaceStore (Interface)\ #text(size:7.5pt)[SQLite (lokal) · Qdrant (K8s)]], width:140pt, name:<fs>),
-    node((0,6),  align(center)[WebSocket Broadcast\ #text(size:7.5pt)[person\_arrived · group\_arrived · person\_left]], width:150pt, name:<ws>),
-    node((0,7),  align(center)[Frontend\ #text(size:7.5pt)[usePresence.js]], width:100pt, name:<fend>),
-    edge(<cam>, <det>, "->"),
-    edge(<det>, <tr>,  "->"),
-    edge(<tr>,  <sm>,  "->"),
-    edge(<sm>,  <gz>,  "->", label: text(size:7pt)[parallel]),
-    edge(<sm>,  <fid>, "->"),
-    edge(<sm>,  <gr>,  "->"),
-    edge(<fid>, <fs>,  "->"),
-    edge(<gz>,  <ws>,  "->", bend:-30deg, label: text(size:7pt)[true → ACTIVE]),
-    edge(<fs>,  <ws>,  "->"),
-    edge(<ws>,  <fend>,"->"),
-  ),
-  kind: image,
-  caption: [Interne Verarbeitungspipeline des Presence Service],
-) <fig:presence-pipeline>
+Jede erkannte Person wird über eine `PresenceStateMachine` verwaltet, die drei Zustände kennt: _IDLE_ (Person nicht aktiv erkannt), _CANDIDATE_ (Person erkannt, Interaktionsabsicht wird per Gaze-Check geprüft) und _ACTIVE_ (Gaze-Check positiv, Sitzung läuft). Der interne Verarbeitungsfluss --- von der Kamera über Detektion, Tracking und Identifikation bis zum WebSocket-Broadcast an das Frontend --- wird in den Kapiteln 4 und 5 im Detail beschrieben; Kap.~4.3 zeigt den Zustandsautomaten vollständig.
 
 === Anforderungsanalyse
 
-Die folgende Tabelle fasst die messbaren Systemanforderungen zusammen, gegen die die
-Designentscheidungen in den nachfolgenden Abschnitten geprüft werden:
+Die folgende Tabelle fasst die messbaren Systemanforderungen zusammen, gegen die die Designentscheidungen der nächsten Abschnitte geprüft werden:
 
 #figure(
   table(
@@ -84,22 +53,17 @@ Designentscheidungen in den nachfolgenden Abschnitten geprüft werden:
     [A-01], [Embedding-Latenz auf Standard-CPU], [≤ 100~ms], [InsightFace buffalo\_l via ONNX (~80~ms, vgl. Kap.~3.3)],
     [A-02], [Erkennungsgenauigkeit (LFW-Benchmark)], [≥ 99~%], [ArcFace ResNet50: 99,83~% (vgl. Kap.~3.3)],
     [A-03], [Infrastruktur CPU-only, kein GPU-Server], [Hard Constraint], [ONNX Runtime CPUExecutionProvider (vgl. Kap.~3.3)],
-    [A-04], [False-Accept-Rate im Betrieb], [= 0], [Schwellenwert-Kalibrierung 0,52 (vgl. Kap.~5.1, Kap.~7.1)],
+    [A-04], [Keine Falschakzeptanz im Betrieb], [keine im Test], [Schwellenwert-Kalibrierung 0,52 (vgl. Kap.~5.1, Kap.~7.1)],
   ),
   kind: table,
   caption: [Anforderungsanalyse: Messbare Systemanforderungen vor den Designentscheidungen],
 ) <tab:anforderungen>
 
-Die Anforderungen A-01 bis A-03 sind aus den Einsatzbedingungen des Kiosk-Kontexts
-abgeleitet; A-04 ergänzt die Sicherheitsanforderung, die für biometrische Identifikation
-im öffentlichen Raum relevant ist. Die Erfüllung jeder Anforderung wird in den
-jeweiligen Entscheidungsabschnitten (vgl. Kap.~3.2--3.4) nachgewiesen.
+Die Anforderungen A-01 bis A-03 folgen aus den Einsatzbedingungen am Kiosk; A-04 ergänzt die Sicherheitsanforderung, die für biometrische Identifikation im öffentlichen Raum wichtig ist. Ob jede Anforderung erfüllt wird, weisen die folgenden Entscheidungsabschnitte nach (vgl. Kap.~3.2--3.4).
 
 == Auswahl des Detektionsansatzes
 
-Die Anforderungen an die Gesichtsdetektion im öffentlichen Kiosk-Kontext bestimmen die Modellwahl: Erkannt werden sollen ausschließlich Personen, die aktiv mit dem System interagieren --- Personen, die vorbeigehen oder sich seitlich zur Kamera befinden, dürfen das System nicht auslösen.
-
-Diese Anforderung rückt die Frontalorientierung des Detektors in den Vordergrund. Ein System, das im öffentlichen Raum installiert ist, hat eine feste Kameraposition und interagiert nur mit Personen, die direkt vor dem Kiosk stehen und bewusst Blickkontakt zum Gerät aufnehmen. Seitenansichten und Profilperspektiven sind im Normalfall ein Indikator für Passanten, nicht für aktive Nutzer.
+Am Kiosk soll das System nur auf Personen reagieren, die aktiv davor stehen. Wer vorbeigeht oder seitlich zur Kamera steht, darf es nicht auslösen. Die Kamera ist fest verbaut, und ein echter Nutzer nimmt bewusst Blickkontakt zum Gerät auf. Eine Seiten- oder Profilansicht deutet deshalb meist auf einen Passanten hin, nicht auf einen Nutzer. Entscheidend für die Modellwahl ist damit, dass der Detektor bevorzugt Frontalgesichter erkennt.
 
 Die folgende Tabelle vergleicht die evaluierten Detektionsansätze anhand dieser Kriterien:
 
@@ -120,19 +84,13 @@ Die folgende Tabelle vergleicht die evaluierten Detektionsansätze anhand dieser
   caption: [Vergleich evaluierter Gesichtsdetektionsansätze],
 ) <tab:detektionsvergleich>
 
-YOLO-basierte Detektoren erkennen Gesichter aus allen Winkeln einschließlich Seitenansichten und sind daher für diesen Anwendungsfall ungeeignet: Interne Tests zeigten, dass YOLO regelmäßig Personen detektierte, die lediglich am Kiosk vorbeigingen oder sich seitlich im Sichtfeld befanden, ohne die Absicht einer Interaktion. Diese Eigenschaft führte zu ungewollten Trigger-Events und beeinträchtigte die Nutzungserfahrung erheblich.
+YOLO-basierte Detektoren erkennen Gesichter aus allen Winkeln, auch Seitenansichten, und sind damit ungeeignet: In eigenen Tests löste YOLO regelmäßig bei Personen aus, die nur vorbeigingen oder seitlich im Bild standen. MediaPipe BlazeFace ist dagegen als frontaler Detektor ausgelegt, sodass seitlich stehende oder vorbeigehende Personen von vornherein nicht erkannt werden @bazarevsky2019blazeface[S.~2--3]. Mit ca. 15--30 ms CPU-Latenz pro Frame reicht das für Echtzeit-Verarbeitung auf Standard-Hardware ohne GPU @lugaresi2019mediapipe[S.~1--2].
 
-MediaPipe BlazeFace ist als frontaler Einzelpersonen-Detektor konzipiert: Das Anchor-Schema ist explizit auf Frontalgesichter ausgelegt, was für den Kiosk-Einsatz ein Vorteil ist --- Personen, die seitlich stehen oder vorbeigehen, werden so von vornherein nicht erkannt @bazarevsky2019blazeface[S.~2--3]. MediaPipe stellt dabei das quelloffene Inferenz-Framework bereit, in das BlazeFace als eingebettete Komponente integriert ist @lugaresi2019mediapipe[S.~1--2]. Mit einer CPU-Latenz von ca. 15--30 ms pro Frame ermöglicht BlazeFace Echtzeit-Verarbeitung auf Standard-Hardware ohne GPU-Anforderung.
-
-Als zweite Filterschicht wird Blickkontakt per Vision-LLM (Gemini 2.5 Flash) validiert, um auch frontal detektierte, aber nicht aktiv interagierende Personen herauszufiltern. Gemini klassifiziert Bilder direkt ohne benutzerspezifische Kalibrierung --- für einen öffentlichen Kiosk mit wechselnden Personen ist das entscheidend, da klassische Gaze-Estimation ohne individuelle Kalibrierungsstufe unter realen Bedingungen erheblich an Genauigkeit verliert @cheng2021gazesurvey[§1, S.~1--2], @radford2021clip[S.~1--3].
-
-Das naive Alternativvorgehen wäre der Einsatz klassischer Gaze-Estimation mit geometrischem 3D-Kopfposen-Modell und individueller Kalibrierungssitzung pro Nutzer gewesen --- ein Verfahren, das nach dem Muster der Gaze360-Klasse benutzerspezifische Parameter durch eine geführte Blickfolge-Sequenz einmisst @kellnhofer2019gaze360[S.~1--2], @cheng2021gazesurvey[§2, S.~2--4]. Dieser Ansatz setzt voraus, dass Nutzer bekannt und kooperativ sind und eine Kalibrierungssitzung absolvieren; an einem öffentlichen Kiosk mit wechselnden, unbekannten Passanten ist kein solcher Schritt durchführbar --- klassische Gaze-Estimation ist dort strukturell nicht einsetzbar. Der Vision-LLM-Ansatz (Gemini 2.5 Flash) umgeht dieses Problem vollständig: Er liefert zero-shot Blickkontakterkennung ohne jeden Kalibrierungsaufwand und ohne nutzerspezifische Vorarbeit @yin2024clipgaze[S.~1--3] --- genau darin liegt der Kreativitätsmehrwert der gewählten Lösung gegenüber dem naiven Standardvorgehen.
+Als zweite Filterschicht prüft ein Vision-LLM (Gemini 2.5 Flash) den Blickkontakt. Die naheliegende Alternative wäre klassische Gaze-Estimation (Schätzung der Blickrichtung), die aber eine Kalibrierungssitzung pro Nutzer voraussetzt @kellnhofer2019gaze360[S.~1--2], @cheng2021gazesurvey[§2, S.~2--4]. An einem öffentlichen Kiosk mit wechselnden, unbekannten Passanten ist das nicht durchführbar --- ohne Kalibrierung verliert das Verfahren unter realen Bedingungen deutlich an Genauigkeit @cheng2021gazesurvey[§1, S.~1--2]. Gemini klassifiziert das Kamerabild dagegen direkt, ohne nutzerspezifische Kalibrierung @yin2024clipgaze[S.~1--3], @radford2021clip[S.~1--3].
 
 == Auswahl des Erkennungsmodells
 
-Die Wahl des biometrischen Erkennungsmodells bestimmt Genauigkeit und Latenz des gesamten Identifikationssystems.
-
-Die Anforderungen für den Kiosk-Einsatz sind klar definiert: hohe Erkennungsgenauigkeit bei niedriger False-Accept-Rate, CPU-Inferenz ohne GPU-Server, keine Cloud-Abhängigkeit für biometrische Daten sowie ONNX-Kompatibilität für ressourceneffizientes Edge-Deployment. Diese Kombination schließt viele cloudbasierte oder GPU-abhängige Alternativen von vornherein aus.
+Das biometrische Erkennungsmodell bestimmt Genauigkeit und Latenz des Identifikationssystems. Die Anforderungen für den Kiosk sind klar: hohe Erkennungsgenauigkeit bei niedriger False-Accept-Rate (Fremde dürfen nicht als bekannte Nutzer durchgehen), CPU-Inferenz ohne GPU-Server, keine Cloud-Abhängigkeit für biometrische Daten und ONNX-Kompatibilität für schlankes Deployment. Diese Kombination schließt viele cloudbasierte oder GPU-abhängige Modelle von vornherein aus.
 
 Die folgende Tabelle stellt die evaluierten Modelle anhand dieser Kriterien gegenüber:
 
@@ -156,19 +114,15 @@ Die folgende Tabelle stellt die evaluierten Modelle anhand dieser Kriterien gege
   caption: [Vergleich evaluierter biometrischer Erkennungsmodelle (\* reale Genauigkeit im DeepFace-Framework; eigene Beobachtung)],
 ) <tab:modellvergleich>
 
-Alle betrachteten Modelle setzen das Embedding-Raumkonzept um (Kap.~2.2.1) --- sie unterscheiden sich nicht im _Was_, sondern im _Wie_: in der Verlustfunktion, mit der das Embedding-Modell trainiert wurde, und im Inferenz-Stack, auf dem es ausgeführt wird. Die Auswahl entscheidet sich entlang dieser beiden Dimensionen @schroff2015facenet[S.~1--2], @taigman2014deepface[S.~1701--1703].
+Alle betrachteten Modelle setzen das Embedding-Raumkonzept um (Kap.~2.2.1) --- sie unterscheiden sich nicht im _Was_, sondern im _Wie_: in der Verlustfunktion, mit der sie trainiert wurden, und im Inferenz-Stack, auf dem sie laufen @schroff2015facenet[S.~1--2], @taigman2014deepface[S.~1701--1703].
 
-InsightFace buffalo\_l (ArcFace ResNet50) erreicht 99,83 % LFW-Genauigkeit bei ca. 80 ms CPU-Latenz (eigene Messung). Der Genauigkeitsvorsprung gegenüber Alternativen geht auf die ArcFace-Verlustfunktion zurück, deren Wirkung in Kap.~2.2.2 hergeleitet ist und im LFW-Benchmark messbar bleibt @deng2019arcface[S.~3--5], @guo2019facesurvey[S.~3--5]. Wrapper-Lösungen wie das DeepFace-Framework erreichen unter realen Bedingungen nur ca. 92 % Genauigkeit bei ca. 300 ms Latenz.\* Der Latenzunterschied von Faktor 3,75 ist für Echtzeit-Personenerkennung entscheidend.
+Ausgangspunkt der Evaluation war das DeepFace-Framework, das eine schnelle erste Integration erlaubte. Im Entwicklungsbetrieb erreichte es unter realen Bedingungen aber nur ca. 92~% Genauigkeit bei ca. 300~ms Latenz pro Embedding und erfüllte die Echtzeit-Anforderung nicht. Das gab den Ausschlag für den Wechsel zu InsightFace buffalo\_l (ArcFace ResNet50): 99,83~% LFW-Genauigkeit bei ca. 80~ms CPU-Latenz (eigene Messung). Der Genauigkeitsvorsprung geht auf die ArcFace-Verlustfunktion zurück (vgl. Kap.~2.2.2) @deng2019arcface[S.~3--5], @guo2019facesurvey[S.~3--5]. Die niedrigere Latenz ist relevant, weil der Presence Service im Takt von 1,0~s scannt (vgl. Kap.~4.1) und das Embedding innerhalb dieses Intervalls fertig sein muss.
 
-Die verworfenen Alternativen scheiden entlang derselben beiden Dimensionen aus: InsightFace buffalo\_s wurde trotz geringerer Latenz (~20 ms) verworfen, da bei biometrischer Identifikation auch kleine Genauigkeitseinbußen die False-Accept-Rate erhöhen --- d.~h. Fremde würden fälschlich als bekannte Nutzer erkannt. Die übrigen Alternativen liegen in Genauigkeit, Latenz oder beidem unter buffalo\_l (vgl. Tabelle~3.2).
-
-Ausgangspunkt der Evaluation war das DeepFace-Framework, das als etablierte Python-Bibliothek eine schnelle erste Integration ermöglichte. Im Entwicklungsbetrieb zeigte sich, dass DeepFace unter realen Bedingungen nur ca. 92 % Erkennungsgenauigkeit erreichte und mit ca. 300 ms Latenz pro Embedding die Zielanforderung an Echtzeit-Verarbeitung nicht erfüllte. Diese Beobachtung führte zur Entscheidung, das Erkennungsmodell zu wechseln: InsightFace buffalo\_l wurde eingesetzt und erfüllte beide Kriterien --- 99,83 % LFW-Genauigkeit bei ca. 80 ms CPU-Latenz.
-
-Die Inferenz via ONNX Runtime liefert CPU-optimierte Verarbeitung ohne GPU-Server. Dies eliminiert sowohl die Infrastrukturkosten für dedizierte GPU-Instanzen als auch die Latenz durch Cloud-Calls für jeden Frame --- eine direkte Konsequenz der ONNX-Kompatibilität von InsightFace buffalo\_l.
+Die übrigen Alternativen scheiden entlang derselben zwei Dimensionen aus: buffalo\_s wurde trotz geringerer Latenz verworfen, da schon kleine Genauigkeitseinbußen die False-Accept-Rate erhöhen; die weiteren Modelle liegen in Genauigkeit, Latenz oder beidem unter buffalo\_l (vgl. @tab:modellvergleich). Die Inferenz über ONNX Runtime läuft CPU-optimiert ohne GPU-Server und spart die Latenz von Cloud-Calls pro Frame.
 
 == Auswahl der Persistenzschicht
 
-Das FaceStore-Interface-Design entkoppelt die Persistenzlogik vom Tracking-Code und ermöglicht den Wechsel zwischen Backends per Umgebungsvariable. Drei Persistenzlösungen wurden evaluiert:
+Die Persistenzschicht speichert die Gesichtsembeddings und das Gesprächsgedächtnis. Ein FaceStore-Interface entkoppelt diese Logik vom Tracking-Code, sodass sich das Backend per Umgebungsvariable wechseln lässt. Drei Lösungen wurden evaluiert:
 
 #figure(
   table(
@@ -187,31 +141,25 @@ Das FaceStore-Interface-Design entkoppelt die Persistenzlogik vom Tracking-Code 
   caption: [Vergleich evaluierter Persistenzlösungen für biometrische Embeddings],
 ) <tab:persistenzvergleich>
 
-Das FaceStore-ABC definiert eine einheitliche Schnittstelle mit den Methoden `find_profile`, `upsert_profile` und `find_relevant_chunks` für alle Persistenz-Backends. Diese Entwurfsentscheidung setzt das Dependency-Inversion-Prinzip um: Der Tracker-Code hängt von der abstrakten Schnittstelle ab, nicht von einer konkreten Implementierung @martin2017cleanarchitecture[S.~65--70]. Der Wechsel zwischen lokaler und Produktiv-Persistenz erfolgt damit transparent per Umgebungsvariable, ohne Umbau des Tracker-Codes.
+Das FaceStore-ABC gibt allen Backends eine einheitliche Schnittstelle mit `find_profile`, `upsert_profile` und `find_relevant_chunks` vor. Damit hängt der Tracker-Code nur von der abstrakten Schnittstelle ab, nicht von einer konkreten Datenbank (Dependency-Inversion-Prinzip) @martin2017cleanarchitecture[S.~65--70]; der Wechsel zwischen lokaler und Produktiv-Persistenz erfolgt per Umgebungsvariable.
 
-Für die lokale Entwicklung wird SQLite als dateibasiertes Backend eingesetzt --- ohne Setup-Overhead und ohne laufende externe Services. Im Kubernetes-Deployment auf Azure ist SQLite nicht einsetzbar und wird durch Qdrant ersetzt. SAP HANA Cloud Vector Engine wurde als K8s-native Alternative evaluiert, schied jedoch aus: HANA ist primär eine relationale Datenbank, deren Vektorsuchfunktion als Erweiterung dazugekommen ist --- für einen Anwendungsfall, der ausschließlich Vektoren speichert und abfragt, ist das ein unnötiger Overhead. Qdrant hingegen ist von Grund auf für genau diesen Zweck gebaut: Die Konfiguration ist schlanker, der HNSW-Index direkt zugänglich, und das System war in der Praxis bereits erprobt. Die Entscheidung fiel damit nicht gegen SAP-Infrastruktur, sondern für das spezialisierte Werkzeug --- bei einem Prototyp mit klarem Fokus auf Vektorretrieval ist das der relevante Unterschied.
+Für die lokale Entwicklung dient SQLite als dateibasiertes Backend ohne Setup. Im Kubernetes-Deployment auf Azure ist SQLite nicht einsetzbar und wird durch Qdrant ersetzt. Als K8s-native Alternative wurde SAP HANA Cloud Vector Engine geprüft, aber nicht gewählt: HANA ist primär relational, deren Vektorsuche als Erweiterung dazugekommen ist --- für einen Fall, der ausschließlich Vektoren speichert und abfragt, ist das mehr Funktionsumfang als nötig. Qdrant ist dagegen von Grund auf dafür gebaut: schlankere Konfiguration, direkt zugänglicher HNSW-Index und in der Praxis erprobt. Die Entscheidung fiel damit nicht gegen SAP-Infrastruktur, sondern für das passende Werkzeug beim Prototyp.
 
-Qdrant ist eine vektornative Datenbank, die als Kubernetes-Pod ohne Dateisystem-Lock-Probleme betrieben wird. Im System werden zwei Collections genutzt: `face_profiles` mit 512-dimensionalen ArcFace-Embeddings für die Gesichtsidentifikation und `conversation_chunks` mit 384-dimensionalen RAG-Embeddings (all-MiniLM-L12-v2) für das Gesprächsgedächtnis. Als Index-Algorithmus verwendet Qdrant HNSW (Kap.~2.2.1), der die für den Live-Betrieb erforderliche logarithmische Suchkomplexität liefert @malkov2020hnsw[S.~1--2], @johnson2019faiss[S.~1--3]. Für das konkrete Einsatzszenario bedeutet dies: Selbst bei 10.000 registrierten Profilen wächst die Suchzeit lediglich um den Faktor log(10.000)/log(10) ≈ 4 gegenüber dem aktuellen Testbetrieb mit ~10 Profilen --- bei 100.000 Profilen entsprechend um den Faktor ~5. Da die biometrische Embedding-Berechnung (~80 ms, vgl. Kap.~3.3) die Gesamtlatenz dominiert, bleibt die Profilanzahl kein limitierender Faktor für die Systemskalierbarkeit. Die `conversation_chunks`-Collection dient dabei als nicht-parametrisches Gedächtnis im Sinne des in Kap.~2.3.3 hergeleiteten RAG-Mechanismus @lewis2020rag[S.~4--5], @guu2020realm[S.~1--3]; ihre konkrete Nutzung beschreibt Kap.~6.2.
+Qdrant ist eine vektornative Datenbank und läuft als Kubernetes-Pod. Sie nutzt zwei Collections: `face_profiles` mit 512-dimensionalen ArcFace-Embeddings für die Identifikation und `conversation_chunks` mit 384-dimensionalen RAG-Embeddings (all-MiniLM-L12-v2) für das Gesprächsgedächtnis. Als Index dient HNSW (Kap.~2.2.1), der die im Live-Betrieb nötige logarithmische Suchkomplexität liefert @malkov2020hnsw[S.~1--2], @johnson2019faiss[S.~1--3]. Die Suchzeit bleibt dadurch auch bei vielen tausend Profilen unkritisch, zumal die Embedding-Berechnung (~80~ms, vgl. Kap.~3.3) die Gesamtlatenz dominiert. Die `conversation_chunks`-Collection dient als Gedächtnis im Sinne des in Kap.~2.3.3 hergeleiteten RAG-Mechanismus @lewis2020rag[S.~4--5], @guu2020realm[S.~1--3]; ihre Nutzung beschreibt Kap.~6.2.
 
 == Datenschutz und biometrische Daten
 
-Gesichtsembeddings sind biometrische Daten im Sinne des Art.~9 Abs.~1 der DSGVO, da sie aus natürlichen Personen abgeleitet werden und zur eindeutigen Identifikation geeignet sind @dsgvo2016[Art.~9 Abs.~1]. Die Verarbeitung solcher Daten besonderer Kategorie unterliegt einem strengen Rechtsrahmen, der die Identifizierbarkeit betroffener Personen als zentrales Schutzgut anerkennt @voigt2017gdpr[S.~114--120], @krivokucahahn2023biometricprotection[S.~639--641].
+Gesichtsembeddings sind biometrische Daten im Sinne von Art.~9 Abs.~1 DSGVO, da sie aus einer natürlichen Person abgeleitet werden und zur eindeutigen Identifikation taugen @dsgvo2016[Art.~9 Abs.~1]. Solche Daten besonderer Kategorie unterliegen einem strengen Rechtsrahmen @voigt2017gdpr[S.~114--120], @krivokucahahn2023biometricprotection[S.~639--641].
 
-Das entwickelte System ist ein interner SAP-Prototyp und wird nicht für Endkunden deployt. Die biometrischen Daten werden ausschließlich im internen Netzwerk verarbeitet und gespeichert: Der Qdrant-Pod läuft im SAP-eigenen Kubernetes-Cluster, und biometrische Embeddings verlassen diesen Cluster zu keinem Zeitpunkt. Eine explizite Einwilligung aller am Prototyp beteiligten Testpersonen liegt vor. Dieser Kontext unterscheidet das System grundlegend von einem öffentlichen Deployment-Szenario.
+Das System ist ein interner SAP-Prototyp und wird nicht für Endkunden deployt. Die biometrischen Daten werden ausschließlich im internen Netzwerk verarbeitet: Der Qdrant-Pod läuft im SAP-eigenen Kubernetes-Cluster, und die Embeddings verlassen diesen Cluster nicht. Alle Testpersonen haben eingewilligt.
 
-Für ein reales Kundensystem wären zusätzliche Maßnahmen erforderlich: ein explizites Opt-in-Verfahren gemäß Art.~9 Abs.~2 lit.~a DSGVO, das Recht auf Löschung gespeicherter Embeddings nach Art.~17 DSGVO @dsgvo2016[Art.~17] sowie eine Datenschutz-Folgenabschätzung gemäß Art.~35 DSGVO @dsgvo2016[Art.~35] für Hochrisiko-Verarbeitungen biometrischer Daten @voigt2017gdpr[S.~152--160]. Diese Anforderungen sind als bekannte Produktivierungs-Voraussetzungen identifiziert, liegen jedoch außerhalb des Scopes dieses Prototyps.
-
-Neben dem rechtlichen Rahmen ist die gesellschaftliche Akzeptanz biometrischer Systeme ein eigenständiger Einflussfaktor für die praktische Einsetzbarkeit. Untersuchungen zur Wahrnehmung automatischer Gesichtserkennung zeigen, dass Nutzer biometrische Identifikation dann eher akzeptieren, wenn Zweck und Datenspeicherung transparent kommuniziert werden und eine empfundene Nützlichkeit erkennbar ist --- eine Befundlage, die dem Technology-Acceptance-Modell entspricht @rotter2008biometricacceptance[S.~68--70]. Für den SAP-Kiosk-Kontext mit bekannten und eingewilligten Testpersonen ist dies im Rahmen des internen Prototyps unkritisch; für ein öffentliches Deployment bedeutet es jedoch, dass Akzeptanzaspekte --- transparenter Hinweis auf die Kamerafunktion, klare Opt-out-Möglichkeit --- früh in das Interface-Design einfließen müssten, um den rechtlichen Opt-in nicht als leere Formalität zu behandeln.
+Für ein reales Kundensystem wären zusätzliche Maßnahmen nötig: ein explizites Opt-in nach Art.~9 Abs.~2 lit.~a DSGVO, das Recht auf Löschung gespeicherter Embeddings nach Art.~17 DSGVO @dsgvo2016[Art.~17] und eine Datenschutz-Folgenabschätzung nach Art.~35 DSGVO @dsgvo2016[Art.~35] @voigt2017gdpr[S.~152--160]. Diese liegen außerhalb des Prototyp-Scopes. Hinzu kommt die gesellschaftliche Akzeptanz: Nutzer akzeptieren biometrische Identifikation eher, wenn Zweck und Datenspeicherung transparent sind @rotter2008biometricacceptance[S.~68--70]. Ein öffentliches Deployment müsste einen transparenten Kamerahinweis und eine klare Opt-out-Möglichkeit früh ins Interface-Design aufnehmen.
 
 == Wirtschaftliche Bewertung
 
-Der gesamte lokale Verarbeitungsstack des Systems verwendet ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI sind lizenzfrei nutzbar @lugaresi2019mediapipe[S.~1--2]. Dies eliminiert Lizenzkosten für alle rechenlastigen Kernfunktionen und steht im Gegensatz zu proprietären Cloud-API-basierten Alternativen. Die Microservice-Architektur verstärkt diesen Vorteil: Einzelne Dienste können unabhängig durch kostengünstigere Alternativen ersetzt werden, ohne den restlichen Stack zu beeinflussen @dragoni2017microservices[S.~1--3].
+Der lokale Verarbeitungsstack nutzt ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI sind lizenzfrei @lugaresi2019mediapipe[S.~1--2]. Damit fallen für die rechenlastigen Kernfunktionen keine Lizenz- oder GPU-Instanzkosten an. Wichtiger als der reine Kostenpunkt ist dabei, dass die biometrische Identifikation --- die latenzsensibelste Operation --- vollständig lokal läuft und dadurch keine Cloud-Abhängigkeit und keine laufenden API-Kosten pro erkanntem Gesicht entstehen.
 
-CPU-Inferenz via ONNX Runtime spart zusätzlich GPU-Instanzkosten, die bei Cloud-basierten Alternativen typischerweise den dominanten Kostenfaktor darstellen (Modellwahl vgl. Kap.~3.3).
-
-SAP AI Core wird ausschließlich für drei Aufgaben genutzt: Gaze-Check per Gemini 2.5 Flash (einmalig pro Erkennungsevent), Begrüßungsgenerierung (einmalig pro ACTIVE-Ereignis) und LLM-Chat (nutzergesteuert). Da der Gaze-Check mit einer Rate von maximal einem Aufruf pro vier Sekunden Kandidatensichtbarkeit ausgelöst wird und Begrüßungsgenerierungen nur bei vollständigem ACTIVE-Übergang entstehen, hält sich der API-Verbrauch auch bei dauerhaftem Kiosk-Betrieb in engen Grenzen. Die biometrische Identifikation selbst --- die rechenlastigste und latenzsensibelste Operation --- läuft vollständig lokal ohne LLM-Calls. Damit demonstriert der Prototyp eine wirtschaftliche Personalisierungslösung, die für den SAP-Unternehmenskontext ohne Lizenzrisiken und mit minimalem Cloud-Verbrauch einsetzbar ist.
-
-Für einen typischen 8-Stunden-Kiosk-Tag mit 30~Besuchern ergibt sich folgende Schätzung (Annahmen: 1,5~Gaze-Check-Calls pro Erkennungsevent, 1~Begrüßungs-Call pro ACTIVE-Übergang, 3~Chat-Turns pro Interaktion):
+SAP AI Core wird nur für drei Aufgaben genutzt: Gaze-Check und Begrüßung über Gemini 2.5 Flash sowie den Dialog über das Realtime-Sprachmodell. Der Gaze-Check läuft höchstens einmal pro vier Sekunden Kandidatensichtbarkeit, die Begrüßung nur bei einem vollständigen ACTIVE-Übergang --- der Verbrauch bleibt damit auch im Dauerbetrieb gering. Die folgende Tabelle schätzt die API-Kosten für einen typischen 8-Stunden-Tag mit 30~Besuchern:
 
 #figure(
   table(
@@ -225,20 +173,18 @@ Für einen typischen 8-Stunden-Kiosk-Tag mit 30~Besuchern ergibt sich folgende S
     ),
     [Gaze-Check (Gemini 2.5 Flash)], [~45], [~1.350], [identisch\*], [identisch\*], [identisch\*],
     [Begrüßung (Gemini 2.5 Flash)], [30], [900], [identisch\*], [identisch\*], [identisch\*],
-    [Chat (Gemini 2.5 Flash)], [90], [2.700], [identisch\*], [identisch\*], [identisch\*],
+    [Dialog (gpt-4o Realtime)], [90], [2.700], [identisch\*], [identisch\*], [identisch\*],
     [Gesichtserkennung (ArcFace/ONNX)], [30], [900], [*\$0,00*], [~\$0,90], [~\$1,35],
   ),
   kind: table,
-  caption: [Geschätzte API-Kosten im 8-Stunden-Kiosk-Betrieb (30~Besucher/Tag). \* Gemini-API-Kosten sind in beiden Szenarien identisch und werden nicht verglichen. AWS~Rekognition: \$0,001/Bild; Azure~Face~API: \$1,50/1.000~Transaktionen (laut öffentlichem Listenpreis).],
+  caption: [Geschätzte API-Kosten im 8-Stunden-Kiosk-Betrieb (30~Besucher/Tag). \* Die Sprachmodell-Kosten fallen in allen Szenarien gleich an und werden daher nicht verglichen; verglichen wird nur die biometrische Identifikation. AWS~Rekognition: \$0,001/Bild; Azure~Face~API: \$1,50/1.000~Transaktionen (laut öffentlichem Listenpreis).],
 ) <tab:kostenvergleich>
 
-Damit vermeidet der Prototyp Cloud-API-Kosten von ca.~\$0,90~(AWS~Rekognition) bzw.~\$1,35~(Azure~Face~API) pro Monat allein für die biometrische Identifikation --- bei zehn Kiosk-Standorten entspräche das \$9 bzw.~\$13,50 monatlich.
+In absoluten Zahlen ist die Ersparnis klein: Der Prototyp vermeidet Cloud-API-Kosten von rund \$0,90~(AWS~Rekognition) bzw.~\$1,35~(Azure~Face~API) pro Monat für die biometrische Identifikation. Der eigentliche Vorteil der lokalen Verarbeitung liegt damit nicht in der Ersparnis, sondern im Datenschutz (die Biometrie verlässt das interne Netz nicht, vgl. Kap.~3.5) und darin, dass für die kostenintensivste Komponente keine laufenden Gebühren anfallen und keine GPU-Hardware nötig ist. Die serverseitige Verarbeitung läuft im bestehenden SAP-Kubernetes-Cluster mit.
 
 
 == Nachhaltigkeitsaspekte
 
-Die ökologische Dimension profitiert davon, dass die Inferenz via ONNX Runtime ausschließlich auf CPU-Ressourcen des Kiosk-Hosts läuft; ein dedizierter GPU-Server ist nicht erforderlich (vgl.~Kap.~3.3). Damit entfällt der Energiebedarf für GPU-Instanzen, der bei Cloud-basierten Alternativen den dominanten Verbrauchsfaktor darstellt. Zusätzlich analysiert das System Kameraframes nicht kontinuierlich, sondern im Takt von 1,0~s (`FRAME_INTERVAL`, vgl.~Kap.~4.1) --- dieser periodische Scan reduziert die CPU-Dauerlast im Kiosk-Betrieb gegenüber einem kontinuierlichen Videostream erheblich.
+Ökologisch profitiert das System davon, dass die Inferenz über ONNX Runtime nur auf der CPU des Kiosk-Hosts läuft; ein dedizierter GPU-Server ist nicht nötig (vgl.~Kap.~3.3). Damit entfällt der Energiebedarf für GPU-Instanzen, der bei Cloud-Alternativen den größten Verbrauchsposten ausmacht. Zusätzlich analysiert das System die Kameraframes nicht durchgehend, sondern im Takt von 1,0~s (`FRAME_INTERVAL`, vgl.~Kap.~4.1), was die CPU-Dauerlast deutlich senkt.
 
-Die ökonomische Dimension ergibt sich aus dem vollständig lizenzfreien Open-Source-Stack: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI entstehen ohne wiederkehrende Lizenzkosten. Wie @tab:kostenvergleich zeigt, fallen für die biometrische Identifikation monatlich \$0,00 an --- gegenüber ca.~\$0,90~(AWS~Rekognition) bzw.~\$1,35~(Azure~Face~API) pro Standort bei Cloud-Alternativen (vgl.~Kap.~3.6). Da keine Cloud-Abhängigkeit mit nutzungsabhängigen Gebühren besteht, sind die Betriebskosten bei wachsender Standortanzahl planbar.
-
-Die soziale Nachhaltigkeitsdimension betrifft das Risiko demographisch ungleicher Fehlerraten: Gesichtserkennung birgt die Gefahr, dass ArcFace-Modelle je nach Trainingsdatensatz Untergruppen schlechter erkennen als andere @buolamwini2018gendershades[S.~2--7] --- ein Aspekt, den Kap.~7.1 für den SAP-Kiosk-Kontext einordnet. Der datenschutzrechtliche Rahmen gemäß DSGVO Art.~9 begrenzt den Einsatz bereits strukturell auf registrierte und einwilligende Personen; der Prototyp verarbeitet ausschließlich Bilder bekannter Testpersonen mit erteiltem Opt-in (vgl.~Kap.~3.5). Für ein öffentliches Deployment wäre eine demographische Audit-Phase Teil des Produktivierungspfads.
+Sozial betrifft die Nachhaltigkeit das Risiko demographisch ungleicher Fehlerraten: Gesichtserkennung kann je nach Trainingsdatensatz manche Bevölkerungsgruppen schlechter erkennen @buolamwini2018gendershades[S.~2--7] --- ein Aspekt, den Kap.~7.1 einordnet. Der DSGVO-Rahmen (Art.~9) begrenzt den Einsatz ohnehin auf registrierte, einwilligende Personen (vgl.~Kap.~3.5); für ein öffentliches Deployment wäre eine demographische Audit-Phase Teil des Produktivierungspfads.

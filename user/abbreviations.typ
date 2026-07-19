@@ -11,7 +11,6 @@
   ("HNSW",  "Hierarchical Navigable Small World"),
   ("HTTP",   "Hypertext Transfer Protocol"),
   ("K8s",    "Kubernetes"),
-  ("KI",     "Künstliche Intelligenz"),
   ("LFW",    "Labeled Faces in the Wild"),
   ("LLM",    "Large Language Model"),
   ("MCP",    "Model Context Protocol"),
@@ -24,5 +23,4 @@
   ("UX",     "User Experience"),
   ("VAD",    "Voice Activity Detection"),
   ("VLM",    "Vision-Language-Modell"),
-  ("WebSocket", "WebSocket-Protokoll (RFC 6455)"),
 )
