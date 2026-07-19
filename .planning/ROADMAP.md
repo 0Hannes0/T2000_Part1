@@ -663,7 +663,7 @@ Plans:
 - [ ] **Phase 35: Fachliche Bearbeitung** — Versuchsbeschreibung Kap. 7 + Gaze-Check-Evaluation + Gruppen-Sessions-Beleg (15P)
 - [x] **Phase 36: Nutzung Fachwissen** — ArcFace vs. CosFace geometrisch + all-MiniLM-Begründung + EMA-α-Kontext (10P) (completed 2026-07-18)
 - [x] **Phase 37: Wirtschaftliche Bewertung** — Konkrete Kostenschätzung + Cloud-API-Vergleich (5P) (completed 2026-07-18)
-- [ ] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P)
+- [x] **Phase 38: Nachhaltigkeitsaspekte** — Abschnitt 3.7 (drei Dimensionen) + Buolamwini-Verweis Kap. 7 (5P) (completed 2026-07-19)
 - [ ] **Phase 39: Umsetzbarkeit** — HNSW-Skalierbarkeit mit Zahlen + DSGVO-Produktivierungspfad Kap. 8.2 (5P)
 - [ ] **Phase 40: Dokumentation** — Anhang A Systemparameter + IDLE/CANDIDATE/ACTIVE-Definition verifizieren (10P)
 - [ ] **Phase 41: Kreativität** — Originelle Beiträge in Kap. 8.1 + naive Alternative kontrastieren (5P)
@@ -859,7 +859,7 @@ Plans:
 - [x] 38-02-PLAN.md — Umsetzung: Abschnitt 3.7 in kap3.typ anlegen (ca. ½ Seite, drei Dimensionen); Buolamwini-Verweis in Kap. 7 einfügen; BibTeX-Eintrag ergänzen
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 38-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; Abschnitt 3.7 vollständig; Bias-Bewertung vorhanden
+- [x] 38-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; Abschnitt 3.7 vollständig; Bias-Bewertung vorhanden
 
 ---
 
@@ -969,7 +969,7 @@ Plans:
 | 35. Fachliche Bearbeitung (15P) | 0/3 | Pending | — |
 | 36. Nutzung Fachwissen (10P) | 3/3 | Complete    | 2026-07-18 |
 | 37. Wirtschaftliche Bewertung (5P) | 3/3 | Complete    | 2026-07-18 |
-| 38. Nachhaltigkeitsaspekte (5P) | 2/3 | In Progress|  |
+| 38. Nachhaltigkeitsaspekte (5P) | 3/3 | Complete    | 2026-07-19 |
 | 39. Umsetzbarkeit (5P) | 0/3 | Pending | — |
 | 40. Dokumentation (10P) | 0/3 | Pending | — |
 | 41. Kreativität (5P) | 0/3 | Pending | — |
