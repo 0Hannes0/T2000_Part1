@@ -157,7 +157,7 @@ personalisierte Konversationserfahrung bereitstellen?
 - Phase 35 — Fachliche Bearbeitung (15P): Kap. 7 Evaluation wissenschaftlich substanziell stärken (N-Werte, Versuchsaufbau, Gaze-Check-Vergleich)
 - Phase 36 — Nutzung Fachwissen (10P): ArcFace vs. CosFace geometrisch erklären + RAG-Modellwahl (all-MiniLM) belegen + EMA-α-Literaturkontext
 - [x] Phase 37 — Wirtschaftliche Bewertung (5P): Konkrete Kostenschätzung mit Zahlen (API-Calls/Tag, Azure-Pod, Alternativvergleich) — Validated in Phase 37: WIRT-01/02 erfüllt
-- Phase 38 — Nachhaltigkeitsaspekte (5P): Eigenständiger Abschnitt 3.7 mit ökologischen, ökonomischen und sozialen Aspekten
+- [x] Phase 38 — Nachhaltigkeitsaspekte (5P): Eigenständiger Abschnitt 3.7 mit ökologischen, ökonomischen und sozialen Aspekten — Validated in Phase 38: NACH-01/02 erfüllt
 - Phase 39 — Umsetzbarkeit (5P): Skalierbarkeitsaussagen (HNSW-Laufzeit bei N Profilen) + Produktivierungs-Roadmap (DSGVO-Maßnahmen)
 - Phase 40 — Dokumentation (10P): Parametertabellen-Anhang + Terminologie-Einführung der State-Machine-Zustände
 - Phase 41 — Kreativität (5P): Originelle Beiträge (Vision-LLM-Gaze, spekulatives Pre-Computing, dreikanaliges Gedächtnis) explizit als eigene Leistung benennen
