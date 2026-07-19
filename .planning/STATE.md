@@ -4,8 +4,8 @@ milestone: v3.0-quellenaudit
 milestone_name: Quellenaudit aller Kapitel
 status: ready_to_plan
 stopped_at: Completed 41-01-PLAN.md
-last_updated: "2026-07-19T14:07:56.578Z"
-last_activity: 2026-07-19 -- Phase 42 planning complete
+last_updated: "2026-07-19T14:25:00Z"
+last_activity: 2026-07-19 -- Phase 42 abgeschlossen — SELB-01 alle 3 Kriterien PASS
 progress:
   total_phases: 35
   completed_phases: 17
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-12)
 
 **Core value:** Entscheidungslogik hinter jeder technischen Wahl nachvollziehbar belegen — nicht nur was gebaut wurde, sondern warum genau so.
-**Current focus:** Phase 41 — kreativität
+**Current focus:** Phase 42 abgeschlossen — SELB-01 vollständig erfüllt
 
 ## Current Position
 
 Phase: 41
 Plan: Not started
 **Milestone:** v3.0-quellenaudit
-**Aktuell:** Phase 37 abgeschlossen — WIRT-01 (Annahmen-Satz + Calls/Tag-Tabelle) und WIRT-02 (AWS/Azure-Preise + $0,90/$1,35-Fazit) alle ERFÜLLT
+**Aktuell:** Phase 42 abgeschlossen — SELB-01 (Eigenentscheidungsnarrative an 3 Stellen) vollständig erfüllt, alle 3 Kriterien PASS
 **Nächste Aktion:** Nächste Phase planen
 Last activity: 2026-07-19 -- Phase 42 planning complete
 
@@ -91,7 +91,7 @@ Progress: [███████░░░] 72%
 | Phase 39-umsetzbarkeit P01 | 117s | 2 tasks | 1 files |
 | Phase 39-umsetzbarkeit PP03 | 5min | 2 tasks | 1 files |
 | Phase 41-kreativit-t P02 | 8min | 3 tasks | 2 files |
-| Phase 41-kreativit-t P03 | 1min | 1 tasks | 1 files |
+| Phase 42-selbstst-ndigkeit P03 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -112,6 +112,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Typst pagebreak-in-container Fehler existierte vor Wave 2; WISS-Inhaltskriterien unberührt
 - [Phase ?]: Plan 37-01: Einfügeposition nach Z. 206 in fundamentals-2.typ — alle drei WIRT-Elemente fehlen, Wave 2 kann direkt einfügen
 - [Phase 41-kreativit-t]: Phase 41 Finalcheck: Alle Kriterien PASS ohne Gap-Closure-Durchgang — KREA-01/KREA-02/Compile alle PASS — Verifikation ergab: kalibrierungsfreie/spekulativ/dreikanali in conclusion.typ Z.17, Dreischritt in fundamentals-2.typ Z.129, Compile 1 Fehler = Baseline
+- [Phase 42-selbstst-ndigkeit]: Phase 42 Finalcheck: Alle 3 SELB-01-Kriterien PASS ohne Gap-Closure — DeepFace/InsightFace-Narrativ (Kap. 3.3), Kalibrierung 0,65->0,52 (Kap. 5.1), EMA-alpha 0,5->0,2 (Kap. 5.3) — Compile-Baseline 1 Fehler unveraendert
 
 ### Pending Todos
 
@@ -133,6 +134,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T14:07:56.569Z
-Stopped at: Completed 41-01-PLAN.md
+Last session: 2026-07-19T14:25:00Z
+Stopped at: Completed 42-03-PLAN.md — Phase 42 abgeschlossen
 Resume file: None
