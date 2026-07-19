@@ -107,8 +107,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 
 ### UMSE — Umsetzbarkeit
 
-- [ ] **UMSE-01**: Kap. 3.4 oder 7 enthält eine Skalierbarkeitsaussage: HNSW-Suchkomplexität O(log N) wird auf das konkrete Szenario angewendet — ab welcher Profilanzahl (z. B. 10.000, 100.000) ist mit messbarer Latenzerhöhung zu rechnen?
-- [ ] **UMSE-02**: Kap. 8.2 (Ausblick) benennt einen konkreten Produktivierungspfad: die drei für einen DSGVO-konformen Produktiveinsatz noch fehlenden Schritte (Opt-in, DSFA Art. 35, Löschfunktion Art. 17) werden als umsetzbare Roadmap formuliert
+- [x] **UMSE-01**: Kap. 3.4 oder 7 enthält eine Skalierbarkeitsaussage: HNSW-Suchkomplexität O(log N) wird auf das konkrete Szenario angewendet — ab welcher Profilanzahl (z. B. 10.000, 100.000) ist mit messbarer Latenzerhöhung zu rechnen?
+- [x] **UMSE-02**: Kap. 8.2 (Ausblick) benennt einen konkreten Produktivierungspfad: die drei für einen DSGVO-konformen Produktiveinsatz noch fehlenden Schritte (Opt-in, DSFA Art. 35, Löschfunktion Art. 17) werden als umsetzbare Roadmap formuliert
 
 ### DOKU — Dokumentation
 
@@ -180,8 +180,8 @@ Zielzustand: Jedes der 12 Kriterien ist lückenlos erfüllt, alle Belege sind fo
 | WIRT-02 | Phase 37 — Wirtschaftliche Bewertung | Complete |
 | NACH-01 | Phase 38 — Nachhaltigkeitsaspekte | Complete |
 | NACH-02 | Phase 38 — Nachhaltigkeitsaspekte | Complete |
-| UMSE-01 | Phase 39 — Umsetzbarkeit | Pending |
-| UMSE-02 | Phase 39 — Umsetzbarkeit | Pending |
+| UMSE-01 | Phase 39 — Umsetzbarkeit | Complete |
+| UMSE-02 | Phase 39 — Umsetzbarkeit | Complete |
 | DOKU-01 | Phase 40 — Dokumentation | Pending |
 | DOKU-02 | Phase 40 — Dokumentation | Pending |
 | KREA-01 | Phase 41 — Kreativität | Pending |
