@@ -158,7 +158,7 @@ personalisierte Konversationserfahrung bereitstellen?
 - Phase 36 — Nutzung Fachwissen (10P): ArcFace vs. CosFace geometrisch erklären + RAG-Modellwahl (all-MiniLM) belegen + EMA-α-Literaturkontext
 - [x] Phase 37 — Wirtschaftliche Bewertung (5P): Konkrete Kostenschätzung mit Zahlen (API-Calls/Tag, Azure-Pod, Alternativvergleich) — Validated in Phase 37: WIRT-01/02 erfüllt
 - [x] Phase 38 — Nachhaltigkeitsaspekte (5P): Eigenständiger Abschnitt 3.7 mit ökologischen, ökonomischen und sozialen Aspekten — Validated in Phase 38: NACH-01/02 erfüllt
-- Phase 39 — Umsetzbarkeit (5P): Skalierbarkeitsaussagen (HNSW-Laufzeit bei N Profilen) + Produktivierungs-Roadmap (DSGVO-Maßnahmen)
+- [x] Phase 39 — Umsetzbarkeit (5P): Skalierbarkeitsaussagen (HNSW-Laufzeit bei N Profilen) + Produktivierungs-Roadmap (DSGVO-Maßnahmen) — Validated in Phase 39: UMSE-01/02 erfüllt
 - Phase 40 — Dokumentation (10P): Parametertabellen-Anhang + Terminologie-Einführung der State-Machine-Zustände
 - Phase 41 — Kreativität (5P): Originelle Beiträge (Vision-LLM-Gaze, spekulatives Pre-Computing, dreikanaliges Gedächtnis) explizit als eigene Leistung benennen
 - Phase 42 — Selbstständigkeit (5P): Eigenständige Entscheidungslogik durch Kontrastierung mit naiver Lösung an Schlüsselstellen sichtbar machen
@@ -181,4 +181,4 @@ Dieses Dokument entwickelt sich an Phasenübergängen weiter.
 3. "What This Is" noch korrekt? → Ggf. anpassen
 
 ---
-*Last updated: 2026-07-18 — Phase 37 complete: WIRT-01/02 erfüllt (Annahmen-Satz 30 Besucher, Kostentabelle AWS $0,90/Azure $1,35 vs. ONNX $0,00, Fazit-Satz in Kap. 3.6)*
+*Last updated: 2026-07-19 — Phase 39 complete: UMSE-01/02 erfüllt (HNSW log(N)-Einschub mit 10.000/100.000-Profilzahlen in Kap. 3.4, DSGVO-Dreischritt Art. 9/35/17 in Kap. 8.2)*
