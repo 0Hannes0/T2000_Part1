@@ -949,7 +949,7 @@ Plans:
 - [x] 42-01-PLAN.md — Audit: drei Schlüsselstellen (Kap. 3.3, Kap. 5.1, Kap. 5.3) auf Eigenentscheidungs-Formulierung prüfen; fehlende oder implizite Stellen dokumentieren
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 42-02-PLAN.md — Umsetzung: an allen drei Stellen Eigenentscheidungslogik explizit formulieren (naive Lösung → Problem → Erkenntnis → Entscheidung)
+- [x] 42-02-PLAN.md — Umsetzung: an allen drei Stellen Eigenentscheidungslogik explizit formulieren (naive Lösung → Problem → Erkenntnis → Entscheidung)
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 42-03-PLAN.md — Finalcheck: Kriterien 1–3 verifizieren; alle drei Stellen formuliert; Formulierungsmuster konsistent
@@ -973,4 +973,4 @@ Plans:
 | 39. Umsetzbarkeit (5P) | 3/3 | Complete    | 2026-07-19 |
 | 40. Dokumentation (10P) | 3/3 | Complete    | 2026-07-19 |
 | 41. Kreativität (5P) | 3/3 | Complete   | 2026-07-19 |
-| 42. Selbstständigkeit (5P) | 1/3 | In Progress|  |
+| 42. Selbstständigkeit (5P) | 2/3 | In Progress|  |
