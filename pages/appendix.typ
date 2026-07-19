@@ -32,5 +32,27 @@
         }
       ),
     ) <ai-tools>
+
+    #heading(level: 2, numbering: none)[A2: Systemparameter]
+    #figure(
+      kind: table,
+      supplement: labels.supplement-table,
+      caption: [Konfigurierbare Parameter des Presence Service mit Standardwert, Einheit und Primärkapitel],
+      table(
+        columns: (auto, auto, auto, 1fr),
+        stroke: 0.5pt,
+        inset: (x: 6pt, y: 5pt),
+        align: (left + top, left + top, left + top, left + top),
+        table.header(
+          strong[Parameter], strong[Wert], strong[Einheit], strong[Kap.-Verweis],
+        ),
+        [`CANDIDATE_SECS`], [4,0], [s], [Kap.~4.3],
+        [`LEAVE_SECS`], [10,0], [s], [Kap.~4.3],
+        [`SIMILARITY_THRESHOLD`], [0,52], [—], [Kap.~5.1],
+        [`FRAME_INTERVAL`], [1,0], [s], [Kap.~4.1],
+        [`GROUP_ARRIVAL_WINDOW_SECS`], [2,0], [s], [Kap.~4.4],
+        [EMA-α], [0,2], [—], [Kap.~5.3],
+      ),
+    ) <tab:systemparameter>
   ]
 }
