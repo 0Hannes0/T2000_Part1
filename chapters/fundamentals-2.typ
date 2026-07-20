@@ -54,12 +54,13 @@ Die folgende Tabelle fasst die messbaren Systemanforderungen zusammen, gegen die
     [A-02], [Erkennungsgenauigkeit (LFW-Benchmark)], [≥ 99~%], [ArcFace ResNet50: 99,83~% (vgl. Kap.~3.3)],
     [A-03], [Infrastruktur CPU-only, kein GPU-Server], [Hard Constraint], [ONNX Runtime CPUExecutionProvider (vgl. Kap.~3.3)],
     [A-04], [Keine Falschakzeptanz im Betrieb], [keine im Test], [Schwellenwert-Kalibrierung 0,52 (vgl. Kap.~5.1, Kap.~7.1)],
+    [A-05], [Sitzungsübergreifender Kontext: wiedererkannter Nutzer erhält relevanten Kontext aus vorheriger Sitzung], [im Betrieb erfüllbar], [Dreikanaliges Gedächtnis + RAG (vgl. Kap.~6)],
   ),
   kind: table,
   caption: [Anforderungsanalyse: Messbare Systemanforderungen vor den Designentscheidungen],
 ) <tab:anforderungen>
 
-Die Anforderungen A-01 bis A-03 folgen aus den Einsatzbedingungen am Kiosk; A-04 ergänzt die Sicherheitsanforderung, die für biometrische Identifikation im öffentlichen Raum wichtig ist. Ob jede Anforderung erfüllt wird, weisen die folgenden Entscheidungsabschnitte nach (vgl. Kap.~3.2--3.4).
+Die Anforderungen A-01 bis A-03 folgen aus den Einsatzbedingungen am Kiosk; A-04 ergänzt die Sicherheitsanforderung, die für biometrische Identifikation im öffentlichen Raum wichtig ist. A-05 hält das eigentliche Kernziel fest --- die sitzungsübergreifende Personalisierung, die einen wiedererkannten Nutzer an den letzten Gesprächsstand anknüpfen lässt (vgl. Kap.~6). Ob jede Anforderung erfüllt wird, weisen die folgenden Entscheidungsabschnitte nach (vgl. Kap.~3.2--3.4).
 
 == Auswahl des Detektionsansatzes
 
@@ -180,7 +181,7 @@ SAP AI Core wird nur für drei Aufgaben genutzt: Gaze-Check und Begrüßung übe
   caption: [Geschätzte API-Kosten im 8-Stunden-Kiosk-Betrieb (30~Besucher/Tag). \* Die Sprachmodell-Kosten fallen in allen Szenarien gleich an und werden daher nicht verglichen; verglichen wird nur die biometrische Identifikation. AWS~Rekognition: \$0,001/Bild; Azure~Face~API: \$1,50/1.000~Transaktionen (laut öffentlichem Listenpreis).],
 ) <tab:kostenvergleich>
 
-In absoluten Zahlen ist die Ersparnis klein: Der Prototyp vermeidet Cloud-API-Kosten von rund \$0,90~(AWS~Rekognition) bzw.~\$1,35~(Azure~Face~API) pro Monat für die biometrische Identifikation. Der eigentliche Vorteil der lokalen Verarbeitung liegt damit nicht in der Ersparnis, sondern im Datenschutz (die Biometrie verlässt das interne Netz nicht, vgl. Kap.~3.5) und darin, dass für die kostenintensivste Komponente keine laufenden Gebühren anfallen und keine GPU-Hardware nötig ist. Die serverseitige Verarbeitung läuft im bestehenden SAP-Kubernetes-Cluster mit.
+In absoluten Zahlen ist die Ersparnis klein: Der Prototyp vermeidet Cloud-API-Kosten von rund \$0,90~(AWS~Rekognition) bzw.~\$1,35~(Azure~Face~API) pro Monat für die biometrische Identifikation. Der eigentliche Vorteil der lokalen Verarbeitung liegt damit nicht in der Ersparnis, sondern im Datenschutz (die Biometrie verlässt das interne Netz nicht, vgl. Kap.~3.5) und darin, dass keine GPU-Hardware nötig ist. Die serverseitige Verarbeitung läuft im bestehenden SAP-Kubernetes-Cluster mit.
 
 
 == Nachhaltigkeitsaspekte

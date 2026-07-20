@@ -17,12 +17,13 @@ Der Prototyp wurde über rund drei Monate im täglichen Bürobetrieb ausgiebig e
     [A-02 LFW-Genauigkeit], [≥ 99 %], [99,83 %], [erfüllt],
     [A-03 Betrieb ohne GPU], [CPU-only], [CPU-only (ONNX Runtime)], [erfüllt],
     [A-04 keine Falschakzeptanz], [im Betrieb], [kein False-Accept über 3 Monate], [erfüllt],
+    [A-05 sitzungsübergreifender Kontext], [Kontext aus Vorsitzung verfügbar], [im Testbetrieb erfüllt], [erfüllt],
   ),
   kind: table,
-  caption: [Soll-Ist-Abgleich der Anforderungen A-01 bis A-04 aus Kap.~3.1],
+  caption: [Soll-Ist-Abgleich der Anforderungen A-01 bis A-05 aus Kap.~3.1],
 ) <tab:soll-ist>
 
-Alle vier Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen diese Einordnung im Detail.
+Alle fünf Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen diese Einordnung im Detail.
 
 == Erkennungsgenauigkeit
 

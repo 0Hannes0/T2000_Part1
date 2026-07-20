@@ -30,7 +30,7 @@ Das System legt die Informationen in drei getrennten Kanälen ab, die sich in De
 
 Auslöser ist das `person_left`-Event, das die State Machine aus Kap.~4.3 an den Presence Listener meldet.
 Es ruft den Endpunkt `/api/summarize` auf, der die Gesprächshistorie an ein Sprachmodell übergibt.
-Ein fester JSON-Schema-Prompt zwingt das Modell, genau die drei Felder `summary`, `facts_sentences` und `facts` zurückzugeben @brown2020gpt3[S.~7--9] --- die Ausgabe ist damit direkt maschinenlesbar.
+Ein fester JSON-Schema-Prompt zwingt das Modell, genau die drei Felder `summary`, `facts_sentences` und `facts` zurückzugeben --- die Ausgabe ist damit direkt maschinenlesbar.
 
 Die `facts_sentences` sind bewusst als kurze Einzelaussagen gespeichert --- ein Fakt pro Chunk.
 Das ist für die spätere Suche wichtig: Ein einzelner, klarer Satz liegt im Vektorraum an einer eindeutigen Stelle, während ein längerer Absatz mehrere Themen mischt und dadurch schwerer wiederzufinden ist @xu2022beyondgoldfish[S.~1].
@@ -69,7 +69,6 @@ Das Aufteilen in drei Kanäle folgt dem Grundgedanken von MemGPT: ein kompakter 
 Sobald der Nutzer in der laufenden Sitzung zum ersten Mal etwas sagt, startet der RAG-Abruf.
 Die Anfrage wird zunächst in einen Vektor umgewandelt: `embed()` in `backend/services/embedder.py` lässt das Modell `all-MiniLM-L12-v2` lokal laufen und liefert einen 384-dimensionalen Vektor zurück.
 Das geht schnell und ohne Netzwerk (~5~ms bei warmem Modell) --- früher lief dieser Schritt als Remote-Aufruf über SAP AI Core und dauerte rund 900~ms.
-Das Modell baut auf der Sentence-BERT-Architektur auf und ist auf semantische Ähnlichkeitssuche in kompakten Vektorräumen ausgelegt @reimers2019sbert[S.~3984--3985]; für uns zählte vor allem, dass es lokal läuft, kleine Vektoren liefert und treffsicher genug ist @muennighoff2023mteb[S.~2020--2022].
 Dieser Vektor ist der Suchschlüssel für `find_relevant_chunks(person_id, k=3)` in `presence/db/store.py`: Die Funktion durchsucht nur die Chunks dieser Person nach den drei ähnlichsten `facts_sentences`.
 Anfrage und gespeicherte Sätze liegen im selben 384-dimensionalen Raum, sodass sich thematische Nähe direkt messen lässt @karpukhin2020dpr[S.~1--2]; die Suche läuft über den HNSW-Index von Qdrant (vgl. Kap.~3.4) @malkov2020hnsw[S.~1--2].
 
@@ -88,8 +87,7 @@ Findet sie nichts, läuft die Sitzung ohne Zusatzkontext weiter --- das Gespräc
 
 Der RAG-Abruf hat aber eine eingebaute Schwachstelle: Gibt die Suche thematisch unpassende Chunks zurück --- weil die Anfrage zufällig ähnliche Vektorwerte wie ein fremdes Thema hat --- landen diese als vermeintlich relevanter Kontext beim Sprachmodell, ohne dass das System den Fehler bemerkt.
 Solche stillen Fehltreffer sind ein bekanntes Problem bei RAG-Systemen @karpukhin2020dpr[S.~2].
-Zwei Designentscheidungen halten das Risiko klein: die kurzen Einzelaussagen der `facts_sentences` (ein Fakt pro Chunk, vgl. Kap.~6.1), sodass ein Chunk nie mehrere Themen mischt, und die Filterung auf `person_id`, sodass fremde Profile gar nicht in die Suche geraten.
-Ein Restrisiko bleibt --- thematisch ähnliche, aber inhaltlich unpassende Fakten derselben Person ---, wird durch `k=3` und die Ähnlichkeitsschwelle des Index aber begrenzt.
+Zwei Designentscheidungen halten das Risiko klein: die kurzen Einzelaussagen der `facts_sentences` (ein Fakt pro Chunk, vgl. Kap.~6.1), sodass ein Chunk nie mehrere Themen mischt, und die Filterung auf `person_id`, sodass fremde Profile gar nicht in die Suche geraten. Ein Restrisiko bleibt --- thematisch ähnliche, aber inhaltlich unpassende Fakten derselben Person ---, wird durch `k=3` und die Ähnlichkeitsschwelle des Index aber begrenzt. Dasselbe knappe `k=3` hält auch das „Lost in the Middle"-Problem fern, bei dem Modelle Informationen in der Mitte langer Kontexte schlechter nutzen (vgl. Kap.~2.3.1): Statt langer Historie landen nur drei kompakte, thematisch passende Fakten im Prompt, sodass deren Position unkritisch bleibt.
 
 == Gruppen-Sessions und History-Isolation
 

@@ -8,7 +8,7 @@ Die Begründungen zur Modell- und Persistenzwahl stehen in Kap.~3.3 und Kap.~3.4
 
 == Biometrische Identifikation mit InsightFace
 
-Die Embedding-Berechnung nutzt das InsightFace-Modellpaket buffalo\_l mit dem Modell w600k\_r50 (ArcFace ResNet50): 512-dimensionale Embeddings aus einem 112×112-px-Crop, berechnet über die ONNX Runtime (CPU) in ~80 ms, bei einer LFW-Genauigkeit von 99,83 % und `SIMILARITY_THRESHOLD` = 0,52 (vollständige Kennwerte siehe Anhang A2).
+Die Embedding-Berechnung nutzt das InsightFace-Modellpaket buffalo\_l mit dem Modell w600k\_r50 (ArcFace ResNet50) @guo2021scrfd[S.~1--2]: 512-dimensionale Embeddings aus einem 112×112-px-Crop, berechnet über die ONNX Runtime (CPU) in ~80 ms, bei einer LFW-Genauigkeit von 99,83 % und `SIMILARITY_THRESHOLD` = 0,52 (vollständige Kennwerte siehe Anhang A2).
 
 Sobald der Presence Service ein aktives Gesicht identifiziert hat, beginnt die Identifikation mit der Embedding-Berechnung.
 Ausgangspunkt ist die Bounding Box aus Kap.~4.1.
@@ -16,7 +16,7 @@ Dieser Bildausschnitt wird in `face_id.py` auf 112×112 Pixel skaliert --- die E
 
 Aus diesem Crop berechnet das Modell ein L2-normiertes, 512-dimensionales Embedding --- den biometrischen Fingerabdruck der Person im Embedding-Raum aus Kap.~2.2.1 @schroff2015facenet[S.~1], @taigman2014deepface[S.~1]. Als Ähnlichkeitsmaß dient der Kosinus-Score (Werte nahe 1,0 = hohe Übereinstimmung); der Schwellenwert `SIMILARITY_THRESHOLD` trennt „gleiche Person" von „neue Person".
 
-Den Schwellenwert habe ich iterativ kalibriert. Startpunkt war der Literaturwert 0,65 für ArcFace-Verifikation @deng2019arcface[S.~4--5]. Bei konstanter Beleuchtung liegen die Kosinus-Scores echter Wiedererkennungen typischerweise bei 0,72--0,85; ändert sich Licht oder Aussehen (z.~B. eine neue Brille), fallen sie auf 0,53--0,58. Mit 0,65 werden solche legitimen Wiedererkennungen fälschlich als neue Person gewertet. Eine eigene Messreihe bestätigte das und führte zur Absenkung auf 0,52 --- die konkreten Erkennungsraten stehen in Kap.~7.3.
+Den Schwellenwert habe ich iterativ kalibriert. Startpunkt war der Literaturwert 0,65 für ArcFace-Verifikation @deng2019arcface[S.~4--5]. Bei konstanter Beleuchtung liegen die Kosinus-Scores echter Wiedererkennungen typischerweise bei 0,72--0,85; ändert sich Licht oder Aussehen (z.~B. eine neue Brille), fallen sie auf 0,53--0,58. Mit 0,65 werden solche legitimen Wiedererkennungen fälschlich als neue Person gewertet. Eine eigene Messreihe bestätigte das und führte zur Absenkung auf 0,52 --- die konkreten Erkennungsraten stehen in Kap.~7.1.
 
 Das Modell w600k\_r50 wurde mit ArcFace-Loss auf einem großen Gesichtsdatensatz trainiert (Details in Kap.~2.2) @deng2019arcface[S.~3]. Die Inferenz läuft über die ONNX Runtime (Auswahl in Kap.~3.3) auf der CPU, ohne GPU-Server --- ~80 ms pro Embedding, schnell genug für den Erkennungszyklus mit `FRAME_INTERVAL` = 1,0 s.
 
