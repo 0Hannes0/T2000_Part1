@@ -32,7 +32,7 @@ Sind die Embeddings auf Länge 1 normiert (L2-Normierung), vereinfacht sich das 
 
 $ cos(theta) = bold(a) dot.op bold(b) $
 
-Über einen Schwellwert auf diesem Kosinus-Wert lässt sich dann entscheiden, ob zwei Gesichtsbilder dieselbe Person zeigen. Wo der Schwellwert liegt, bestimmt das Verhältnis zwischen fälschlich akzeptierten und fälschlich abgewiesenen Personen und muss für die jeweilige Anwendung kalibriert werden.
+Über einen Schwellwert auf diesem Kosinus-Wert lässt sich dann entscheiden, ob zwei Gesichtsbilder dieselbe Person zeigen. Dieser Schwellwert steuert zwei gegenläufige Fehlerarten: die Falschakzeptanzrate (englisch False Accept Rate, FAR) --- wie oft ein Fremder fälschlich als bekannte Person akzeptiert wird --- und die Falschrückweisungsrate (False Reject Rate, FRR) --- wie oft eine bekannte Person fälschlich abgewiesen wird @jain2011biometrics[S.~12]. Ein höherer Schwellwert senkt die FAR, erhöht aber die FRR, und umgekehrt. Welcher Betriebspunkt passt, hängt davon ab, welcher der beiden Fehler in der Anwendung schwerer wiegt, und muss deshalb für den konkreten Einsatz kalibriert werden.
 
 Bei vielen gespeicherten Gesichtern wäre ein Vergleich mit jedem einzelnen Vektor zu langsam. Das eingesetzte Qdrant-Backend nutzt deshalb HNSW, ein Verfahren, das sehr schnell die ähnlichsten Vektoren findet, ohne alle durchzurechnen @malkov2020hnsw[S.~1--2]. Die Details dazu folgen in Kap.~5.
 

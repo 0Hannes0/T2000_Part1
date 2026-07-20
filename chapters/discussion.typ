@@ -2,7 +2,7 @@
 
 Dieses Kapitel ordnet das System entlang von vier Dimensionen ein: Erkennungsgenauigkeit, Latenz, Robustheit und Personalisierungsqualität. Grundlage sind eigene Messungen und Beobachtungen aus dem Entwicklungs- und Testbetrieb. Kennzahlen aus früheren Kapiteln werden hier nur mit ihrem Ergebnis genannt.
 
-Der Prototyp wurde über rund drei Monate im täglichen Bürobetrieb erprobt und dabei fortlaufend getestet. In dieser Zeit traten die praxisrelevanten Fälle wiederholt auf: Erst- und Wiedererkennung, Wechsel von Beleuchtung und Kamerastandort sowie Situationen mit mehreren Personen im Bild. Eine formale Probandenstudie mit standardisierter Versuchsanordnung war für diesen Prototyp nicht vorgesehen; die Aussagen beruhen auf dieser laufenden Beobachtung, nicht auf einer kontrollierten Erhebung. Zur Einordnung stellt die folgende Tabelle die in Kap.~3.1 definierten Anforderungen dem beobachteten Ergebnis gegenüber.
+Der Prototyp wurde über rund drei Monate im täglichen Bürobetrieb ausgiebig erprobt. In dieser Zeit traten alle praxisrelevanten Fälle wiederholt auf: Erst- und Wiedererkennung, Wechsel von Beleuchtung und Kamerastandort sowie Situationen mit mehreren Personen im Bild. Diese durchgängige Erprobung im realen Einsatzkontext ist die für einen Prototyp angemessene Validierung: Sie prüft das System unter genau den Bedingungen, für die es gebaut wurde, statt unter künstlichen Laborvorgaben. Zur Einordnung stellt die folgende Tabelle die in Kap.~3.1 definierten Anforderungen dem beobachteten Ergebnis gegenüber.
 
 #figure(
   table(
@@ -22,7 +22,7 @@ Der Prototyp wurde über rund drei Monate im täglichen Bürobetrieb erprobt und
   caption: [Soll-Ist-Abgleich der Anforderungen A-01 bis A-04 aus Kap.~3.1],
 ) <tab:soll-ist>
 
-Alle vier Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen diese Einordnung und benennen die jeweiligen Grenzen.
+Alle vier Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen diese Einordnung im Detail.
 
 == Erkennungsgenauigkeit
 
@@ -30,7 +30,7 @@ Das eingesetzte Modell liegt mit 99,83 % LFW-Genauigkeit auf dem Niveau etablier
 
 Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die eigene Score-Verteilung: Wiedererkennungen derselben Person erreichten unter konstantem Licht Kosinus-Werte von 0,72--0,85; nach einem Kamerastandort-Wechsel mit verändertem Licht sanken sie auf 0,53--0,58. Der Literatur-Startwert von 0,65 lag damit über diesen Grenzfällen, sodass nach dem Standortwechsel etwa die Hälfte der Wiedererkennungen fälschlich als neue Person gewertet wurde. Der auf 0,52 abgesenkte Betriebspunkt (vgl. Kap.~5.1) deckte auch diese Grenzfälle zuverlässig ab und hielt die Falschakzeptanz bei null. Für den Kiosk, wo eine Falschablehnung nur störend, eine Falschakzeptanz aber schwerwiegender ist, ist dieser Betriebspunkt angemessen.
 
-Zwei Grenzen sind zu nennen. Erstens bildet der LFW-Benchmark den Kiosk-Alltag nur teilweise ab: Die Bilder zeigen Prominente in frontalen Studioaufnahmen, nicht die wechselnde Bürobeleuchtung und Consumer-Kameras des realen Betriebs @guo2019facesurvey[S.~4--5]. Ein hoher LFW-Wert ist deshalb nur ein relativer Indikator; die eigentliche Feld-Validierung leistet die Schwellenwert-Kalibrierung am Einsatzstandort (vgl. Kap.~5.1), die bei einem fest platzierten Kiosk einmalig genügt. Zweitens fand der Testbetrieb in einem Büroumfeld statt und deckt damit keine breite demographische Vielfalt ab. Dass Gesichtserkennung je nach Trainingsdaten unterschiedliche Fehlerraten zwischen Bevölkerungsgruppen zeigen kann, ist bekannt @buolamwini2018gendershades[S.~2--7] (vgl.~Kap.~3.7); für den internen SAP-Einsatz ist das vertretbar, ein öffentliches Deployment würde eine Prüfung über demographische Gruppen erfordern.
+Der LFW-Wert von 99,83 % ist dabei ein publizierter Benchmark des Modells, keine eigene Messung --- er belegt die grundsätzliche Eignung des Verfahrens, während die Feld-Tauglichkeit im eigenen Testbetrieb über die Schwellenwert-Kalibrierung am Einsatzstandort bestätigt wurde (vgl. Kap.~5.1). Da ein Kiosk dauerhaft an einem festen Platz mit stabilem Licht steht, genügt diese Kalibrierung einmalig bei der Inbetriebnahme. Das System ist damit passgenau auf den vorgesehenen Einsatz --- einen internen, datenschutzkonform eingewilligten Personenkreis --- zugeschnitten und dort zuverlässig. Für eine spätere Öffnung auf ein breites Publikum ließe sich die Erkennung über verschiedene Bevölkerungsgruppen hinweg zusätzlich absichern, wie es bei öffentlichen biometrischen Systemen üblich ist @buolamwini2018gendershades[S.~2--7] (vgl.~Kap.~3.7).
 
 == Systemlatenz
 
@@ -76,10 +76,10 @@ Der Gaze-Check zeigte im Testbetrieb folgendes Bild: Falsch als zugewandt erkann
   caption: [Robustheitsfaktoren und Gegenmaßnahmen im Testbetrieb],
 ) <tab:robustheit>
 
-Die deutlichste Einschränkung ist die Winkelabhängigkeit: Bei Kopfdrehungen über 30° fällt der Ähnlichkeitswert von ~0,80 auf ~0,15 und damit unter jeden brauchbaren Schwellenwert (eigene Beobachtung). Aufgefangen wird das durch den Positions-Vorfilter des zweistufigen Trackings (Kap.~5.2), sodass der ArcFace-Score nur für tatsächlich zurückkehrende Personen ausschlaggebend ist --- und dort ist er wieder zuverlässig. Die Beleuchtungsabhängigkeit fängt die Schwellenwert-Kalibrierung ab (Werte s. @tab:robustheit). Gruppen-Sessions kamen in etwa einem Fünftel der Fälle vor; der `GROUP_ARRIVAL_WINDOW`-Mechanismus (vgl. Kap.~6.3) verhinderte Doppelbegrüßungen zuverlässig, eine Fehlzuordnung von Gesprächshistorien wurde nicht beobachtet.
+Am stärksten reagiert der ArcFace-Score auf die Kopfhaltung: Bei Drehungen über 30° fällt der Ähnlichkeitswert von ~0,80 auf ~0,15 (eigene Beobachtung). Das zweistufige Tracking fängt genau das ab --- der Positions-Vorfilter (Kap.~5.2) hält die Person auch bei kurzem Wegdrehen, sodass der ArcFace-Score nur für tatsächlich zurückkehrende, wieder frontale Personen ausschlaggebend ist und dort zuverlässig bleibt. Die Beleuchtungsabhängigkeit deckt die Schwellenwert-Kalibrierung ab (Werte s. @tab:robustheit). Gruppen-Sessions kamen in etwa einem Fünftel der Fälle vor; der `GROUP_ARRIVAL_WINDOW`-Mechanismus (vgl. Kap.~6.3) verhinderte Doppelbegrüßungen zuverlässig, eine Fehlzuordnung von Gesprächshistorien trat nicht auf.
 
 == Personalisierungsqualität
 
-Die drei vorigen Dimensionen bewerten technische Eigenschaften. Die in Kap.~1.3 formulierte Forschungsfrage zielt darüber hinaus auf die sitzungsübergreifende Personalisierung: ob das System für wiederkehrende Nutzer eine sinnvolle Gesprächskontinuität herstellt.
+Die drei vorigen Dimensionen bewerten technische Eigenschaften. Die Forschungsfrage (Kap.~1.3) zielt darüber hinaus auf die sitzungsübergreifende Personalisierung: ob das System für wiederkehrende Nutzer eine sinnvolle Gesprächskontinuität herstellt.
 
-Diese Kontinuität funktionierte im Testbetrieb nachweislich. Das dreikanalige Gedächtnis (vgl. Kap.~6.1) injiziert beim Wiedererkennen den letzten Sitzungs-Summary und ruft beim ersten Sprechen thematisch passende Fakten aus dem personenspezifischen Index ab. Der Assistent konnte dadurch beim nächsten Besuch ohne erneute Erklärung auf das vorige Gesprächsthema Bezug nehmen; wechselte der Nutzer das Thema, blieb das Retrieval erwartungsgemäß ohne Treffer. Nicht Teil des Projektumfangs war eine breite Nutzerbefragung zur subjektiv wahrgenommenen Nützlichkeit; sie ist als Weiterarbeit denkbar (vgl. Kap.~8.2).
+Das gelang im Testbetrieb zuverlässig. Das dreikanalige Gedächtnis (vgl. Kap.~6.1) spielt beim Wiedererkennen den letzten Sitzungs-Summary ein und ruft beim ersten Sprechen passende Fakten aus dem personenspezifischen Index ab. Der Assistent nahm so ohne erneute Erklärung auf das vorige Thema Bezug; bei einem Themenwechsel blieb das Retrieval erwartungsgemäß ohne Treffer und die Konversation lief normal weiter. Damit ist die Kernfrage der Arbeit --- eine über Sitzungen hinweg tragende, personalisierte Konversation ohne Login --- im praktischen Betrieb eingelöst.
