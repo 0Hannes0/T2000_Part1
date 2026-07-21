@@ -85,7 +85,7 @@ Die folgende Tabelle vergleicht die evaluierten Detektionsansätze anhand dieser
   caption: [Vergleich evaluierter Gesichtsdetektionsansätze],
 ) <tab:detektionsvergleich>
 
-YOLO-basierte Detektoren erkennen Gesichter aus allen Winkeln, auch Seitenansichten, und sind damit ungeeignet: In eigenen Tests löste YOLO regelmäßig bei Personen aus, die nur vorbeigingen oder seitlich im Bild standen. MediaPipe BlazeFace ist dagegen als frontaler Detektor ausgelegt, sodass seitlich stehende oder vorbeigehende Personen von vornherein nicht erkannt werden @bazarevsky2019blazeface[S.~2--3]. Mit ca. 15--30 ms CPU-Latenz pro Frame reicht das für Echtzeit-Verarbeitung auf Standard-Hardware ohne GPU @lugaresi2019mediapipe[S.~1--2].
+YOLO-basierte Detektoren erkennen Gesichter aus allen Winkeln, auch Seitenansichten, und sind damit ungeeignet: In eigenen Tests löste YOLO regelmäßig bei Personen aus, die nur vorbeigingen oder seitlich im Bild standen. MediaPipe BlazeFace ist dagegen als frontaler Detektor ausgelegt, sodass seitlich stehende oder vorbeigehende Personen von vornherein nicht erkannt werden @bazarevsky2019blazeface[S.~2--3]. Mit ca. 15--30 ms CPU-Latenz pro Frame reicht das für Echtzeit-Verarbeitung auf Standard-Hardware ohne GPU.
 
 Als zweite Filterschicht prüft ein Vision-LLM (Gemini 2.5 Flash) den Blickkontakt. Die naheliegende Alternative wäre klassische Gaze-Estimation (Schätzung der Blickrichtung), die aber eine Kalibrierungssitzung pro Nutzer voraussetzt @kellnhofer2019gaze360[S.~1--2], @cheng2021gazesurvey[§2, S.~2--4]. An einem öffentlichen Kiosk mit wechselnden, unbekannten Passanten ist das nicht durchführbar --- ohne Kalibrierung verliert das Verfahren unter realen Bedingungen deutlich an Genauigkeit @cheng2021gazesurvey[§1, S.~1--2]. Frontier-Modelle wie Gemini klassifizieren das Kamerabild dagegen direkt anhand eines natürlichsprachlichen Prompts, ohne nutzerspezifische Kalibrierung @team2023gemini[S.~4--6].
 
@@ -158,7 +158,7 @@ Für ein reales Kundensystem wären zusätzliche Maßnahmen nötig: ein explizit
 
 == Wirtschaftliche Bewertung
 
-Der lokale Verarbeitungsstack nutzt ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI sind lizenzfrei @lugaresi2019mediapipe[S.~1--2]. Damit fallen für die rechenlastigen Kernfunktionen keine Lizenz- oder GPU-Instanzkosten an. Wichtiger als der reine Kostenpunkt ist dabei, dass die biometrische Identifikation --- die latenzsensibelste Operation --- vollständig lokal läuft und dadurch keine Cloud-Abhängigkeit und keine laufenden API-Kosten pro erkanntem Gesicht entstehen.
+Der lokale Verarbeitungsstack nutzt ausschließlich Open-Source-Komponenten: MediaPipe, InsightFace, ONNX Runtime, Qdrant und FastAPI sind lizenzfrei. Damit fallen für die rechenlastigen Kernfunktionen keine Lizenz- oder GPU-Instanzkosten an. Wichtiger als der reine Kostenpunkt ist dabei, dass die biometrische Identifikation --- die latenzsensibelste Operation --- vollständig lokal läuft und dadurch keine Cloud-Abhängigkeit und keine laufenden API-Kosten pro erkanntem Gesicht entstehen.
 
 SAP AI Core wird nur für drei Aufgaben genutzt: Gaze-Check und Begrüßung über Gemini 2.5 Flash sowie den Dialog über das Realtime-Sprachmodell. Der Gaze-Check läuft höchstens einmal pro vier Sekunden Kandidatensichtbarkeit, die Begrüßung nur bei einem vollständigen ACTIVE-Übergang --- der Verbrauch bleibt damit auch im Dauerbetrieb gering. Die folgende Tabelle schätzt die API-Kosten für einen typischen 8-Stunden-Tag mit 30~Besuchern:
 

@@ -9,7 +9,7 @@ Die Detektion nutzt drei konfigurierbare Filter (`MIN_DETECTION_CONFIDENCE` = 0,
 
 `DETECTION_UPSCALE` von 2,5 gleicht das Gegenteil aus: BlazeFace erkennt sehr kleine Gesichter schlechter @bazarevsky2019blazeface[S.~2--3]. Der Frame wird deshalb vor der Detektion um Faktor 2,5 vergrößert, danach werden die gefundenen Boxen wieder auf die Originalgröße zurückgerechnet.
 
-Die Detektion läuft nicht durchgehend, sondern im Takt von `FRAME_INTERVAL` = 1,0 s. Dieser Stichprobenansatz hält die CPU-Last niedrig und reicht zeitlich völlig aus @lugaresi2019mediapipe[S.~1--2].
+Die Detektion läuft nicht durchgehend, sondern im Takt von `FRAME_INTERVAL` = 1,0 s. Dieser Stichprobenansatz hält die CPU-Last niedrig und reicht zeitlich völlig aus.
 
 == Gaze-Validierung via Vision-LLM
 
