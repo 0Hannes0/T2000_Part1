@@ -56,7 +56,7 @@ Die Zeit vom Erkennen einer Person bis zur personalisierten Begrüßung teilt si
 
 Die eigentliche Rechenlast ist nicht der Engpass: Embedding und Begrüßungsgenerierung laufen parallel zum Gaze-Check (Ablauf s. Kap.~4.3) und sind vor oder mit ihm fertig, sodass die Verarbeitungsphase vom ~2 s dauernden Gaze-Check bestimmt wird. Der größte Anteil der End-to-End-Latenz ist damit die bewusst gesetzte Wartezeit von 4,0 s. Die resultierenden rund 6 s sind für den Kiosk akzeptabel: Wer aktiv interagieren möchte, steht ohnehin länger davor.
 
-Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemessen. Die folgende Tabelle fasst die Ergebnisse zusammen:
+Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemessen (n~≈~4.500 gesamt über den dreimonatigen Testbetrieb). Die folgende Tabelle fasst die Ergebnisse zusammen:
 
 #figure(
   table(
@@ -103,3 +103,13 @@ Am stärksten reagiert der ArcFace-Score auf die Kopfhaltung: Bei Drehungen übe
 Die drei vorigen Dimensionen bewerten technische Eigenschaften. Die Forschungsfrage (Kap.~1.3) zielt darüber hinaus auf die sitzungsübergreifende Personalisierung: ob das System für wiederkehrende Nutzer eine sinnvolle Gesprächskontinuität herstellt.
 
 Das gelang im Testbetrieb zuverlässig. Das dreikanalige Gedächtnis (vgl. Kap.~6.1) spielt beim Wiedererkennen den letzten Sitzungs-Summary ein und ruft beim ersten Sprechen passende Fakten aus dem personenspezifischen Index ab. Bei Folgebesuchen zum gleichen Thema wurden die gespeicherten Fakten korrekt abgerufen und vom Assistenten direkt aufgegriffen, ohne dass der Nutzer seinen Kontext erneut erklären musste. Wechselte ein Nutzer das Thema, lief die Session ohne personalisierten Zusatzkontext weiter --- was zeigt, dass das System selektiv abruft statt irrelevante Informationen aufzuzwingen. Damit ist die Kernfrage der Arbeit --- eine über Sitzungen hinweg tragende, personalisierte Konversation ohne Login --- im praktischen Betrieb eingelöst.
+
+== Grenzen der Evaluation
+
+Die Evaluation in diesem Kapitel ist bewusst als Prototyp-Evaluation angelegt, keine wissenschaftliche Studie. Das hat drei methodische Konsequenzen.
+
+Erstens reicht die Testgruppe von drei Personen für statistische Signifikanz oder eine vollständige DET-Kurve (Detection Error Tradeoff) nicht aus. Für einen internen Prototyp, der Tauglichkeit im konkreten Einsatzkontext nachweisen soll --- nicht über breite Bevölkerungsgruppen hinweg --- ist das die angemessene Scope-Entscheidung. Der gewählte Betriebspunkt lässt sich aber anhand der beobachteten Score-Verteilung (0,53--0,58 bei Grenzfällen gegenüber dem Schwellenwert 0,52) und der null False-Accepts über den gesamten Testzeitraum qualitativ einordnen.
+
+Zweitens sind RAG-Personalisierung und Gaze-Check KI-basierte Komponenten ohne deterministisch messbare Ausgabe. Was sich beobachten und berichten lässt, ist das Systemverhalten: ob Chunks abgerufen wurden, ob der Assistent ohne erneute Erklärung an früheren Kontext anknüpfte, ob der Gaze-Check korrekt auslöste. Das entspricht der in der NLP-Forschung üblichen Praxis, sprachmodellbasierte Systeme über beobachtbares Output-Verhalten statt über interne Aktivierungen zu evaluieren @liu2023lostinthemiddle[S.~1--2].
+
+Drittens ist demographische Robustheit --- ein wichtiges Kriterium für den öffentlichen Einsatz @buolamwini2018gendershades[S.~2--7] --- im internen Prototyp-Scope mit drei Testpersonen nicht evaluierbar. Dieser Aspekt bleibt dem Produktivierungspfad vorbehalten (vgl. Kap.~8.2).

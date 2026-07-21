@@ -14,7 +14,7 @@ Das System nutzt BlazeFace als Gesichtsdetektor. Dabei handelt es sich um ein ne
 
 Das System verzichtet auf klassische Blickrichtungsschätzung (Gaze Estimation), weil sie für jeden neuen Nutzer eine personenspezifische Kalibrierung erfordert; ohne sie verschlechtern sich die Ergebnisse unter realen Bedingungen deutlich @cheng2021gazesurvey[§1, S.~1--2], @zhang2015mpiigaze[S.~1--2]. In einem öffentlichen Kiosk mit ständig wechselnden Besuchern lässt sich dieser Schritt nicht durchführen.
 
-Stattdessen fällt die Entscheidung, ob eine Person mit dem Kiosk interagieren möchte, über ein einfaches Ja/Nein-Urteil eines Vision-Sprachmodells: schaut die Person in die Kamera oder nicht. Solche Modelle (etwa Gemini 2.5 Flash) verarbeiten Bild und Sprache gemeinsam und lösen eine Aufgabe allein anhand einer Beschreibung in normaler Sprache --- ohne vorheriges Training für genau diese Aufgabe und ohne Beispielbilder @yin2024lggaze[S.~1]. Das passt zum Kiosk mit wechselnden, unbekannten Personen: keine Kalibrierung pro Nutzer, keine Trainingsbeispiele.
+Stattdessen fällt die Entscheidung, ob eine Person mit dem Kiosk interagieren möchte, über ein einfaches Ja/Nein-Urteil eines Vision-Sprachmodells: schaut die Person in die Kamera oder nicht. Frontier-Modelle wie Gemini 2.5 Flash verarbeiten Bild und Sprache gemeinsam und klassifizieren visuelle Aufgaben direkt anhand eines natürlichsprachlichen Prompts --- ohne aufgabenspezifisches Training und ohne Beispielbilder @team2023gemini[S.~4--6]. Das passt zum Kiosk mit wechselnden, unbekannten Personen: keine Kalibrierung pro Nutzer, keine Trainingsbeispiele.
 
 == Biometrische Identifikation mit Gesichts-Embeddings
 
