@@ -16,7 +16,7 @@ Der Beitrag der Arbeit liegt weniger in den einzelnen Verfahren --- diese sind e
 
 Drei Entscheidungen waren dabei besonders hilfreich: der Einsatz des Vision-LLM (Gemini 2.5 Flash) zur Interaktionsprüfung ohne nutzerspezifische Kalibrierung (vgl. Kap.~3.2); die parallele Vorberechnung der Begrüßung zeitgleich zum Gaze-Check, sodass die Generierungslatenz aus dem wahrnehmbaren Ablauf herausfällt (vgl. Kap.~4.3); und das dreikanalige Gedächtnis aus `summary`, `facts_sentences` und `facts`, das kompakten Sitzungskontext, abrufbare Einzelfakten und stabile Kerndaten trennt und das System über Sitzungsgrenzen hinweg gesprächsfähig hält (vgl. Kap.~6.1).
 
-Diese Antwort stützt sich auf die dreimonatige Erprobung im realen Betrieb und auf publizierte Benchmark-Werte der eingesetzten Verfahren. Für einen Prototyp, der seine Tauglichkeit im tatsächlichen Einsatzkontext nachweisen soll, ist das die angemessene Validierungsform. Die Arbeit hat dabei bewusst einen engen Scope gewählt: Die Evaluation konzentriert sich auf Erkennungsgenauigkeit, Latenz und Robustheit --- Dimensionen, die im Testbetrieb direkt beobachtbar waren. Eine quantitative Messung der Personalisierungsqualität sowie eine Evaluation über einen demographisch breiteren Personenkreis bleiben dem Produktivierungspfad vorbehalten.
+Diese Antwort stützt sich auf die dreimonatige Erprobung im realen Betrieb und auf publizierte Benchmark-Werte der eingesetzten Verfahren. Für einen Prototyp, der seine Tauglichkeit im tatsächlichen Einsatzkontext nachweisen soll, ist das die angemessene Validierungsform.
 
 == Ausblick
 
