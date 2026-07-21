@@ -16,7 +16,7 @@ Der Prototyp wurde über rund drei Monate im täglichen Bürobetrieb ausgiebig e
     [A-01 Embedding-Latenz], [≤ 100 ms], [~80 ms], [erfüllt],
     [A-02 LFW-Genauigkeit], [≥ 99 %], [99,83 % (publizierter Benchmark)], [erfüllt],
     [A-03 Betrieb ohne GPU], [CPU-only], [CPU-only (ONNX Runtime)], [erfüllt],
-    [A-04 keine Falschakzeptanz], [im Betrieb], [kein False-Accept über 3 Monate], [erfüllt],
+    [A-04 keine Falschakzeptanz], [im Betrieb], [kein False-Accept im internen 3-Personen-Testbetrieb über 3 Monate], [erfüllt],
     [A-05 sitzungsübergreifender Kontext], [Kontext aus Vorsitzung verfügbar], [im Testbetrieb erfüllt], [erfüllt],
   ),
   kind: table,
@@ -27,7 +27,7 @@ Alle fünf Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen di
 
 == Erkennungsgenauigkeit
 
-Das eingesetzte Modell liegt mit 99,83 % LFW-Genauigkeit auf dem Niveau etablierter Verfahren (Vergleich in Kap.~3.3). Für den Kiosk-Betrieb ist das ausreichend, denn ein Fehler bedeutet hier eine falsche Begrüßung und kein Sicherheitsrisiko. Über den gesamten dreimonatigen Testbetrieb trat kein einziger False-Accept auf --- auch nicht bei Personen im Kamerabild, die nicht im System registriert waren: Keine von ihnen wurde fälschlich als bekannter Nutzer begrüßt.
+Das eingesetzte Modell liegt mit 99,83 % LFW-Genauigkeit auf dem Niveau etablierter Verfahren (Vergleich in Kap.~3.3). Für den Kiosk-Betrieb ist das ausreichend, denn ein Fehler bedeutet hier eine falsche Begrüßung und kein Sicherheitsrisiko. Über den gesamten dreimonatigen Testbetrieb trat kein einziger False-Accept auf --- auch nicht bei Personen im Kamerabild, die nicht im System registriert waren: Keine von ihnen wurde fälschlich als bekannter Nutzer begrüßt. Angesichts der kleinen Testgruppe von drei registrierten Personen ist diese Aussage als Feldbeobachtung unter internen Bedingungen zu verstehen, nicht als statistisch belastbare FAR-Schätzung.
 
 Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die eigene Score-Verteilung: Wiedererkennungen derselben Person erreichten unter konstantem Licht Kosinus-Werte von 0,72--0,85; nach einem Kamerastandort-Wechsel mit verändertem Licht sanken sie auf 0,53--0,58. Der Literatur-Startwert von 0,65 lag damit über diesen Grenzfällen, sodass nach dem Standortwechsel etwa die Hälfte der Wiedererkennungen fälschlich als neue Person gewertet wurde. Der auf 0,52 abgesenkte Betriebspunkt (vgl. Kap.~5.1) deckte auch diese Grenzfälle zuverlässig ab und hielt die Falschakzeptanz bei null. Für den Kiosk, wo eine Falschablehnung nur störend, eine Falschakzeptanz aber schwerwiegender ist, ist dieser Betriebspunkt angemessen.
 
@@ -56,7 +56,7 @@ Die Zeit vom Erkennen einer Person bis zur personalisierten Begrüßung teilt si
 
 Die eigentliche Rechenlast ist nicht der Engpass: Embedding und Begrüßungsgenerierung laufen parallel zum Gaze-Check (Ablauf s. Kap.~4.3) und sind vor oder mit ihm fertig, sodass die Verarbeitungsphase vom ~2 s dauernden Gaze-Check bestimmt wird. Der größte Anteil der End-to-End-Latenz ist damit die bewusst gesetzte Wartezeit von 4,0 s. Die resultierenden rund 6 s sind für den Kiosk akzeptabel: Wer aktiv interagieren möchte, steht ohnehin länger davor.
 
-Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemessen (n~≈~4.500 gesamt über den dreimonatigen Testbetrieb). Die folgende Tabelle fasst die Ergebnisse zusammen:
+Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemessen (n~≈~4.500 gesamt über den dreimonatigen Testbetrieb). Die folgende Tabelle fasst die gerundeten Tagesdurchschnittswerte zusammen:
 
 #figure(
   table(
@@ -72,7 +72,7 @@ Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemes
     [False Negative (Person aktiv, Check schlug fehl)], [2], [4 %],
   ),
   kind: table,
-  caption: [Gaze-Check-Ergebnisse: Durchschnitt pro Testtag (n~=~50 Aktivierungsversuche)],
+  caption: [Gaze-Check-Ergebnisse: gerundeter Tagesdurchschnitt (n~=~50 Aktivierungsversuche/Tag)],
 ) <tab:gazecheck>
 
 Die False Negatives traten vor allem bei ungünstiger Kopfneigung oder sehr seitlichem Kamerawinkel auf. Da der Gaze-Check nur als Vorfilter wirkt, ist das tolerierbar: Der Nutzer muss sich lediglich nochmals direkt zum Kiosk wenden. Kein einziger False Positive trat auf --- das System löste nie aus, wenn keine Interaktionsabsicht vorlag.
