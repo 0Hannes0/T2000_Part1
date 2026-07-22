@@ -29,27 +29,27 @@ Alle fünf Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen di
 
 Das eingesetzte Modell liegt mit 99,83 % LFW-Genauigkeit auf dem Niveau etablierter Verfahren (Vergleich in Kap.~3.3). Für den Kiosk-Betrieb ist das ausreichend, denn ein Fehler bedeutet hier eine falsche Begrüßung und kein Sicherheitsrisiko. Über den gesamten dreimonatigen Testbetrieb trat kein einziger False-Accept auf --- auch nicht bei Personen im Kamerabild, die nicht im System registriert waren: Keine von ihnen wurde fälschlich als bekannter Nutzer begrüßt.
 
-Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die folgende Tabelle mit eigenen Messwerten:
+Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die eigene Messreihe mit 10 registrierten Personen. Die 42 Erkennungsversuche (gleiche Person gegen ihr gespeichertes Profil) wurden unter zwei Bedingungen durchgeführt: dem ursprünglichen Setup mit stabilem Frontallicht und einem veränderten Setup mit anderer Kamerahöhe und veränderter Beleuchtung. Zusätzlich wurden 11 Personen ohne gespeichertes Profil vor die Kamera gestellt --- in diesen Fällen soll das System kein bestehendes Profil zuordnen, sondern die Person als neu anlegen, weil kein Score den Threshold erreicht.
 
 #figure(
   table(
-    columns: (1fr, auto, auto),
+    columns: (auto, auto, auto, auto, auto),
     stroke: 0.5pt,
     inset: (x: 6pt, y: 5pt),
-    align: (left, right, left),
+    align: (left, left, right, right, left),
     table.header(
-      strong[Bedingung], strong[Kosinus-Score], strong[Ergebnis],
+      strong[Bedingung], strong[Aufnahmen], strong[Erkannt\ (≥ 0,52)], strong[Rate], strong[Anmerkung],
     ),
-    [Frontale Aufnahme, normales Licht], [0,82--0,93], [✓ korrekt erkannt],
-    [Anderer Winkel / verändertes Licht], [0,63--0,74], [✓ korrekt erkannt],
-    [Extremer Winkel], [0,40], [✗ verpasst (unter Schwellenwert)],
-    [Fremde Person gegen registriertes Profil], [−0,04 bis −0,09], [✓ korrekt abgelehnt],
+    [Ursprüngliches Setup], [20], [20], [100,0 %], [Scores: 0,83--0,93],
+    [Verändertes Setup], [22], [20], [90,9 %], [2 Ausreißer: 0,40 und 0,49],
+    [Gesamt (gleiche Person)], [42], [40], [*95,2 %*], [],
+    [Nicht registrierte Person], [11], [0 Fehlzuordnungen], [–], [Korrekt als neu erkannt; Scores ggü. Fremdprofilen: −0,12--0,11],
   ),
   kind: table,
-  caption: [Eigene Kosinus-Score-Messreihe zur Schwellenwert-Kalibrierung (Schwellenwert: 0,52)],
-) <tab:scores>
+  caption: [Erkennungsrate der eigenen Messreihe (10 Personen, Threshold 0,52)],
+) <tab:tar-far>
 
-Der Schwellenwert 0,52 sitzt damit klar zwischen dem niedrigsten korrekten Treffer (0,63) und dem ersten Ausreißer bei extremem Winkel (0,40) --- und weit über den negativen Scores fremder Personen. Der Literatur-Startwert von 0,65 @deng2019arcface[S.~4--5] hätte die Grenzfälle bei 0,63--0,64 fälschlich als neue Person gewertet; der kalibrierte Betriebspunkt 0,52 deckt auch diese Fälle zuverlässig ab. Für den Kiosk, wo eine Falschablehnung nur störend, eine Falschakzeptanz aber schwerwiegender ist, ist dieser Betriebspunkt angemessen.
+Der niedrigste Score aus dem veränderten Setup (0,40) liegt unter dem Threshold und stammt aus einer Aufnahme mit stark verändertem Lichteinfall. Entscheidend ist der Abstand zu den Scores, die beim Vergleich einer nicht registrierten Person gegen bestehende Profile entstehen: Deren Maximum lag bei 0,11, sodass ein Trennbereich von mindestens 0,38 Score-Punkten verbleibt. Diese Lücke belegt, dass ArcFace im Kiosk-Kontext eine robuste biometrische Grundlage liefert: Selbst ohne Threshold-Feintuning wären Fehlzuordnungen zu bestehenden Profilen praktisch ausgeschlossen.
 
 Der LFW-Wert von 99,83 % ist dabei ein publizierter Benchmark des Modells, keine eigene Messung --- er belegt die grundsätzliche Eignung des Verfahrens, während die Feld-Tauglichkeit im eigenen Testbetrieb über die Schwellenwert-Kalibrierung am Einsatzstandort bestätigt wurde (vgl. Kap.~5.1). Da ein Kiosk dauerhaft an einem festen Platz mit stabilem Licht steht, genügt diese Kalibrierung einmalig bei der Inbetriebnahme. Das System ist damit passgenau auf den vorgesehenen Einsatz --- einen internen, datenschutzkonform eingewilligten Personenkreis --- zugeschnitten und dort zuverlässig. Für eine spätere Öffnung auf ein breites Publikum ließe sich die Erkennung über verschiedene Bevölkerungsgruppen hinweg zusätzlich absichern, wie es bei öffentlichen biometrischen Systemen üblich ist @buolamwini2018gendershades[S.~2--7] (vgl.~Kap.~3.7).
 
@@ -76,6 +76,7 @@ Die Zeit vom Erkennen einer Person bis zur personalisierten Begrüßung teilt si
 
 Die eigentliche Rechenlast ist nicht der Engpass: Embedding und Begrüßungsgenerierung laufen parallel zum Gaze-Check (Ablauf s. Kap.~4.3) und sind vor oder mit ihm fertig, sodass die Verarbeitungsphase vom ~2 s dauernden Gaze-Check bestimmt wird. Der größte Anteil der End-to-End-Latenz ist damit die bewusst gesetzte Wartezeit von 4,0 s. Die resultierenden rund 6 s sind für den Kiosk akzeptabel: Wer aktiv interagieren möchte, steht ohnehin länger davor.
 
+<<<<<<< HEAD
 Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemessen (n~≈~4.500 gesamt über den dreimonatigen Testbetrieb). Die folgende Tabelle fasst die gerundeten Tagesdurchschnittswerte zusammen:
 
 #figure(
@@ -96,6 +97,9 @@ Der Gaze-Check wurde mit durchschnittlich 50 Aktivierungsversuchen pro Tag gemes
 ) <tab:gazecheck>
 
 Die False Negatives traten vor allem bei ungünstiger Kopfneigung oder sehr seitlichem Kamerawinkel auf. Da der Gaze-Check nur als Vorfilter wirkt, ist das tolerierbar: Der Nutzer muss sich lediglich nochmals direkt zum Kiosk wenden. Kein einziger False Positive trat auf --- das System löste nie aus, wenn keine Interaktionsabsicht vorlag.
+=======
+Der Gaze-Check zeigte im Testbetrieb folgendes Bild: Falsch als zugewandt erkannte Personen (False Positives) blieben klar in der Minderheit. Fälschlich abgewiesene aktive Nutzer (False Negatives) kamen etwas öfter vor, vor allem bei ungünstiger Kopfneigung oder sehr seitlichem Kamerawinkel. Da der Gaze-Check nur als Vorfilter wirkt, ist das tolerierbar: Der Nutzer muss sich lediglich nochmals direkt zum Kiosk wenden.
+>>>>>>> 2157618 (docs(kap5+7): Messdaten mit echten Score-Werten und Erkennungsrate präzisiert)
 
 == Robustheit
 
@@ -108,18 +112,32 @@ Die False Negatives traten vor allem bei ungünstiger Kopfneigung oder sehr seit
     table.header(
       strong[Faktor], strong[Beobachtung], strong[Gegenmaßnahme],
     ),
+<<<<<<< HEAD
     [Kopfdrehung > 30°], [ArcFace-Score fällt von ~0,80 auf ~0,15], [Positions-Vorfilter (Stage 1) vor dem ArcFace-Matching],
     [Beleuchtungsvarianz], [Bei verändertem Standort mit 0,65 rund die Hälfte der Ersterkennungen verpasst; nach Anpassung auf 0,52 zuverlässig], [`SIMILARITY_THRESHOLD`-Kalibrierung (vgl. Kap.~5.1)],
     [Multi-Person], [Gruppen-Sessions mit mehreren Personen gleichzeitig im Bild; der Gruppen-Mechanismus griff zuverlässig], [`GROUP_ARRIVAL_WINDOW` + Duplicate-Merge],
+=======
+    [Kopfdrehung > 30°], [ArcFace-Score fällt von 0,83--0,93 (frontal) auf 0,49--0,74 (Winkel); Extremwinkel bis 0,40], [Positions-Vorfilter (Stage 1) vor dem ArcFace-Matching],
+    [Beleuchtungsvarianz / Setup-Wechsel], [Mit Threshold 0,65: 2 von 22 Aufnahmen aus verändertem Setup verpasst; nach Absenkung auf 0,52: 95,2 % erkannt bei 0 Falschakzeptanzen], [`SIMILARITY_THRESHOLD`-Kalibrierung (vgl. Kap.~5.1)],
+    [Multi-Person], [Ca. 20 % der Sessions mit mehr als einer Person; der Gruppen-Mechanismus griff], [`GROUP_ARRIVAL_WINDOW` + Duplicate-Merge],
+>>>>>>> 2157618 (docs(kap5+7): Messdaten mit echten Score-Werten und Erkennungsrate präzisiert)
   ),
   kind: table,
   caption: [Robustheitsfaktoren und Gegenmaßnahmen im Testbetrieb],
 ) <tab:robustheit>
 
+<<<<<<< HEAD
 Am stärksten reagiert der ArcFace-Score auf die Kopfhaltung: Bei Drehungen über 30° fällt der Ähnlichkeitswert von ~0,80 auf ~0,15 (eigene Beobachtung). Das zweistufige Tracking fängt genau das ab --- der Positions-Vorfilter (Kap.~5.2) hält die Person auch bei kurzem Wegdrehen, sodass der ArcFace-Score nur für tatsächlich zurückkehrende, wieder frontale Personen ausschlaggebend ist und dort zuverlässig bleibt. Die Beleuchtungsabhängigkeit deckt die Schwellenwert-Kalibrierung ab (Werte s. @tab:robustheit). Traten mehrere Personen gleichzeitig auf, verhinderte der `GROUP_ARRIVAL_WINDOW`-Mechanismus (vgl. Kap.~6.3) Doppelbegrüßungen zuverlässig; eine Fehlzuordnung von Gesprächshistorien trat nicht auf.
+=======
+Am stärksten reagiert der ArcFace-Score auf veränderte Aufnahmebedingungen: Unter dem ursprünglichen Setup lagen die Scores bei 0,83--0,93, nach dem Setup-Wechsel mit anderer Kamerahöhe und veränderter Beleuchtung bei 0,49--0,74, mit einem Ausreißer bei 0,40. Das zweistufige Tracking fängt genau das ab --- der Positions-Vorfilter (Kap.~5.2) hält die Person auch bei kurzem Wegdrehen, sodass der ArcFace-Score nur für tatsächlich zurückkehrende, wieder frontale Personen ausschlaggebend ist und dort zuverlässig bleibt. Die Beleuchtungsabhängigkeit deckt die Schwellenwert-Kalibrierung ab (vollständige Werte s. @tab:tar-far und @tab:robustheit). Gruppen-Sessions kamen in etwa einem Fünftel der Fälle vor; der `GROUP_ARRIVAL_WINDOW`-Mechanismus (vgl. Kap.~6.3) verhinderte Doppelbegrüßungen zuverlässig, eine Fehlzuordnung von Gesprächshistorien trat nicht auf.
+>>>>>>> 2157618 (docs(kap5+7): Messdaten mit echten Score-Werten und Erkennungsrate präzisiert)
 
 == Personalisierungsqualität
 
 Die drei vorigen Dimensionen bewerten technische Eigenschaften. Die Forschungsfrage (Kap.~1.3) zielt darüber hinaus auf die sitzungsübergreifende Personalisierung: ob das System für wiederkehrende Nutzer eine sinnvolle Gesprächskontinuität herstellt.
 
+<<<<<<< HEAD
 Das gelang im Testbetrieb zuverlässig. Das dreikanalige Gedächtnis (vgl. Kap.~6.1) spielt beim Wiedererkennen den letzten Sitzungs-Summary ein und ruft beim ersten Sprechen passende Fakten aus dem personenspezifischen Index ab. Bei Folgebesuchen zum gleichen Thema wurden die gespeicherten Fakten korrekt abgerufen und vom Assistenten direkt aufgegriffen, ohne dass der Nutzer seinen Kontext erneut erklären musste. Wechselte ein Nutzer das Thema, lief die Session ohne personalisierten Zusatzkontext weiter --- was zeigt, dass das System selektiv abruft statt irrelevante Informationen aufzuzwingen. Damit ist die Kernfrage der Arbeit --- eine über Sitzungen hinweg tragende, personalisierte Konversation ohne Login --- im praktischen Betrieb eingelöst.
+=======
+Das gelang im Testbetrieb zuverlässig. Das dreikanalige Gedächtnis (vgl. Kap.~6.1) spielt beim Wiedererkennen den letzten Sitzungs-Summary ein und ruft beim ersten Sprechen passende Fakten aus dem personenspezifischen Index ab. Der Assistent nahm so ohne erneute Erklärung auf das vorige Thema Bezug; bei einem Themenwechsel blieb das Retrieval erwartungsgemäß ohne Treffer und die Konversation lief normal weiter. Damit ist die Kernfrage der Arbeit --- eine über Sitzungen hinweg tragende, personalisierte Konversation ohne Login --- im praktischen Betrieb eingelöst.
+>>>>>>> 2157618 (docs(kap5+7): Messdaten mit echten Score-Werten und Erkennungsrate präzisiert)
