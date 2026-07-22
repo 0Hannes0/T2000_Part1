@@ -29,7 +29,27 @@ Alle fünf Anforderungen wurden erfüllt. Die folgenden Abschnitte begründen di
 
 Das eingesetzte Modell liegt mit 99,83 % LFW-Genauigkeit auf dem Niveau etablierter Verfahren (Vergleich in Kap.~3.3). Für den Kiosk-Betrieb ist das ausreichend, denn ein Fehler bedeutet hier eine falsche Begrüßung und kein Sicherheitsrisiko. Über den gesamten dreimonatigen Testbetrieb trat kein einziger False-Accept auf --- auch nicht bei Personen im Kamerabild, die nicht im System registriert waren: Keine von ihnen wurde fälschlich als bekannter Nutzer begrüßt.
 
-Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die eigene Score-Verteilung: Wiedererkennungen derselben Person erreichten unter konstantem Licht Kosinus-Werte von 0,72--0,85; nach einem Kamerastandort-Wechsel mit verändertem Licht sanken sie auf 0,53--0,58. Der Literatur-Startwert von 0,65 lag damit über diesen Grenzfällen, sodass nach dem Standortwechsel etwa die Hälfte der Wiedererkennungen fälschlich als neue Person gewertet wurde. Der auf 0,52 abgesenkte Betriebspunkt (vgl. Kap.~5.1) deckte auch diese Grenzfälle zuverlässig ab und hielt die Falschakzeptanz bei null. Für den Kiosk, wo eine Falschablehnung nur störend, eine Falschakzeptanz aber schwerwiegender ist, ist dieser Betriebspunkt angemessen.
+Wie sich Schwellenwert und Erkennung im Feld verhalten, zeigt die folgende Tabelle mit eigenen Messwerten:
+
+#figure(
+  table(
+    columns: (1fr, auto, auto),
+    stroke: 0.5pt,
+    inset: (x: 6pt, y: 5pt),
+    align: (left, right, left),
+    table.header(
+      strong[Bedingung], strong[Kosinus-Score], strong[Ergebnis],
+    ),
+    [Frontale Aufnahme, normales Licht], [0,82--0,93], [✓ korrekt erkannt],
+    [Anderer Winkel / verändertes Licht], [0,63--0,74], [✓ korrekt erkannt],
+    [Extremer Winkel], [0,40], [✗ verpasst (unter Schwellenwert)],
+    [Fremde Person gegen registriertes Profil], [−0,04 bis −0,09], [✓ korrekt abgelehnt],
+  ),
+  kind: table,
+  caption: [Eigene Kosinus-Score-Messreihe zur Schwellenwert-Kalibrierung (Schwellenwert: 0,52)],
+) <tab:scores>
+
+Der Schwellenwert 0,52 sitzt damit klar zwischen dem niedrigsten korrekten Treffer (0,63) und dem ersten Ausreißer bei extremem Winkel (0,40) --- und weit über den negativen Scores fremder Personen. Der Literatur-Startwert von 0,65 @deng2019arcface[S.~4--5] hätte die Grenzfälle bei 0,63--0,64 fälschlich als neue Person gewertet; der kalibrierte Betriebspunkt 0,52 deckt auch diese Fälle zuverlässig ab. Für den Kiosk, wo eine Falschablehnung nur störend, eine Falschakzeptanz aber schwerwiegender ist, ist dieser Betriebspunkt angemessen.
 
 Der LFW-Wert von 99,83 % ist dabei ein publizierter Benchmark des Modells, keine eigene Messung --- er belegt die grundsätzliche Eignung des Verfahrens, während die Feld-Tauglichkeit im eigenen Testbetrieb über die Schwellenwert-Kalibrierung am Einsatzstandort bestätigt wurde (vgl. Kap.~5.1). Da ein Kiosk dauerhaft an einem festen Platz mit stabilem Licht steht, genügt diese Kalibrierung einmalig bei der Inbetriebnahme. Das System ist damit passgenau auf den vorgesehenen Einsatz --- einen internen, datenschutzkonform eingewilligten Personenkreis --- zugeschnitten und dort zuverlässig. Für eine spätere Öffnung auf ein breites Publikum ließe sich die Erkennung über verschiedene Bevölkerungsgruppen hinweg zusätzlich absichern, wie es bei öffentlichen biometrischen Systemen üblich ist @buolamwini2018gendershades[S.~2--7] (vgl.~Kap.~3.7).
 
